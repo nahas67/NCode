@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { runInNewContext } from 'node:vm';
 import { WebSocket } from 'ws';
 import { startNCodeBridge, stopNCodeBridge } from '../src/main/ncode-bridge.js';
 import {
@@ -140,5 +141,178 @@ describe('the extension actually targets the Gemini tab it now repairs', () => {
     const preload = readFileSync(repoFile('src/preload/index.ts'), 'utf8');
     expect(preload).toContain("call<{ connected: boolean;");
     expect(preload).toContain("ipcRenderer.on('ncode:connection'");
+  });
+});
+
+describe('a live Gemini chat URL is the conversation the popup reports', () => {
+  const background = readFileSync(repoFile('extension/background.js'), 'utf8').replace(/\r\n/g, '\n');
+
+  function slice(name: string): string {
+    const match = new RegExp(`^function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n\\}`, 'm').exec(background);
+    if (!match) throw new Error(`${name} was not found in extension/background.js`);
+    return match[0];
+  }
+
+  // The parser under test is the shipped background.js source loaded into a fresh context, so the
+  // route shapes are proven against the real regexes rather than a copy of them.
+  const urlParsing = runInNewContext(
+    [
+      slice('cleanConversationId'),
+      slice('conversationFromUrl'),
+      slice('isGeminiUrl'),
+      '({ cleanConversationId, conversationFromUrl, isGeminiUrl })'
+    ].join('\n'),
+    { URL }
+  ) as {
+    cleanConversationId: (value: unknown) => string | null;
+    conversationFromUrl: (value: unknown) => string | null;
+    isGeminiUrl: (value: unknown) => boolean;
+  };
+
+  it('parses the /app/<id> route a live Gemini tab actually has', () => {
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/app/c85317e1183c88b')).toBe('c85317e1183c88b');
+  });
+
+  it('normalizes the c_ prefix Gemini writes onto the same conversation', () => {
+    expect(urlParsing.cleanConversationId('c_c85317e1183c88b')).toBe('c85317e1183c88b');
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/app/c_c85317e1183c88b')).toBe('c85317e1183c88b');
+  });
+
+  it('still reads the legacy /c/ and per-gem routes', () => {
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/c/c85317e1183c88b')).toBe('c85317e1183c88b');
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/g/gem-1234/c/c85317e1183c88b')).toBe('c85317e1183c88b');
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/gem/skywalker/c85317e1183c88b')).toBe('c85317e1183c88b');
+  });
+
+  it('refuses a share link, a foreign host and anything that is not a URL', () => {
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/share/c/c85317e1183c88b')).toBeNull();
+    expect(urlParsing.conversationFromUrl('https://example.com/app/c85317e1183c88b')).toBeNull();
+    expect(urlParsing.conversationFromUrl('https://gemini.google.com/')).toBeNull();
+    expect(urlParsing.conversationFromUrl('not a url')).toBeNull();
+    expect(urlParsing.isGeminiUrl('https://gemini.google.com/app/new')).toBe(true);
+    expect(urlParsing.isGeminiUrl('https://example.com/app/c85317e1183c88b')).toBe(false);
+  });
+});
+
+interface StatusProjection {
+  tab: number | null;
+  isChat: boolean;
+  url: string | null;
+  conversationId: string | null;
+  bound: boolean;
+  documentId: string | null;
+  epoch: number | null;
+  terminal: boolean;
+  recorder: boolean;
+  relay: boolean;
+  ncodeRecorder: Record<string, unknown> | null;
+  page: Record<string, unknown> | null;
+  chatTabs: number;
+  pendingAll: number;
+  delivery: unknown;
+}
+
+describe('the popup status projection reports a live Gemini recorder and relay', () => {
+  const background = readFileSync(repoFile('extension/background.js'), 'utf8').replace(/\r\n/g, '\n');
+
+  function sliceFunction(name: string): string {
+    const match = new RegExp(`^function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n\\}`, 'm').exec(background);
+    if (!match) throw new Error(`${name} was not found in extension/background.js`);
+    return match[0];
+  }
+
+  function sliceMethod(): string {
+    const match = /^  async tabStatus\(\) \{[\s\S]*?\n  \},/m.exec(background);
+    if (!match) throw new Error('tabStatus was not found in extension/background.js');
+    return match[0];
+  }
+
+  // The popup reads its conversation through the real tabStatus() handler, so the projection is
+  // executed from the shipped background.js source inside a fresh context with only its chrome
+  // surface stubbed: one active Gemini chat tab, one bound document and no live recorder failures.
+  function harness(options: { probeThrows?: boolean; companion?: Record<string, unknown> | null } = {}): {
+    status: () => Promise<StatusProjection>;
+    probes: Array<Record<string, unknown>>;
+  } {
+    const probes: Array<Record<string, unknown>> = [];
+    const tab = { id: 42, url: 'https://gemini.google.com/app/c85317e1183c88b' };
+    const companion =
+      options.companion === undefined
+        ? {
+            recorderInstalled: true,
+            relayOpen: true,
+            requestId: 'req-c85317e1183c88b',
+            chatId: 'c85317e1183c88b'
+          }
+        : options.companion;
+    const tabStatus = runInNewContext(
+      [
+        sliceFunction('cleanConversationId'),
+        sliceFunction('conversationFromUrl'),
+        sliceFunction('isGeminiUrl'),
+        `const HANDLERS = {\n${sliceMethod()}\n};`,
+        'HANDLERS.tabStatus;'
+      ].join('\n'),
+      {
+        URL,
+        load: async () => undefined,
+        chrome: {
+          tabs: {
+            query: async () => [tab]
+          }
+        },
+        GEMINI_TAB_URLS: ['https://gemini.google.com/*'],
+        tabConversations: {},
+        tabDocuments: { '42': 'doc-1' },
+        tabEpochs: { '42': 3 },
+        terminalDocuments: {},
+        tabReply: async (
+          _tab: unknown,
+          message: Record<string, unknown>,
+          extra?: Record<string, unknown>
+        ) => {
+          probes.push({ ...message, ...(extra ?? {}) });
+          if (options.probeThrows) throw new Error('the Gemini page did not answer');
+          return { ok: true, conversationId: 'c85317e1183c88b' };
+        },
+        ncodeCompanion: () => companion,
+        journal: [],
+        closeOutbox: [],
+        commandAckOutbox: [],
+        delivery: null
+      }
+    ) as () => Promise<StatusProjection>;
+    return { status: tabStatus, probes };
+  }
+
+  it('reports the recorder, the relay and the chat id a live Gemini tab has', async () => {
+    const { status, probes } = harness();
+    const projection = await status();
+    expect(probes).toEqual([{ type: 'clf-page-status', documentId: 'doc-1' }]);
+    expect(projection.tab).toBe(42);
+    expect(projection.isChat).toBe(true);
+    expect(projection.recorder).toBe(true);
+    expect(projection.relay).toBe(true);
+    expect(projection.conversationId).toBe('c85317e1183c88b');
+    expect(projection.page).toEqual({ ok: true, conversationId: 'c85317e1183c88b' });
+    expect(projection.bound).toBe(false);
+    expect(projection.documentId).toBe('doc-1');
+    expect(projection.epoch).toBe(3);
+    expect(projection.chatTabs).toBe(1);
+    expect(projection.ncodeRecorder).toEqual({
+      recorderInstalled: true,
+      requestId: 'req-c85317e1183c88b',
+      chatId: 'c85317e1183c88b'
+    });
+  });
+
+  it('keeps the URL conversation when the page recorder is gone', async () => {
+    const { status } = harness({ probeThrows: true, companion: null });
+    const projection = await status();
+    expect(projection.page).toBeNull();
+    expect(projection.recorder).toBe(false);
+    expect(projection.relay).toBe(false);
+    expect(projection.ncodeRecorder).toBeNull();
+    expect(projection.conversationId).toBe('c85317e1183c88b');
   });
 });
