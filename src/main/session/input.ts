@@ -1132,6 +1132,27 @@ export function noteInputStartupError(id: string, error: string | null): Promise
     return { ...next };
   });
 }
+/**
+ * NCode delivers over the local bridge: the app hands the turn to the Gemini tab itself, so the
+ * dispatch is the receipt. The row leaves the outbox as sent instead of waiting for a browser
+ * pickup that never comes, which is what used to leave a message `queued` behind a connector
+ * NCode does not use. `messageId` is minted so `publishHistory` records the user turn into the
+ * session transcript exactly like a browser delivery, and clearing `error` disarms the retry
+ * affordance and the composer hold that keep the Stop button up.
+ */
+export function noteNCodeDelivery(id: string, messageId?: string): Promise<InputEntry | null> {
+  return serial(async () => {
+    const current = await load();
+    const row = current.find(entry => entry.id === id);
+    if (!row || row.state !== 'queued') return row ? { ...row } : null;
+    const next = { ...row, state: 'sent' as const, error: undefined,
+      messageId: messageId ?? `ncode:${row.id}`, deliveredAt: Date.now(),
+      dueAt: Math.max(row.dueAt, Date.now()), historyRecorded: false };
+    await commit(current.map(entry => entry === row ? next : entry));
+    await publishHistory();
+    return { ...next };
+  });
+}
 /** The same exact source boundary must still apply at claim and final Send authorization. */
 async function eligibleStageEnd(entry: InputEntry): Promise<string | null> {
   if (!entry.sessionId) return null;

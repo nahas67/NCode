@@ -456,6 +456,10 @@
   let activeGoal = '';
   let savedCheckpoint = null;
   let lastProcessedAssistantText = '';
+  // The last partial this tab streamed to the host. Comparing against it keeps the 200 ms tick
+  // from republishing an unchanged partial; cleared on the falling generation edge so the next
+  // turn streams from its first delta again.
+  let lastStreamedAssistantText = '';
   // The port behind the relay shim, kept so the recorder evidence below can travel over the one
   // channel this companion already owns instead of opening a second one.
   let relayPort = null;
@@ -759,6 +763,16 @@
         break;
       }
 
+      case 'USER_MESSAGE': {
+        // A follow-up turn in an already-running goal session: same composer hand-off, and the
+        // goal already lives in activeGoal, so turn bookkeeping intentionally stays untouched.
+        if (msg.text) {
+          DOM.injectText(msg.text);
+          setTimeout(() => DOM.submit(), 150);
+        }
+        break;
+      }
+
       case 'SET_MODEL': {
         if (msg.modelId) {
           void DOM.switchModel(msg.modelId);
@@ -858,6 +872,16 @@
       finish: Boolean(parsed.finish)
     });
 
+    // 0. The chat window always gets the reply, tag or no tag. A plain conversational answer used
+    //    to vanish here because only tag branches sent anything to the bridge.
+    sendBridgeMessage({
+      type: 'NCODE_TURN_COMPLETE',
+      text: rawText,
+      conversationId: currentConversationId(),
+      hasToolCall: Boolean(parsed.toolCall),
+      hasFinish: Boolean(parsed.finish)
+    });
+
     // 1. Plan update
     if (parsed.plan) {
       sendBridgeMessage({ type: 'NCODE_PLAN', plan: parsed.plan });
@@ -941,11 +965,25 @@
 
     const isNowGenerating = DOM.isGenerating();
 
+    // Stream the turn as it grows. Every tick reads only what this submit produced
+    // (`getLatestTurnText` answers '' until the reply exists), so earlier answers never leak back
+    // into the chat window, and only deltas are sent: an unchanged partial is not republished.
+    const turnText = typeof DOM.getLatestTurnText === 'function' ? DOM.getLatestTurnText() : '';
+    if (turnText && turnText !== lastStreamedAssistantText) {
+      lastStreamedAssistantText = turnText;
+      sendBridgeMessage({
+        type: 'NCODE_STREAM',
+        text: turnText,
+        conversationId: currentConversationId()
+      });
+    }
+
     if (isNowGenerating && !wasGenerating) {
       wasGenerating = true;
       console.log('[NCode] Gemini generation started...');
     } else if (!isNowGenerating && wasGenerating) {
       wasGenerating = false;
+      lastStreamedAssistantText = '';
       console.log('[NCode] Gemini generation completed.');
       void onTurnCompleted();
     }

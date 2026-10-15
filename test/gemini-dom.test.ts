@@ -41,7 +41,7 @@ describe('GeminiDOM integration', () => {
     expect(changeFired).toBe(true);
   });
 
-  it('targets Send button and triggers click or Enter fallback', () => {
+  it('targets Send button and triggers click or Enter fallback', async () => {
     let sent = false;
     document.body.innerHTML = `
       <rich-textarea>
@@ -52,9 +52,23 @@ describe('GeminiDOM integration', () => {
     const btn = GeminiDOM.getSendButton()!;
     btn.addEventListener('click', () => { sent = true; });
 
-    const submitted = GeminiDOM.submit();
+    const submitted = await GeminiDOM.submit();
     expect(submitted).toBe(true);
     expect(sent).toBe(true);
+  });
+
+  it('presses Enter when no Send button exists at all', async () => {
+    let enterFired = false;
+    document.body.innerHTML = `
+      <rich-textarea>
+        <div contenteditable="true"></div>
+      </rich-textarea>
+    `;
+    GeminiDOM.getEditor()!.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Enter') enterFired = true;
+    });
+    expect(await GeminiDOM.submit()).toBe(true);
+    expect(enterFired).toBe(true);
   });
 
   it('detects active generation state from Stop button presence', () => {
@@ -119,5 +133,43 @@ describe('GeminiDOM integration', () => {
     const switched = await GeminiDOM.switchModel('gemini-1-5-flash');
     expect(switched).toBe(true);
     expect(clickedFlash).toBe(true);
+  });
+
+  it('captures a turn baseline so an older reply is never mistaken for the new one', () => {
+    document.body.innerHTML = `
+      <message-content>first answer</message-content>
+      <message-content>second answer</message-content>
+      <rich-textarea><div contenteditable="true"></div></rich-textarea>
+    `;
+    expect(GeminiDOM.injectText('hy')).toBe(true);
+    // The two replies already on the page belong to earlier turns.
+    expect(GeminiDOM.getLatestTurnText()).toBe('');
+
+    document.body.insertAdjacentHTML('beforeend', '<message-content>Hello! How can I help you?</message-content>');
+    expect(GeminiDOM.getLatestTurnText()).toBe('Hello! How can I help you?');
+  });
+
+  it('reads the streaming reply that grows inside the newest node', () => {
+    document.body.innerHTML = `
+      <message-content>older answer</message-content>
+      <rich-textarea><div contenteditable="true"></div></rich-textarea>
+    `;
+    expect(GeminiDOM.injectText('hy')).toBe(true);
+    document.body.insertAdjacentHTML('beforeend', '<message-content>Thinking</message-content>');
+    expect(GeminiDOM.getLatestTurnText()).toBe('Thinking');
+  });
+
+  it('waits for the Send button to enable before clicking it', async () => {
+    document.body.innerHTML = `
+      <rich-textarea><div contenteditable="true"></div></rich-textarea>
+      <button aria-label="Send message" disabled>Send</button>
+    `;
+    let clicked = false;
+    const button = document.querySelector('button')!;
+    button.addEventListener('click', () => { clicked = true; });
+    setTimeout(() => { button.removeAttribute('disabled'); }, 60);
+
+    expect(await GeminiDOM.submit()).toBe(true);
+    expect(clicked).toBe(true);
   });
 });

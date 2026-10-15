@@ -1,12 +1,35 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import type { InputArgs, InputEntry } from '../src/main/session/input.js';
 const ports = vi.hoisted(() => ({ backgroundChats: false, running: false as boolean | null, connect: vi.fn(), status: { state: 'connected', detail: '' },
-  browser: { connected: false, present: false, lastSeenAt: null as number | null }, open: vi.fn(), bridge: vi.fn(), enqueue: vi.fn(), cancel: vi.fn(), note: vi.fn(), rows: [] as InputEntry[], listeners: new Set<() => void>() }));
+  browser: { connected: false, present: false, lastSeenAt: null as number | null }, open: vi.fn(), bridge: vi.fn(), enqueue: vi.fn(), cancel: vi.fn(), note: vi.fn(), rows: [] as InputEntry[], listeners: new Set<() => void>(),
+  legacyBridge: false,
+  noteNCode: vi.fn(),
+  ncode: {
+    state: { extension: false, bridge: false } as { extension: boolean; bridge: boolean },
+    plan: [] as unknown[],
+    finish: null as unknown,
+    listeners: new Set<(state: { extension: boolean }) => void>(),
+    goals: [] as { goal: string; prompt: string }[],
+    userMessages: [] as string[],
+    goal: vi.fn(),
+    userMessage: vi.fn()
+  } }));
 vi.mock('../src/main/connection.js', () => ({ connect: ports.connect, getStatus: () => ports.status, onStatusChange: (fn: () => void) => { ports.listeners.add(fn); return () => ports.listeners.delete(fn); } }));
-vi.mock('../src/main/bridge.js', () => ({ bridgeStatus: async () => ports.browser, browserWakeConnected: () => ports.browser.connected, startBridge: ports.bridge }));
+vi.mock('../src/main/bridge.js', () => ({ bridgeStatus: async () => ports.browser, browserWakeConnected: () => ports.browser.connected, startBridge: ports.bridge, legacyBridgeListenerEnabled: () => ports.legacyBridge }));
 vi.mock('../src/main/browser.js', () => ({ openInPreferredBrowser: ports.open, isPreferredBrowserRunning: async () => ports.running }));
 vi.mock('../src/main/config.js', () => ({ getConfig: () => ({ ui: { backgroundChats: ports.backgroundChats } }) }));
-vi.mock('../src/main/session/input.js', () => ({ enqueueInput: ports.enqueue, cancelInput: ports.cancel, noteInputStartupError: ports.note, listInputs: async () => ports.rows }));
+vi.mock('../src/main/session/input.js', () => ({ enqueueInput: ports.enqueue, cancelInput: ports.cancel, noteInputStartupError: ports.note, noteNCodeDelivery: ports.noteNCode, listInputs: async () => ports.rows }));
+// NCode sends ride the local bridge, so the connector must never gate them: the default state keeps
+// the legacy ChatGPT tests on the old path and the NCode cases opt in.
+vi.mock('../src/main/ncode-bridge.js', () => ({
+  isExtensionConnected: () => ports.ncode.state.extension,
+  getNCodeConnectionState: () => ({ ...ports.ncode.state }),
+  onNCodeConnection: (fn: (state: { extension: boolean }) => void) => { ports.ncode.listeners.add(fn); return () => ports.ncode.listeners.delete(fn); },
+  startGoalInGemini: (goal: string, prompt: string) => ports.ncode.goal(goal, prompt),
+  sendUserMessageToGemini: (text: string) => ports.ncode.userMessage(text),
+  getLatestPlan: () => ports.ncode.plan,
+  getLatestFinish: () => ports.ncode.finish
+}));
 import { sendDesktopInput, cancelDesktopInput, retryQueuedInputBrowser, resetInputStartupForTests, stopInputStartup } from '../src/main/session/start-input.js';
 const request: InputArgs = { id: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee', sessionId: null, text: 'Please start', mode: 'auto', dueAt: 0, model: null, reasoningEffort: null };
 beforeEach(() => {
@@ -21,6 +44,12 @@ beforeEach(() => {
   });
   ports.cancel.mockImplementation(async id => { const row = ports.rows.find(entry => entry.id === id); if (!row) return false; row.state = 'cancelled'; return true; });
   ports.note.mockImplementation(async (id, error) => { const row = ports.rows.find(entry => entry.id === id); if (row) row.error = error ?? undefined; return row; });
+  ports.noteNCode.mockImplementation(async (id) => { const row = ports.rows.find(entry => entry.id === id); if (row) { row.state = 'sent'; row.error = undefined; } return row ?? null; });
+  ports.ncode.state = { extension: false, bridge: false };
+  ports.ncode.plan = []; ports.ncode.finish = null; ports.ncode.listeners.clear();
+  ports.ncode.goals.length = 0; ports.ncode.userMessages.length = 0;
+  ports.ncode.goal.mockImplementation((goal: string, prompt: string) => { ports.ncode.goals.push({ goal, prompt }); return true; });
+  ports.ncode.userMessage.mockImplementation((text: string) => { ports.ncode.userMessages.push(text); return true; });
 });
 it('accepts input before readiness, but waits for the connector before opening the browser', async () => {
   ports.status = { state: 'connecting-tunnel', detail: 'Starting tunnel' };
@@ -153,4 +182,56 @@ it.each(['cancel', 'shutdown'])('revokes explicit retry before readiness on %s',
   expect(await retry).toBeNull();
   expect(ports.open).toHaveBeenCalledTimes(1);
   if (action === 'shutdown') await expect(sendDesktopInput({ ...request, id: 'bbbbbbbb-cccc-4ddd-8eee-ffffffffffff' })).rejects.toThrow('shutting down');
+});
+
+// NCode sends ride the local bridge on 45880; the composer must never be held behind the
+// Cloudflare tunnel ID the OpenAI connector wants.
+it('sends "hy" over the NCode bridge without waiting for the connector or its tunnel ID', async () => {
+  ports.ncode.state = { extension: true, bridge: true };
+  ports.status = { state: 'tunnel-unavailable', detail: 'Enter a tunnel ID that looks like tunnel_ followed by 32 hex characters.' };
+  await sendDesktopInput({ ...request, text: 'hy' });
+  await vi.waitFor(() => expect(ports.noteNCode).toHaveBeenCalledWith(request.id));
+  expect(ports.rows[0]).toMatchObject({ state: 'sent', error: undefined });
+  expect(ports.ncode.goals).toHaveLength(1);
+  expect(ports.ncode.goals[0]!.goal).toBe('hy');
+  expect(ports.ncode.goals[0]!.prompt).toContain('hy');
+  expect(ports.connect).not.toHaveBeenCalled();
+  expect(ports.open).not.toHaveBeenCalled();
+  expect(ports.note).not.toHaveBeenCalled();
+  expect(ports.rows[0]!.error).toBeUndefined();
+});
+
+it('routes a follow-up in an active NCode session as a plain user message', async () => {
+  ports.ncode.state = { extension: true, bridge: true };
+  ports.ncode.plan = [{ step: 'Answer the question' }];
+  await sendDesktopInput({ ...request, text: 'hy' });
+  await vi.waitFor(() => expect(ports.ncode.userMessages).toEqual(['hy']));
+  expect(ports.ncode.goals).toHaveLength(0);
+  expect(ports.noteNCode).toHaveBeenCalledWith(request.id);
+  expect(ports.connect).not.toHaveBeenCalled();
+});
+
+it('waits for the Gemini tab while the bridge listens, then still sends without the connector', async () => {
+  ports.ncode.state = { extension: false, bridge: true };
+  const pending = sendDesktopInput({ ...request, text: 'hy' });
+  await vi.waitFor(() => expect(ports.ncode.listeners.size).toBe(1));
+  expect(ports.connect).not.toHaveBeenCalled();
+  ports.ncode.state = { extension: true, bridge: true };
+  for (const listener of ports.ncode.listeners) listener({ extension: true });
+  await pending;
+  await vi.waitFor(() => expect(ports.noteNCode).toHaveBeenCalledWith(request.id));
+  expect(ports.ncode.goals).toHaveLength(1);
+  expect(ports.open).not.toHaveBeenCalled();
+});
+
+it('notes the missing Gemini tab instead of the tunnel ID when the bridge is listening', async () => {
+  ports.ncode.state = { extension: false, bridge: true };
+  await sendDesktopInput({ ...request, text: 'hy' });
+  await vi.waitFor(
+    () => expect(ports.note).toHaveBeenCalledWith(request.id, 'Waiting for the Gemini tab. Open gemini.google.com and send again.'),
+    { timeout: 8000 }
+  );
+  expect(ports.connect).not.toHaveBeenCalled();
+  expect(ports.open).not.toHaveBeenCalled();
+  expect(ports.noteNCode).not.toHaveBeenCalled();
 });

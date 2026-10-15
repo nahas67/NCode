@@ -71,6 +71,12 @@ function currentPathname() {
 // content_scripts array, taking ncode-content.js down with it.
 var GeminiDOM = {
   /**
+   * Snapshot of the assistant text the page showed before the current submit.
+   * Written by `captureAssistantBaseline()` at inject time; read by `getLatestTurnText()`.
+   */
+  assistantBaseline: { count: 0, lastText: '' },
+
+  /**
    * Targets Gemini's rich text editor.
    * Primary: rich-textarea div[contenteditable="true"]
    * Fallback: div[role="textbox"]
@@ -122,6 +128,9 @@ var GeminiDOM = {
    * synthetic InputEvent and change event so Lit / Angular state synchronizes.
    */
   injectText(text) {
+    // Read the page before writing to it: every assistant node present now belongs to an earlier
+    // turn, so the reply this submit produces must be told apart from history.
+    this.captureAssistantBaseline();
     const editor = this.getEditor();
     if (!editor) return false;
 
@@ -173,37 +182,74 @@ var GeminiDOM = {
 
   /**
    * Clicks Send message button with Enter key fallback.
+   *
+   * The wait is real asynchronous time, not a spin: Gemini re-enables Send a moment after text
+   * lands, and the page must stay responsive while it does. Callers fire-and-forget this.
    */
-  submit() {
-    const sendBtn = this.getSendButton();
-    if (sendBtn && !sendBtn.disabled && (sendBtn.getAttribute('aria-disabled') !== 'true')) {
+  async submit() {
+    const sendBtn = await this.waitForEnabledSendButton(500, 50);
+    if (sendBtn) {
       sendBtn.click();
       return true;
     }
 
-    // Fallback: Dispatch Enter keydown & keyup on editor
-    const editor = this.getEditor();
-    if (editor) {
-      editor.dispatchEvent(new KeyboardEvent('keydown', {
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true
-      }));
-      editor.dispatchEvent(new KeyboardEvent('keyup', {
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true
-      }));
-      return true;
-    }
+    return this.pressEnterToSubmit();
+  },
 
-    return false;
+  /**
+   * Enter keydown & keyup on the editor, for a page with no enabled Send button.
+   */
+  pressEnterToSubmit() {
+    const editor = this.getEditor();
+    if (!editor) return false;
+    editor.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    }));
+    editor.dispatchEvent(new KeyboardEvent('keyup', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    }));
+    return true;
+  },
+
+  /**
+   * Synchronously usable Send-button probe.
+   *
+   * Gemini disables the Send button for a moment after text lands in the editor, so callers that
+   * cannot await (the 150 ms composer hand-off) must not read one click behind the page. This
+   * returns the button only once it is genuinely clickable; a `null` answer means "not yet".
+   */
+  getEnabledSendButton() {
+    const sendBtn = this.getSendButton();
+    if (sendBtn && !sendBtn.disabled && (sendBtn.getAttribute('aria-disabled') !== 'true')) return sendBtn;
+    return null;
+  },
+
+  /**
+   * Poll the Send button until it is clickable, up to `timeoutMs` in `intervalMs` steps.
+   *
+   * Submitting a half-hydrated composer is what dropped turns on the floor, so the click waits for
+   * the button to be genuinely enabled. The wait yields to the page between polls.
+   */
+  async waitForEnabledSendButton(timeoutMs = 500, intervalMs = 50) {
+    const immediate = this.getEnabledSendButton();
+    if (immediate) return immediate;
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      const sendBtn = this.getEnabledSendButton();
+      if (sendBtn) return sendBtn;
+      if (Date.now() >= deadline) return null;
+    }
   },
 
   /**
@@ -387,10 +433,58 @@ var GeminiDOM = {
    * Extracts the text of the latest assistant message.
    */
   getLatestAssistantText() {
-    const responses = document.querySelectorAll('model-response, .model-response, message-content, .message-content, [data-message-author-role="model"]');
+    const responses = this.getAssistantNodes();
     if (!responses.length) return '';
     const latest = responses[responses.length - 1];
     return (latest.innerText || latest.textContent || '').trim();
+  },
+
+  /**
+   * Every assistant response node in document order.
+   */
+  getAssistantNodes() {
+    return Array.from(document.querySelectorAll('model-response, .model-response, message-content, .message-content, [data-message-author-role="model"]'));
+  },
+
+  /**
+   * Snapshot the assistant text the page already showed, so the next turn can be isolated.
+   *
+   * Called at inject time. A node count plus the last node's text is enough to tell "no reply
+   * yet", "the reply is still streaming in the node that was already last", and "a reply node
+   * was appended" apart, which is what streaming needs to avoid republishing older answers.
+   */
+  captureAssistantBaseline() {
+    const nodes = this.getAssistantNodes();
+    this.assistantBaseline = {
+      count: nodes.length,
+      lastText: nodes.length ? (nodes[nodes.length - 1].innerText || nodes[nodes.length - 1].textContent || '').trim() : ''
+    };
+    return this.assistantBaseline;
+  },
+
+  /** The snapshot taken by the last `injectText`, or an empty one before it. */
+  getAssistantBaseline() {
+    return this.assistantBaseline || { count: 0, lastText: '' };
+  },
+
+  /**
+   * The assistant text produced by the turn that followed the last `injectText`.
+   *
+   * Returns '' while nothing new exists (no reply yet, or the reply is still identical to the
+   * baseline snapshot), the changed text of the last node when Gemini streams into it, and the
+   * appended nodes when a new response node appeared. This never mistakes an older answer for
+   * the current reply.
+   */
+  getLatestTurnText() {
+    const baseline = this.getAssistantBaseline();
+    const nodes = this.getAssistantNodes();
+    if (!nodes.length) return '';
+    if (nodes.length > baseline.count) {
+      return nodes.slice(baseline.count).map(node => (node.innerText || node.textContent || '').trim()).join('\n\n').trim();
+    }
+    const latest = (nodes[nodes.length - 1].innerText || nodes[nodes.length - 1].textContent || '').trim();
+    if (latest === baseline.lastText) return '';
+    return latest;
   },
 
   /**

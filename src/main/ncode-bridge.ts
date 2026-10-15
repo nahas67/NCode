@@ -41,6 +41,8 @@ import { bridgeRequestListener } from './bridge.js';
 import { setSecret } from './secrets.js';
 import { getConfig } from './config.js';
 import { isReasoningEffort, type ReasoningEffort } from '../shared/session.js';
+import { activeSessionId, notifyChanged, sessionForConversation, sessionIdForConversation } from './session/recorder.js';
+import { upsertMessageEvent } from './session/store.js';
 import type { NCodeCheckpoint, NCodePlanStep, NCodeToolResult } from '../shared/ncode-protocol.js';
 import { logInfo, logWarn } from './logger.js';
 import { APP_VERSION, BRIDGE_PROTOCOL } from './version.js';
@@ -263,6 +265,65 @@ export function startGoalInGemini(goal: string, prompt: string): boolean {
     goal,
     prompt
   });
+}
+
+/** A follow-up turn inside an already-started goal session rides the plain composer text. */
+export function sendUserMessageToGemini(text: string): boolean {
+  return sendToPrimaryClient({
+    type: 'USER_MESSAGE',
+    text
+  });
+}
+
+/**
+ * The extension protocol wraps its own directives in `<ncode_*>` blocks. A plain conversational
+ * reply never carries them, so the assistant bubble must show the clean prose: agent directives
+ * are activity, not text the user asked to read.
+ */
+export function stripNCodeTags(text: string): string {
+  return String(text || '')
+    .replace(/<ncode_plan[\s\S]*?<\/ncode_plan>/gi, '')
+    .replace(/<ncode_tool[^>]*>[\s\S]*?<\/ncode_tool>/gi, '')
+    .replace(/<ncode_result[^>]*\/>/gi, '')
+    .replace(/<ncode_result[\s\S]*?<\/ncode_result>/gi, '')
+    .replace(/<ncode_checkpoint[\s\S]*?<\/ncode_checkpoint>/gi, '')
+    .replace(/<ncode_finish[\s\S]*?<\/ncode_finish>/gi, '')
+    .replace(/<\/?ncode_[a-z]+[^>]*>/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
+ * Write (or close) the streaming assistant turn of the NCode conversation into the session
+ * transcript. `messageId` is minted per conversation so stream deltas upsert in place instead of
+ * appending a bubble per 200 ms poll, and the final upsert closes the same bubble.
+ */
+async function recordNCodeTurn(conversationId: string | null, text: string, final: boolean): Promise<void> {
+  // Gemini writes `c_<id>` into the composer URL and the recorder ids; one conversation, one key.
+  const conversation = conversationId?.replace(/^c_/, '') ?? null;
+  const clean = stripNCodeTags(text);
+  if (!clean) return;
+  // The conversation id is the exact owner of a turn; the active session is only the fallback for
+  // an unbound turn, otherwise the first NCode chat would capture every later conversation.
+  const sessionId = (conversation ? sessionIdForConversation(conversation) : null)
+    ?? activeSessionId()
+    ?? (conversation ? await sessionForConversation(conversation) : null);
+  if (!sessionId) return;
+  try {
+    await upsertMessageEvent(sessionId, {
+      time: Date.now(),
+      source: 'app',
+      kind: 'assistant_message',
+      ...(conversation ? { providerMessageId: conversation } : {}),
+      messageId: `ncode:${conversation ?? 'unbound'}`,
+      message: { text: clean, chars: clean.length, truncated: false },
+      final,
+      ...(final ? { state: 'final' as const } : { state: 'streaming' as const })
+    });
+    notifyChanged(sessionId);
+  } catch (error) {
+    logWarn(`[NCode] transcript turn update failed: ${(error as Error).message}`);
+  }
 }
 
 export function requestGeminiCheckpoint(): boolean {
@@ -568,6 +629,20 @@ async function handleClientMessage(client: WebSocket, raw: string): Promise<void
       geminiTabSockets.add(client);
       modelsSynced = true;
       publishConnection();
+      break;
+    }
+
+    case 'NCODE_STREAM': {
+      // A plain Gemini reply (or the partial while it is still streaming) is the assistant turn
+      // the chat window must show; tag-only traffic keeps flowing to the plan listeners.
+      if (typeof msg.text === 'string' && msg.text) {
+        void recordNCodeTurn(typeof msg.conversationId === 'string' ? msg.conversationId : null, msg.text, false);
+      }
+      break;
+    }
+
+    case 'NCODE_TURN_COMPLETE': {
+      void recordNCodeTurn(typeof msg.conversationId === 'string' ? msg.conversationId : null, String(msg.text || ''), msg.hasToolCall !== true);
       break;
     }
 
