@@ -23,7 +23,7 @@ const say = (message) => process.stdout.write(`${message}\n`);
 
 async function download(url, target) {
   if (existsSync(target)) return;
-  const res = await fetch(url, { headers: { 'user-agent': 'chat-on-steroids-build' } });
+  const res = await fetch(url, { headers: { 'user-agent': 'ncode-build' } });
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
   await writeFile(target, Buffer.from(await res.arrayBuffer()));
 }

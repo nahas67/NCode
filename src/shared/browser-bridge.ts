@@ -1,4 +1,16 @@
-/** Ports discoverable by the companion extension without additional host permissions. */
+/**
+ * Ports the legacy ChatGPT companion extension discovers without additional host permissions.
+ *
+ * These belong to `src/main/bridge.ts`, which binds one of them at startup. They are NOT the
+ * Gemini companion's port: `ncode-bridge.ts` owns 127.0.0.1:45880, derived from
+ * `shared/ncode-config.ts` and declared as the extension's single host permission.
+ *
+ * The two used to be the same socket. A refactor re-pointed these constants at `BRIDGE_PORT`,
+ * so `bridge.ts` and `startNCodeBridge()` both raced for 45880: the NCode bridge binds
+ * synchronously, the legacy listener reaches `listen()` through a `.then()` microtask, lost
+ * EADDRINUSE, and every desktop send died with "The browser bridge could not start". Two
+ * components, two ports, no contention.
+ */
 export const BROWSER_BRIDGE_PORTS = [8765, 8766, 8767, 8768, 8769] as const;
 /**
  * Where Auto looks when 8765-8769 are all taken (#1314). Windows can reserve whole blocks of

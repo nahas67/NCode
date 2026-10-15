@@ -52,7 +52,7 @@ describe('external plugin authority', () => {
     const text = JSON.stringify(result);
     expect(text).toContain('UNKNOWN_TOOL');
     expect(text).toContain('current Plugins catalog');
-    expect(text).toContain('Chat On Steroids Core');
+    expect(text).toContain('NCode Core');
     expect(text).toContain('Discover or select');
     expect(text).not.toContain('PLUGIN_DISABLED');
     expect(text).not.toContain('is connected');
@@ -72,12 +72,12 @@ describe('external plugin authority', () => {
     try {
       suffix.mockReturnValue({ ...previous, connectorSuffix: 'Alpha' });
       const first = JSON.stringify(await manager.call('exec_command'));
-      expect(first).toContain('Chat On Steroids Core (Alpha)');
+      expect(first).toContain('NCode Core (Alpha)');
       expect(first).toContain('UNKNOWN_TOOL');
       expect(first).toContain('This call was not dispatched.');
       suffix.mockReturnValue({ ...previous, connectorSuffix: 'Beta' });
       const second = JSON.stringify(await manager.call('write_stdin'));
-      expect(second).toContain('Chat On Steroids Core (Beta)');
+      expect(second).toContain('NCode Core (Beta)');
       expect(second).not.toContain('Alpha');
       expect(second).toContain('UNKNOWN_TOOL');
       expect(second).not.toContain('is connected');
@@ -92,7 +92,7 @@ describe('external plugin authority', () => {
     const outcome = vi.fn();
     const text = JSON.stringify(await manager.call(name, {}, outcome));
     expect(text).toContain('UNKNOWN_TOOL: This tool name is not in the current Plugins catalog. It may be stale or belong to another connector. Check the current Plugins tool list.');
-    expect(text).not.toContain('Chat On Steroids Core');
+    expect(text).not.toContain('NCode Core');
     expect(text).not.toContain('Discover or select');
     expect(text).toContain('This call was not dispatched.');
     expect(outcome).toHaveBeenCalledExactlyOnceWith('tool_rejected');
@@ -109,7 +109,7 @@ describe('external plugin authority', () => {
     const outcome = vi.fn();
     const disabled = JSON.stringify(await manager.call('exec_command', { value: 'blocked' }, outcome));
     expect(disabled).toContain('PLUGIN_DISABLED');
-    expect(disabled).not.toContain('Chat On Steroids Core');
+    expect(disabled).not.toContain('NCode Core');
     expect(disabled).not.toContain('UNKNOWN_TOOL');
     expect(disabled).toContain('This call was not dispatched.');
     expect(outcome).toHaveBeenCalledExactlyOnceWith('tool_rejected');

@@ -34,7 +34,7 @@ describe('continuation markers from native readback', () => {
   it('reads the marker of a message ChatGPT stored as Markdown because it mentions an app', () => {
     // Measured 2026-10-01: with the Core mention, every line break of the handoff request came
     // back as a hard break, `]]\` + newline, and the brief was never captured.
-    const text = `${clean}\\\n\\\nChat On Steroids is preparing a handoff\\-brief. [$chat-on-steroids-core](app://asdk_app_X1)`;
+    const text = `${clean}\\\n\\\nNCode is preparing a handoff\\-brief. [$ncode-core](app://asdk_app_X1)`;
     const parsed = continuationMarkerOf(text);
     expect(parsed).toMatchObject({ kind: 'RESUME', token, marker: `${clean}\\\n` });
     expect(pageMarker(text)?.[2]).toBe(token);

@@ -68,9 +68,10 @@ describe('extension localization catalogs', () => {
     const manifest = JSON.parse(await readFile(path.join(extension, 'manifest.json'), 'utf8')) as Record<string, any>;
     expect(manifest.default_locale).toBe('en');
     const isolated = manifest.content_scripts.find((entry: any) => (entry.world ?? 'ISOLATED') === 'ISOLATED');
-    expect(isolated?.js).toEqual(expect.arrayContaining(['i18n.js', 'chatgpt-dom.js', 'content.js']));
-    expect(isolated?.js.indexOf('i18n.js')).toBeLessThan(isolated?.js.indexOf('chatgpt-dom.js'));
-    expect(isolated?.js.indexOf('chatgpt-dom.js')).toBeLessThan(isolated?.js.indexOf('content.js'));
+    expect(isolated?.js).toEqual(expect.arrayContaining(['ncode-config.js', 'ncode-protocol.js', 'gemini-dom.js', 'ncode-content.js']));
+    expect(isolated?.js.indexOf('ncode-config.js')).toBeLessThan(isolated?.js.indexOf('ncode-protocol.js'));
+    expect(isolated?.js.indexOf('ncode-protocol.js')).toBeLessThan(isolated?.js.indexOf('gemini-dom.js'));
+    expect(isolated?.js.indexOf('gemini-dom.js')).toBeLessThan(isolated?.js.indexOf('ncode-content.js'));
 
     const english = await catalog('en');
     for (const key of manifestKeys(manifest)) expect(english[key], `manifest message ${key}`).toBeDefined();

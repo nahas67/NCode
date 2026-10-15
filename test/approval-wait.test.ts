@@ -77,7 +77,7 @@ describe('the page detector', () => {
 
   // The live card's shape on 2026-10-06 (German UI), reduced to its structure.
   const card = (buttons = '<button>Ablehnen</button><button>Einmal zulassen</button>') =>
-    `<div data-codex-approval-surface="true"><div role="alert"><p>ChatGPT erlauben, Chat On Steroids Core zu verwenden?</p></div>${buttons}</div>`;
+    `<div data-codex-approval-surface="true"><div role="alert"><p>ChatGPT erlauben, NCode Core zu verwenden?</p></div>${buttons}</div>`;
 
   it('sees a waiting card in any language and nothing without one', () => {
     expect(api.approvalWaiting()).toBe(false);

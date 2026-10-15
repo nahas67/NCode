@@ -1,6 +1,6 @@
 import { ui, uiText, t } from './i18n.js';
-import type { ChatModelCatalog } from '../shared/chat-models.js';
-import { chatModelDisplayLabel, DEFAULT_HELPER_CHAT_MODEL, resolveChatModel } from '../shared/chat-models.js';
+import type { ChatModelCatalog, ChatModelOption } from '../shared/chat-models.js';
+import { chatModelDisplayLabel, DEFAULT_GEMINI_CHAT_MODEL, DEFAULT_HELPER_CHAT_MODEL, resolveChatModel } from '../shared/chat-models.js';
 import type { Config } from '../shared/types.js';
 import type { ReasoningEffort } from '../shared/session.js';
 import { $, el, icon, run } from './dom.js';
@@ -54,6 +54,17 @@ const composerEfforts = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'm
 const effortLabel = (effort: string): string => effortNames[effort] ? t(effortNames[effort]) : effort;
 function observedModel(value: string) {
   return resolveChatModel(catalog.models, value);
+}
+
+/**
+ * The model the Gemini page reports as its own current selection.
+ *
+ * The page owns that choice; the picker follows it instead of guessing from labels. It is null
+ * until a tab has reported, and it only ever names a model this catalog holds — main refuses an
+ * id the synced list does not contain, so it can never point the picker at a foreign tier.
+ */
+function pageActiveModel(): ChatModelOption | undefined {
+  return catalog.activeModel ? observedModel(catalog.activeModel) : undefined;
 }
 
 /**
@@ -186,8 +197,13 @@ function paintPair(modelId: string, effortId: string, modelValue?: string, effor
   }
   nextModel = observed?.id ?? nextModel;
   if (models.length && !nextModel && !automaticModel && !(modelId === 'composerModel' && composerContext?.automatic)) {
-    // A preference selects only a model/effort actually observed in this catalog.
-    const preferred = models.find(item => /^gpt[ -]?6$/i.test(item.label) && item.efforts.includes('high'));
+    // A preference selects only a model/effort actually observed in this catalog. The page's own
+    // active model wins, then the shared default id, then whichever observed model can
+    // actually reason — an Instant-only entry is never the one a default lands on by luck.
+    // The catalog is whatever Gemini reports, so no product name may appear here.
+    const preferred = pageActiveModel()
+      ?? models.find(item => item.id === DEFAULT_GEMINI_CHAT_MODEL)
+      ?? models.find(item => item.efforts.includes('high'));
     nextModel = (preferred ?? models[0]!).id;
     nextEffort = '';
   }
@@ -296,6 +312,7 @@ function paintComposerChoices(): void {
       const focused = document.activeElement === button;
       selected.value = choice.id;
       selected.dispatchEvent(new window.Event('change', { bubbles: true }));
+      void window.api.ncodeSwitchModel?.(choice.id);
       if (focused) models.querySelector<HTMLButtonElement>('[aria-pressed="true"]')?.focus();
     });
     modelOptions.append(button);
@@ -404,10 +421,15 @@ function paintComposerLabel(): void {
   // Display the same admission decision as Send, including discovery and removed efforts.
   const confirmed = confirmedComposerModel();
   const modelLabel = confirmed ? catalog.models.find(model => model.id === confirmed.model)!.label : '';
+  // Nothing is admitted yet (Automatic off, nothing observed): name the page's own tier rather than
+  // an empty prompt, so the label answers "which model is this chat on" before a model is chosen.
+  const pageActive = confirmed ? undefined : pageActiveModel();
   const label = () => confirmed
     ? chatModelDisplayLabel(modelLabel, confirmed.reasoningEffort, effortLabel(confirmed.reasoningEffort))
     : automaticApplies() ? t("Automatic")
-    : catalog.state === 'pending' ? t("Loading models…") : t("Select model");
+    : catalog.state === 'pending' ? t("Loading models…")
+    : pageActive ? pageActive.label
+    : t("Select model");
   const node = $('composerModelLabel');
   if (confirmed) {
     const pro = confirmed.reasoningEffort === 'pro';
@@ -566,7 +588,10 @@ export function initChatModels(onPaint?: () => void): void {
     document.getElementById(modelId)?.addEventListener('change', () => {
       if (modelId === 'composerModel' && composerContext) {
         composerContext.edited = true;
-        if ($<HTMLSelectElement>(modelId).value) composerContext.automatic = false;
+        if ($<HTMLSelectElement>(modelId).value) {
+          composerContext.automatic = false;
+          void window.api.ncodeSwitchModel?.($<HTMLSelectElement>(modelId).value);
+        }
       }
       const model = $<HTMLSelectElement>(modelId);
       const effort = $<HTMLSelectElement>(effortId);

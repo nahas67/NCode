@@ -6,7 +6,7 @@
     "message": "앱이 응답하지 않았습니다"
   },
   "content_app_not_running": {
-    "message": "이 PC에서 Chat On Steroids가 실행 중이 아닙니다."
+    "message": "이 PC에서 NCode가 실행 중이 아닙니다."
   },
   "content_auto_compaction": {
     "message": "자동 압축"
@@ -36,10 +36,10 @@
     "message": "부트스트랩을 보내기 전에 입력창이 바뀌었습니다. 초안은 보존되었습니다"
   },
   "content_bootstrap_composer_replaced": {
-    "message": "부트스트랩을 입력하는 동안 ChatGPT가 입력창을 교체했습니다"
+    "message": "부트스트랩을 입력하는 동안 Gemini가 입력창을 교체했습니다"
   },
   "content_bootstrap_composer_unavailable": {
-    "message": "모델 선택 후 ChatGPT가 사용 가능한 입력창을 다시 보여 주지 않았습니다"
+    "message": "모델 선택 후 Gemini가 사용 가능한 입력창을 다시 보여 주지 않았습니다"
   },
   "content_bootstrap_fresh_chat_changed": {
     "message": "부트스트랩을 보내기 전에 표시된 새 대화가 바뀌었습니다. 아무것도 보내지 않았습니다"
@@ -48,19 +48,19 @@
     "message": "이 앱이 넘겨준 인수인계 요약입니다 — 직접 입력한 내용이 아닙니다"
   },
   "content_bootstrap_insert_refused": {
-    "message": "ChatGPT가 입력한 텍스트를 거부했습니다$1"
+    "message": "Gemini가 입력한 텍스트를 거부했습니다$1"
   },
   "content_bootstrap_missing_target": {
     "message": "이미 있는 대화에 제공되었지만 대상 대화를 지정하지 않았습니다"
   },
   "content_bootstrap_model_unavailable": {
-    "message": "요청한 모델이나 추론 수준을 ChatGPT에서 사용할 수 없거나 확인할 수 없습니다"
+    "message": "요청한 모델이나 추론 수준을 Gemini에서 사용할 수 없거나 확인할 수 없습니다"
   },
   "content_bootstrap_project_not_authorized": {
     "message": "명령이 프로젝트 진입을 허용하지 않았습니다. 아무것도 보내지 않았습니다"
   },
   "content_bootstrap_project_open_failed": {
-    "message": "ChatGPT가 기본 링크로 원본 프로젝트를 열지 못했습니다. 아무것도 보내지 않았습니다"
+    "message": "Gemini가 기본 링크로 원본 프로젝트를 열지 못했습니다. 아무것도 보내지 않았습니다"
   },
   "content_bootstrap_project_source_changed": {
     "message": "프로젝트 항목이 더 이상 원본 대화와 일치하지 않습니다. 아무것도 보내지 않았습니다"
@@ -69,7 +69,7 @@
     "message": "재개 부트스트랩에 유효한 연속 표시가 없었습니다"
   },
   "content_bootstrap_send_not_accepted": {
-    "message": "ChatGPT가 부트스트랩 전송을 받아들이지 않았습니다"
+    "message": "Gemini가 부트스트랩 전송을 받아들이지 않았습니다"
   },
   "content_bootstrap_target_changed": {
     "message": "보내기 전에 이 메시지의 대상 대화가 바뀌었습니다. 아무것도 보내지 않았습니다"
@@ -81,7 +81,7 @@
     "message": "이를 위해 연 페이지가 다른 대화를 보여 주고 있었습니다"
   },
   "content_browser_disconnected": {
-    "message": "Chat On Steroids에서 브라우저 연결이 끊어졌습니다."
+    "message": "NCode에서 브라우저 연결이 끊어졌습니다."
   },
   "content_cancel": {
     "message": "취소"
@@ -90,16 +90,16 @@
     "message": "대화 차단됨"
   },
   "content_chat_blocked_tip": {
-    "message": "이 대화는 Chat On Steroids 앱에서 차단되었습니다. 도구 호출이 거부되고 Goal, Loop, 자동 압축이 꺼집니다. 해제하려면 앱의 대화 탭을 열고 세션 목록에서 이 대화에 마우스를 올린 뒤 차단 아이콘을 누르세요."
+    "message": "이 대화는 NCode 앱에서 차단되었습니다. 도구 호출이 거부되고 Goal, Loop, 자동 압축이 꺼집니다. 해제하려면 앱의 대화 탭을 열고 세션 목록에서 이 대화에 마우스를 올린 뒤 차단 아이콘을 누르세요."
   },
   "content_chat_still_opening": {
     "message": "이 대화가 아직 열리는 중입니다 — 다시 시도하세요"
   },
   "content_chatgpt_message_box_not_ready": {
-    "message": "ChatGPT 메시지 상자가 준비되지 않았습니다($1). 페이지가 로드될 때까지 기다린 뒤 다시 시도하세요."
+    "message": "Gemini 메시지 상자가 준비되지 않았습니다($1). 페이지가 로드될 때까지 기다린 뒤 다시 시도하세요."
   },
   "content_chatgpt_tool": {
-    "message": "ChatGPT 도구"
+    "message": "Gemini 도구"
   },
   "content_clear": {
     "message": "지우기"
@@ -120,7 +120,7 @@
     "message": "$1. 저장된 시도는 두 번 보내지 않습니다."
   },
   "content_compact_attempt_owned": {
-    "message": "저장된 인수인계 시도에 이미 소유자가 있습니다. ChatGPT의 표시된 메시지를 맞추는 중입니다."
+    "message": "저장된 인수인계 시도에 이미 소유자가 있습니다. Gemini의 표시된 메시지를 맞추는 중입니다."
   },
   "content_compact_blocked_unavailable_hint": {
     "message": "차단된 대화는 압축하거나 재개하지 않습니다. 새 대화가 도구 없이 실행되기 때문입니다. 먼저 앱에서 해제하세요."
@@ -150,10 +150,10 @@
     "message": "압축이 로컬 도구를 기다리는 동안 이 대화가 바뀌었습니다."
   },
   "content_compact_chatgpt_writing": {
-    "message": "ChatGPT가 인수인계를 작성하는 중"
+    "message": "Gemini가 인수인계를 작성하는 중"
   },
   "content_compact_existing_draft": {
-    "message": "ChatGPT에 이미 초안이 있습니다. 인수인계를 요청하기 전에 메시지 상자를 비우세요."
+    "message": "Gemini에 이미 초안이 있습니다. 인수인계를 요청하기 전에 메시지 상자를 비우세요."
   },
   "content_compact_failed": {
     "message": "압축 실패"
@@ -171,10 +171,10 @@
     "message": "인수인계 응답이 완료되지 않았습니다. 압축을 취소하면 이 대화로 돌아갑니다."
   },
   "content_compact_handoff_problem": {
-    "message": "인수인계를 준비하는 동안 ChatGPT가 문제를 보고했습니다."
+    "message": "인수인계를 준비하는 동안 Gemini가 문제를 보고했습니다."
   },
   "content_compact_handoff_request_failed": {
-    "message": "ChatGPT에 인수인계를 요청하지 못했습니다: $1"
+    "message": "Gemini에 인수인계를 요청하지 못했습니다: $1"
   },
   "content_compact_handoff_stopped_detail": {
     "message": "인수인계 응답이 중지되었습니다. 압축을 취소하면 이 대화로 돌아갑니다."
@@ -204,7 +204,7 @@
     "message": "이 대화를 압축해도 되는지 확인하지 못했습니다."
   },
   "content_compact_results_unconfirmed": {
-    "message": "ChatGPT가 최신 도구 결과를 받았는지 확인하지 않았습니다. 아무것도 압축하지 않았습니다."
+    "message": "Gemini가 최신 도구 결과를 받았는지 확인하지 않았습니다. 아무것도 압축하지 않았습니다."
   },
   "content_compact_resume_cancelled": {
     "message": "재개 취소됨"
@@ -213,7 +213,7 @@
     "message": "지금 압축 후 계속"
   },
   "content_compact_send_ambiguous": {
-    "message": "전송 결과가 불분명합니다. 아무것도 두 번 보내지 않습니다. ChatGPT가 받지 않았다면 직접 취소하세요."
+    "message": "전송 결과가 불분명합니다. 아무것도 두 번 보내지 않습니다. Gemini가 받지 않았다면 직접 취소하세요."
   },
   "content_compact_send_not_ready": {
     "message": "보내기 버튼이나 메시지 상자가 준비되지 않아 인수인계 요청을 제출하지 않았습니다. 페이지가 준비된 뒤 다시 시도하세요."
@@ -246,7 +246,7 @@
     "message": "인수인계 작성 중"
   },
   "content_compact_stop_failed": {
-    "message": "ChatGPT가 현재 턴을 멈추지 않았습니다. 아무것도 압축하지 않았습니다."
+    "message": "Gemini가 현재 턴을 멈추지 않았습니다. 아무것도 압축하지 않았습니다."
   },
   "content_compact_stopping": {
     "message": "멈추는 중…"
@@ -285,7 +285,7 @@
     "message": "플러그인 새로고침을 확인할 수 없습니다"
   },
   "content_connector_schema_no_refresh": {
-    "message": "플러그인 스키마가 다르지만 ChatGPT에 새로고침 버튼이 없습니다. 현재 도구 스키마를 불러오려면 이 플러그인을 다시 만들거나 다시 게시하세요."
+    "message": "플러그인 스키마가 다르지만 Gemini에 새로고침 버튼이 없습니다. 현재 도구 스키마를 불러오려면 이 플러그인을 다시 만들거나 다시 게시하세요."
   },
   "content_connector_settings_unreadable": {
     "message": "이 요청이 소유한 페이지에서 플러그인 설정 카드를 읽을 수 없습니다"
@@ -300,7 +300,7 @@
     "message": "첨부 파일 전송이 완료되지 않았습니다."
   },
   "content_delivery_attachment_upload_unconfirmed": {
-    "message": "첨부 파일 업로드가 확인되지 않았습니다. 다시 시도하기 전에 ChatGPT에서 보내지 않은 초안과 파일 오류를 확인하세요."
+    "message": "첨부 파일 업로드가 확인되지 않았습니다. 다시 시도하기 전에 Gemini에서 보내지 않은 초안과 파일 오류를 확인하세요."
   },
   "content_delivery_chat_changed": {
     "message": "직접 전달하기 전에 대화가 바뀌었습니다."
@@ -309,19 +309,19 @@
     "message": "대화가 바뀌었거나 멈추지 않았습니다. 메시지를 보내지 않았습니다."
   },
   "content_delivery_composer_changed": {
-    "message": "보내기 전에 ChatGPT 입력창이 바뀌었습니다"
+    "message": "보내기 전에 Gemini 입력창이 바뀌었습니다"
   },
   "content_delivery_composer_stuck": {
-    "message": "ChatGPT가 답변을 마쳤지만 입력창이 아직 중지 상태입니다. 대기 중인 메시지를 전달하기 전에 이 페이지를 복구하는 중입니다."
+    "message": "Gemini가 답변을 마쳤지만 입력창이 아직 중지 상태입니다. 대기 중인 메시지를 전달하기 전에 이 페이지를 복구하는 중입니다."
   },
   "content_delivery_draft_preserved": {
     "message": "입력창이 바뀌었습니다. 초안은 보존되었습니다"
   },
   "content_delivery_editor_not_writable": {
-    "message": "보내기 전에 ChatGPT 편집기가 입력 가능한 상태가 되지 않았습니다."
+    "message": "보내기 전에 Gemini 편집기가 입력 가능한 상태가 되지 않았습니다."
   },
   "content_delivery_existing_draft": {
-    "message": "ChatGPT에 보내지 않은 초안이 이미 있습니다. 다시 시도하기 전에 Chrome에서 그 초안을 보내거나 지우세요."
+    "message": "Gemini에 보내지 않은 초안이 이미 있습니다. 다시 시도하기 전에 Chrome에서 그 초안을 보내거나 지우세요."
   },
   "content_delivery_model_unconfirmed": {
     "message": "요청한 모델 또는 추론 수준을 확인할 수 없습니다"
@@ -333,7 +333,7 @@
     "message": "임시 채팅이 확인되지 않았습니다. 도우미 탭을 열고 임시 채팅 안내를 완료하세요."
   },
   "content_delivery_text_not_accepted": {
-    "message": "ChatGPT가 텍스트를 받아들이지 않았습니다$1"
+    "message": "Gemini가 텍스트를 받아들이지 않았습니다$1"
   },
   "content_delivery_turn_changed": {
     "message": "직접 전달하기 전에 턴이 바뀌었습니다."
@@ -351,7 +351,7 @@
     "message": "이 대화에는 아직 기록된 로컬 세션이 없습니다."
   },
   "content_error_turn_still_generating": {
-    "message": "먼저 이 ChatGPT 턴이 끝날 때까지 기다리세요."
+    "message": "먼저 이 Gemini 턴이 끝날 때까지 기다리세요."
   },
   "content_failed": {
     "message": "실패"
@@ -372,7 +372,7 @@
     "message": "$1이(가) 답변하는 중"
   },
   "content_goal_backend_chatgpt_helper": {
-    "message": "ChatGPT 도우미"
+    "message": "Gemini 도우미"
   },
   "content_goal_backend_custom_endpoint": {
     "message": "사용자 지정 엔드포인트"
@@ -414,7 +414,7 @@
     "message": "Goal 모드"
   },
   "content_goal_new_chat_draft_refused": {
-    "message": "ChatGPT가 새 대화 초안을 바꾸지 않았습니다"
+    "message": "Gemini가 새 대화 초안을 바꾸지 않았습니다"
   },
   "content_goal_no_api_key_unavailable": {
     "message": "API 키 없음 — Goal과 Loop를 사용할 수 없음"
@@ -459,13 +459,13 @@
     "message": "목표를 이 대화에 저장하지 못했습니다"
   },
   "content_goal_send_failed": {
-    "message": "ChatGPT가 메시지를 보내지 않았습니다"
+    "message": "Gemini가 메시지를 보내지 않았습니다"
   },
   "content_goal_sending_answer_to": {
     "message": "답변을 $1에 보내는 중"
   },
   "content_goal_sending_to_chatgpt": {
-    "message": "ChatGPT로 보내는 중"
+    "message": "Gemini로 보내는 중"
   },
   "content_goal_status_dismiss": {
     "message": "Goal 상태 닫기"
@@ -489,7 +489,7 @@
     "message": "복구 새로고침 전 대기 중"
   },
   "content_goal_wait_resumed": {
-    "message": "ChatGPT가 작업 재개 · 재시도 전 대기 중"
+    "message": "Gemini가 작업 재개 · 재시도 전 대기 중"
   },
   "content_goal_wait_running_tools": {
     "message": "실행 중인 도구 대기 중"
@@ -585,7 +585,7 @@
     "message": "저장 중…"
   },
   "content_settings_aria": {
-    "message": "Chat On Steroids 설정"
+    "message": "NCode 설정"
   },
   "content_stage_handoff_attention": {
     "message": "인수인계 응답을 확인해야 합니다"
@@ -672,7 +672,7 @@
     "message": "자동 Continue가 변화 없는 무응답 턴을 멈췄습니다."
   },
   "content_turn_chatgpt_interrupted": {
-    "message": "ChatGPT가 턴을 중단됨으로 표시했습니다"
+    "message": "Gemini가 턴을 중단됨으로 표시했습니다"
   },
   "content_turn_outcome": {
     "message": "턴 $1"
@@ -735,13 +735,13 @@
     "message": "작성 중…"
   },
   "extension_action_title": {
-    "message": "Chat On Steroids"
+    "message": "NCode"
   },
   "extension_description": {
-    "message": "ChatGPT를 Chat On Steroids에 연결하고 DOM, 스크린샷, 개발자 도구로 백그라운드에서 브라우저 탭을 제어합니다."
+    "message": "Gemini를 NCode에 연결하고 DOM, 스크린샷, 개발자 도구로 백그라운드에서 브라우저 탭을 제어합니다."
   },
   "extension_name": {
-    "message": "Chat On Steroids 브라우저 확장 프로그램"
+    "message": "NCode 브라우저 확장 프로그램"
   },
   "popup_advanced": {
     "message": "고급"
@@ -770,8 +770,8 @@
   "popup_chat_id": {
     "message": "대화 ID"
   },
-  "popup_chatgpt_tab": {
-    "message": "ChatGPT 탭"
+  "popup_gemini_tab": {
+    "message": "Gemini 탭"
   },
   "popup_confirmed": {
     "message": "확인됨"
@@ -878,8 +878,8 @@
   "popup_no_record": {
     "message": "기록 없음"
   },
-  "popup_overwrite_chatgpt": {
-    "message": "ChatGPT 덮어쓰기"
+  "popup_overwrite_gemini": {
+    "message": "Gemini 덮어쓰기"
   },
   "popup_owner_confirmed": {
     "message": "소유자 확인됨"
@@ -900,7 +900,7 @@
     "message": "앱이 마지막 전달을 거부했습니다($1)."
   },
   "popup_pipeline_extension_blocked": {
-    "message": "확장 프로그램이 이 탭의 관찰을 받아들이지 않습니다($1). ChatGPT 탭을 새로고침하세요."
+    "message": "확장 프로그램이 이 탭의 관찰을 받아들이지 않습니다($1). Gemini 탭을 새로고침하세요."
   },
   "popup_pipeline_id_found_waiting_receipt": {
     "message": "최신 턴에서 ID를 찾았습니다. 앱의 수신 확인을 기다리는 중입니다."
@@ -944,14 +944,14 @@
   "popup_request_id_found": {
     "message": "요청 ID 확인됨"
   },
-  "popup_section_augment_chatgpt": {
-    "message": "ChatGPT 확장"
+  "popup_section_augment_gemini": {
+    "message": "Gemini 확장"
   },
   "popup_section_session_capture": {
     "message": "세션 캡처"
   },
   "popup_secure_storage_unavailable": {
-    "message": "안전한 자격 증명 저장소를 사용할 수 없습니다. 설정 방법은 Chat On Steroids를 여세요."
+    "message": "안전한 자격 증명 저장소를 사용할 수 없습니다. 설정 방법은 NCode를 여세요."
   },
   "popup_sent_to_app": {
     "message": "앱으로 전송됨"
@@ -1038,13 +1038,13 @@
     "message": "다시 시도"
   },
   "popup_version_mismatch_help": {
-    "message": "앱 v$1(프로토콜 $2), 확장 프로그램 v$3(프로토콜 $4). 브라우저의 확장 프로그램 페이지를 열고 개발자 모드를 켠 뒤 이 확장 프로그램을 업데이트/새로고침하세요. 불일치가 계속되면 Chat On Steroids에서 확장 프로그램 폴더 열기를 사용해 그 폴더를 불러오세요. 진행 중인 작업이 끝나면 ChatGPT 탭을 새로고침하세요."
+    "message": "앱 v$1(프로토콜 $2), 확장 프로그램 v$3(프로토콜 $4). 브라우저의 확장 프로그램 페이지를 열고 개발자 모드를 켠 뒤 이 확장 프로그램을 업데이트/새로고침하세요. 불일치가 계속되면 NCode에서 확장 프로그램 폴더 열기를 사용해 그 폴더를 불러오세요. 진행 중인 작업이 끝나면 Gemini 탭을 새로고침하세요."
   },
   "popup_yes": {
     "message": "예"
   },
   "content_goal_error_loop_mcp_call_missing": {
-    "message": "마지막 응답에서 MCP 도구 호출이 기록되지 않았습니다. ChatGPT가 질문을 하고 있거나 도구 연결이 끊겼을 수 있습니다. 질문에 답하거나 도구가 작동하지 않는 경우 터널을 확인하세요. 자동 계속하기는 일시 중지되며 Loop는 켜진 상태로 유지됩니다."
+    "message": "마지막 응답에서 MCP 도구 호출이 기록되지 않았습니다. Gemini가 질문을 하고 있거나 도구 연결이 끊겼을 수 있습니다. 질문에 답하거나 도구가 작동하지 않는 경우 터널을 확인하세요. 자동 계속하기는 일시 중지되며 Loop는 켜진 상태로 유지됩니다."
   },
   "content_goal_error_goal_reply_not_pending": {
     "message": "이 답변에 대기 중인 계속하기가 없습니다. 이미 처리되었거나 더 새로운 작업으로 대체되었을 수 있습니다. 다시 시도하기 전에 최신 채팅 활동을 확인하세요."
@@ -1062,7 +1062,7 @@
     "message": "공급자 응답이 크기 한도를 초과했습니다. 다른 계속하기 모델을 선택하거나 더 짧은 답변을 요청하세요."
   },
   "content_goal_error_no_api_key": {
-    "message": "계속하기 공급자의 API 키가 설정되지 않았습니다. 설정에서 키를 추가하거나 ChatGPT 계속하기 소스를 선택하세요."
+    "message": "계속하기 공급자의 API 키가 설정되지 않았습니다. 설정에서 키를 추가하거나 Gemini 계속하기 소스를 선택하세요."
   },
   "content_goal_error_auth_rejected": {
     "message": "계속하기 공급자가 API 자격 증명을 거부했습니다. 설정에서 API 키와 접근 권한을 확인하세요."
@@ -1077,7 +1077,7 @@
     "message": "사용자 지정 계속하기 엔드포인트가 올바르지 않습니다. 설정에서 URL을 확인하세요. HTTPS 또는 로컬 HTTP 엔드포인트를 사용하세요."
   },
   "content_history_rate_limited": {
-    "message": "ChatGPT가 이 대화 기록에 대한 접근을 일시적으로 제한했습니다. 대기 시간이 끝날 때까지 Chat On Steroids가 자동 복구를 일시 중지합니다."
+    "message": "Gemini가 이 대화 기록에 대한 접근을 일시적으로 제한했습니다. 대기 시간이 끝날 때까지 NCode가 자동 복구를 일시 중지합니다."
   },
   "content_goal_error_rate_limited": {
     "message": "계속하기 공급자가 요청을 속도 제한하고 있습니다. 표시된 재시도 시간까지 기다리거나 다른 계속하기 모델을 선택하세요."
@@ -1095,10 +1095,10 @@
     "message": "보조 요청이 취소되었습니다. 계속하려면 다시 시작하세요."
   },
   "content_goal_error_goal_browser_send_failed": {
-    "message": "보조 프롬프트를 ChatGPT에 전달할 수 없습니다. 보조 채팅을 열어 작성기나 표시된 오류를 확인한 뒤 다시 시도하세요."
+    "message": "보조 프롬프트를 Gemini에 전달할 수 없습니다. 보조 채팅을 열어 작성기나 표시된 오류를 확인한 뒤 다시 시도하세요."
   },
   "content_goal_error_goal_browser_send_unconfirmed": {
-    "message": "앱이 ChatGPT가 보조 프롬프트를 받았는지 확인할 수 없습니다. 중복 전송을 피하려면 다시 시도하기 전에 보조 채팅을 확인하세요."
+    "message": "앱이 Gemini가 보조 프롬프트를 받았는지 확인할 수 없습니다. 중복 전송을 피하려면 다시 시도하기 전에 보조 채팅을 확인하세요."
   },
   "content_goal_error_goal_owned_elsewhere": {
     "message": "다른 브라우저 탭에서 이 계속하기를 처리 중입니다. 해당 탭에서 진행 상황을 확인하세요."
@@ -1167,6 +1167,26 @@
     "message": "실패했습니다. CoS에서 로그인을 다시 시작하세요."
   },
   "popup_app_not_running_help": {
-    "message": "이 컴퓨터에서 Chat On Steroids가 열려 있는지 확인하세요. 확장 프로그램은 자동으로 연결됩니다."
+    "message": "이 컴퓨터에서 NCode가 열려 있는지 확인하세요. 확장 프로그램은 자동으로 연결됩니다."
+  },
+  "popup_status_active": {
+    "message": "활성",
+    "description": "NCode recorder row value: the Gemini content script is active on this tab."
+  },
+  "popup_status_connected": {
+    "message": "연결됨",
+    "description": "NCode reaching-the-app row value: the Gemini tab is connected to the local NCode bridge."
+  },
+  "popup_status_ready": {
+    "message": "미계",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_pipeline_waiting_gemini_recorder": {
+    "message": "페이지 로그이더가 보곰하기를 기다리고 있습니다.",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_detail_gemini_observed": {
+    "message": "요청 $1개 · 차어 $2개",
+    "description": "NCode Gemini recorder evidence shown in the popup."
   }
 }

@@ -244,7 +244,7 @@ function groupHarness(options: { tabs?: GTab[]; windows?: Win[]; lastFocused?: n
   return { ...api, tabs, windows, groups, session, local, create, group, groupGet, groupUpdate, groupQuery, query, get, move, update,
     windowCreate, windowUpdate, lastFocused, getAll };
 }
-const TITLE = 'Chat On Steroids';
+const TITLE = 'NCode';
 
 it('4.1 creates one collapsed titled group in the last-focused window for the first background tab', async () => {
   const app = groupHarness({ windows: [{ id: 1 }, { id: 2 }], lastFocused: 2,
@@ -435,7 +435,7 @@ it('6.3 adopts a restored all-app titled group after a browser restart', async (
 
 it.each([
   ['holds a personal tab', [{ id: 1, windowId: 1, url: MAIN, groupId: 60 }, { id: 2, windowId: 1, url: 'https://example.com/', groupId: 60 }], TITLE],
-  ['carries another title', [{ id: 1, windowId: 1, url: MAIN, groupId: 60 }], 'Chat On Steroids (2)'],
+  ['carries another title', [{ id: 1, windowId: 1, url: MAIN, groupId: 60 }], 'NCode (2)'],
   ['is empty', [], TITLE]
 ])('6.4 never adopts a group that %s', async (_name, tabs, title) => {
   const app = groupHarness({ windows: [{ id: 1 }], groups: [{ id: 60, windowId: 1, title }], tabs: tabs as GTab[] });

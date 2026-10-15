@@ -58,8 +58,8 @@ const {
 } = await import('../src/main/update.js');
 
 const NEXT = '99.0.0';
-const WINDOWS_ASSET = `Chat-On-Steroids-Setup-${process.arch}.exe`;
-const APPIMAGE_ASSET = `Chat-On-Steroids-Linux-${process.arch}.AppImage`;
+const WINDOWS_ASSET = `NCode-Setup-${process.arch}.exe`;
+const APPIMAGE_ASSET = `NCode-Linux-${process.arch}.AppImage`;
 
 const sha256 = (body: string): string => createHash('sha256').update(body).digest('hex');
 
@@ -92,10 +92,10 @@ function github(options: {
       if (options.fail === 'release') return new Response('nope', { status: 503 });
       return new Response(JSON.stringify({ tag_name: `v${version}` }), { status: 200 });
     }
-    if (url === 'https://github.com/totec448-spec/chat-on-steroids/releases/latest') {
+    if (url === 'https://github.com/totec448-spec/ncode/releases/latest') {
       if (typeof options.page === 'number') return new Response(null, { status: options.page });
       const landed = new Response(null, { status: 200 });
-      Object.defineProperty(landed, 'url', { value: options.page ?? `https://github.com/totec448-spec/chat-on-steroids/releases/tag/v${version}` });
+      Object.defineProperty(landed, 'url', { value: options.page ?? `https://github.com/totec448-spec/ncode/releases/tag/v${version}` });
       return landed;
     }
     if (name === 'SHA256SUMS.txt') {
@@ -139,9 +139,9 @@ afterEach(() => {
 
 describe('the file Get update opens for an installation that cannot update itself', () => {
   it('names the exact macOS disk image or Linux package for this machine', () => {
-    expect(manualDownloadName('darwin', 'arm64', undefined, true)).toBe('Chat-On-Steroids-macOS-arm64.dmg');
-    expect(manualDownloadName('darwin', 'x64', undefined, true)).toBe('Chat-On-Steroids-macOS-x64.dmg');
-    expect(manualDownloadName('linux', 'x64', undefined, true)).toBe('Chat-On-Steroids-Linux-x64.deb');
+    expect(manualDownloadName('darwin', 'arm64', undefined, true)).toBe('NCode-macOS-arm64.dmg');
+    expect(manualDownloadName('darwin', 'x64', undefined, true)).toBe('NCode-macOS-x64.dmg');
+    expect(manualDownloadName('linux', 'x64', undefined, true)).toBe('NCode-Linux-x64.deb');
     // Installations that update themselves, a dev tree and an unpublished architecture get none.
     expect(manualDownloadName('linux', 'x64', '/opt/cos.AppImage', true)).toBeNull();
     expect(manualDownloadName('win32', 'x64', undefined, true)).toBeNull();
@@ -149,19 +149,19 @@ describe('the file Get update opens for an installation that cannot update itsel
     expect(manualDownloadName('darwin', 'ia32', undefined, true)).toBeNull();
   });
   it('links that file for the announced version, and the release page otherwise', () => {
-    expect(manualDownloadUrl('2.1.17', 'Chat-On-Steroids-macOS-arm64.dmg'))
-      .toBe('https://github.com/totec448-spec/chat-on-steroids/releases/download/v2.1.17/Chat-On-Steroids-macOS-arm64.dmg');
-    expect(manualDownloadUrl(null, 'Chat-On-Steroids-macOS-arm64.dmg')).toBe('https://github.com/totec448-spec/chat-on-steroids/releases/latest');
-    expect(manualDownloadUrl('2.1.17', null)).toBe('https://github.com/totec448-spec/chat-on-steroids/releases/latest');
-    expect(manualDownloadUrl('../evil', 'x.dmg')).toBe('https://github.com/totec448-spec/chat-on-steroids/releases/latest');
+    expect(manualDownloadUrl('2.1.17', 'NCode-macOS-arm64.dmg'))
+      .toBe('https://github.com/totec448-spec/ncode/releases/download/v2.1.17/NCode-macOS-arm64.dmg');
+    expect(manualDownloadUrl(null, 'NCode-macOS-arm64.dmg')).toBe('https://github.com/totec448-spec/ncode/releases/latest');
+    expect(manualDownloadUrl('2.1.17', null)).toBe('https://github.com/totec448-spec/ncode/releases/latest');
+    expect(manualDownloadUrl('../evil', 'x.dmg')).toBe('https://github.com/totec448-spec/ncode/releases/latest');
   });
 });
 
 describe('which installations update themselves', () => {
   it('takes the Windows installer and the Linux AppImage, and nothing else', () => {
-    expect(stagedArtifact('win32', 'x64')).toMatchObject({ name: 'Chat-On-Steroids-Setup-x64.exe', kind: 'installer' });
+    expect(stagedArtifact('win32', 'x64')).toMatchObject({ name: 'NCode-Setup-x64.exe', kind: 'installer' });
     expect(stagedArtifact('linux', 'arm64', '/opt/cos.AppImage')).toMatchObject({
-      name: 'Chat-On-Steroids-Linux-arm64.AppImage',
+      name: 'NCode-Linux-arm64.AppImage',
       kind: 'appimage',
       target: '/opt/cos.AppImage'
     });
@@ -293,7 +293,7 @@ describe('staging the new version', () => {
   });
 
   it('stages nothing when the release does not publish an artifact for this installation', async () => {
-    github({ checksums: `${sha256('x')}  Chat-On-Steroids-Extension.zip\n` });
+    github({ checksums: `${sha256('x')}  NCode-Extension.zip\n` });
     await asPlatform('win32', undefined, () => checkForUpdates());
     expect(updateStatus().stage).toBe('failed');
     expect(updateStatus().error).toContain(`publishes no ${WINDOWS_ASSET}`);
@@ -306,7 +306,7 @@ describe('staging the new version', () => {
    * executing out of that path while this runs.
    */
   it('replaces the running AppImage with the staged one', async () => {
-    const live = path.join(userData, 'Chat-On-Steroids.AppImage');
+    const live = path.join(userData, 'NCode.AppImage');
     writeFileSync(live, 'the old build');
     const { body } = github();
 
@@ -358,8 +358,8 @@ describe('one pass at a time, and one more next time the app opens', () => {
   });
 
   it('trusts the release page only when it lands on a version tag on github.com', async () => {
-    for (const page of ['https://evil.example/totec448-spec/chat-on-steroids/releases/tag/v9.9.9',
-      'https://github.com/totec448-spec/chat-on-steroids/releases', 404]) {
+    for (const page of ['https://evil.example/totec448-spec/ncode/releases/tag/v9.9.9',
+      'https://github.com/totec448-spec/ncode/releases', 404]) {
       resetUpdateForTests();
       github({ apiStatus: 403, page });
       await asPlatform('win32', undefined, () => checkForUpdates());
@@ -370,7 +370,7 @@ describe('one pass at a time, and one more next time the app opens', () => {
     const { fetch } = github({ fail: 'release' });
     await checkForUpdates();
     expect(updateStatus().error).toContain('503');
-    expect(fetch.mock.calls.map(([url]) => String(url))).not.toContain('https://github.com/totec448-spec/chat-on-steroids/releases/latest');
+    expect(fetch.mock.calls.map(([url]) => String(url))).not.toContain('https://github.com/totec448-spec/ncode/releases/latest');
   });
 
   it('retries the next time the app opens after a download that stopped', async () => {
@@ -482,7 +482,7 @@ describe('installing on request', () => {
   });
 
   it('relaunches an AppImage install itself, having no installer to ask', async () => {
-    const live = path.join(userData, 'Chat-On-Steroids.AppImage');
+    const live = path.join(userData, 'NCode.AppImage');
     writeFileSync(live, 'the old build');
     const { body } = github();
 

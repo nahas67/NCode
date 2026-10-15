@@ -24,8 +24,8 @@ describe('scrubbing a diagnostics report', () => {
   });
 
   it('handles unquoted paths with spaces under the home folder and Windows paths', () => {
-    const out = scrubText('read /Users/jane/Library/Application Support/Chat On Steroids/sessions/Client Plan.json failed', mac);
-    expect(out).toMatch(/^read ~\/Library\/Application Support\/Chat On Steroids\/sessions\/<p:[0-9a-f]{4}>\.json failed$/);
+    const out = scrubText('read /Users/jane/Library/Application Support/NCode/sessions/Client Plan.json failed', mac);
+    expect(out).toMatch(/^read ~\/Library\/Application Support\/NCode\/sessions\/<p:[0-9a-f]{4}>\.json failed$/);
     expect(out).not.toMatch(/Client|Plan/);
     // Ids and route names stay readable; they are what a bug report is followed by.
     expect(scrubText('wrote /Users/jane/.cos/sessions/6ac1e55c-cef4-83e9-8ba4-32136df98e55.json after POST /commands/ack', mac))

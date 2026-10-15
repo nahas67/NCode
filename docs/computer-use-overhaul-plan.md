@@ -521,7 +521,7 @@ Reasons not to rush it:
 
 When the target is Chromium/Electron web content, accessibility writes and generic injected clicks are not always reliable. OpenAI's current GPT-5.4 CUA sample explicitly demonstrates two modes for the same browser tasks: raw computer actions and a persistent Playwright JavaScript REPL.
 
-Long term, an optional browser-aware route can use CDP/Playwright when Chat On Steroids owns a debuggable browser session. This should remain an internal routing optimization or a separate explicitly enabled browser capability, not silently attach to arbitrary private browser sessions.
+Long term, an optional browser-aware route can use CDP/Playwright when NCode owns a debuggable browser session. This should remain an internal routing optimization or a separate explicitly enabled browser capability, not silently attach to arbitrary private browser sessions.
 
 The generic Windows driver must still work without it.
 
@@ -568,7 +568,7 @@ The current OpenAI Computer Use guide validates three choices already present or
 - custom harnesses that mix visual and programmatic interaction are expected,
 - one updated UI state after the action batch is the normal loop.
 
-So Chat On Steroids should keep its compact two-tool custom harness and make the local executor smarter rather than trying to imitate the built-in tool schema one action at a time.
+So NCode should keep its compact two-tool custom harness and make the local executor smarter rather than trying to imitate the built-in tool schema one action at a time.
 
 ### Microsoft UFO2
 
@@ -578,7 +578,7 @@ Copy:
 - speculative multi-action execution with live UI-state validation
 - fallback to fine-grained execution when validation fails
 
-Microsoft reports up to 51% fewer LLM queries for its speculative multi-action mode. Treat that number as their workload result, not a promise for Chat On Steroids. It is still strong evidence that reducing model round trips is where large wall-clock gains live.
+Microsoft reports up to 51% fewer LLM queries for its speculative multi-action mode. Treat that number as their workload result, not a promise for NCode. It is still strong evidence that reducing model round trips is where large wall-clock gains live.
 
 ### Cua Driver
 
@@ -593,7 +593,7 @@ Copy the Windows-specific engineering ideas:
 - snapshot-scoped semantic handles
 - per-agent/session state
 
-Do **not** copy its large MCP tool surface. Its detailed tool catalog is useful as an implementation reference, but Chat On Steroids should keep the two-tool abstraction and route internally.
+Do **not** copy its large MCP tool surface. Its detailed tool catalog is useful as an implementation reference, but NCode should keep the two-tool abstraction and route internally.
 
 ### desktop-touch-mcp
 
@@ -608,7 +608,7 @@ Transferable ideas:
 - use `FindAllBuildCache` / batched child traversal with early `maxElements` exit instead of materializing one unbounded descendant tree,
 - fall back from semantic state to visual state when the accessibility surface is sparse.
 
-The project reports ~100 ms full-tree UIA on its native Rust engine and much larger improvements for tiny focus queries, but its own explanation is important: most of the huge focus headline comes from eliminating cold PowerShell/.NET startup. Chat On Steroids already keeps its helper warm, so **copy the UIA traversal/cache strategy first, not the language rewrite**.
+The project reports ~100 ms full-tree UIA on its native Rust engine and much larger improvements for tiny focus queries, but its own explanation is important: most of the huge focus headline comes from eliminating cold PowerShell/.NET startup. NCode already keeps its helper warm, so **copy the UIA traversal/cache strategy first, not the language rewrite**.
 
 It also exposes a much broader 32-tool catalog. Do not copy that surface. Its own V2 primary path being two semantic tools is further evidence that the model-facing abstraction should stay compact even if the internal driver is rich.
 

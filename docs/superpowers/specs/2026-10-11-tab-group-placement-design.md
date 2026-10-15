@@ -8,7 +8,7 @@ Roadmap: #128.
 Today the app puts the ChatGPT tabs it opens in the background (workers, recovered chats, model
 catalog and plugin-refresh helpers, successor chats) into its own minimized browser window. Some
 people dislike the extra window. This adds an opt-in mode that puts those tabs into a collapsed tab
-group named "Chat On Steroids" in one of the user's own browser windows instead.
+group named "NCode" in one of the user's own browser windows instead.
 
 Success:
 - With the mode on, every tab the app opens in the background lands in that group, inactive and
@@ -78,7 +78,7 @@ Chromium builds and incognito-only sessions.
 **Creation:**
 1. `chrome.tabs.create({ windowId, url, active: false })`.
 2. `chrome.tabs.group({ tabIds: [tab.id], createProperties: { windowId } })`.
-3. `chrome.tabGroups.update(groupId, { title: 'Chat On Steroids', color: 'grey', collapsed: true })`.
+3. `chrome.tabGroups.update(groupId, { title: 'NCode', color: 'grey', collapsed: true })`.
 
 The group then stays where it is. It does not follow later window focus. If the user drags it to
 another window, the app uses the group's current `windowId`.
@@ -93,14 +93,14 @@ active tab would switch the user's tab, so the app collapses only a group it has
   `chrome.storage.local`, because self-updates reload the worker and clear session storage. This
   matches the window mirror.
 - A stored ID is valid only while `chrome.tabGroups.get(id)` resolves.
-- A mirrored ID (after an extension reload) must also still carry the title "Chat On Steroids";
+- A mirrored ID (after an extension reload) must also still carry the title "NCode";
   otherwise the mirror is dropped.
 - `onStartup` drops the mirror, as it does for the window, because group IDs are per browser
   session.
 
 **Re-adoption after a browser restart:** when restore brings the group back under a new ID, the
 reconcile pass adopts it if all of these hold:
-- the title is exactly "Chat On Steroids";
+- the title is exactly "NCode";
 - it is in a normal, non-incognito window;
 - every tab in it is app-owned by the same `owns(tab)` rule the window reconcile uses.
 
@@ -120,7 +120,7 @@ a lock taken from the content script's isolated world counts. With it, 10 of 10 
 sends took 11–14 s.
 
 - `register_document` answers `keepAwake: true` when the tab sits in the app's group; the content
-  script then holds a Web Lock under a unique name (`chat-on-steroids-keep-awake-<random>`).
+  script then holds a Web Lock under a unique name (`ncode-keep-awake-<random>`).
 - `clf-keep-awake { on }` turns it on or off. The worker sends it from every maintenance pass and at
   once on Chrome's `groupId` change, only when the wanted state differs from what it last told that
   document (remembered in session storage).
@@ -241,7 +241,7 @@ sends took 11–14 s.
 3. Two workers at once: one group with two tabs.
 4. Expand the group and read a chat; a new worker joins without collapsing or switching tabs.
 5. Idle: after the chats finish and 5 min pass, the tabs close, the group disappears, and Chrome's
-   tab-groups menu shows no saved "Chat On Steroids" group.
+   tab-groups menu shows no saved "NCode" group.
 6. Drag a tab out; drag a personal tab in. Behavior as in the table.
 7. Close the group's window during a run: a user close, as today, and a new group on the next chat.
 8. Extension self-update mid-session: the same group keeps being used.

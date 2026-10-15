@@ -950,7 +950,7 @@
       ? event.data.candidates.slice(0, 16).filter(entry => typeof entry?.name === 'string' && entry.name.length <= 80)
         .map(entry => ({ name: entry.name, path: valid(entry.path) }))
       // An observer from before suffixes names only the plain Core.
-      : event.data.name === 'Chat On Steroids Core' ? [{ name: event.data.name, path: valid(event.data.path) }] : [];
+      : event.data.name === 'NCode Core' ? [{ name: event.data.name, path: valid(event.data.path) }] : [];
     corePluginList = event.data.pluginList === true;
     reportCorePlugin();
   });
@@ -1372,7 +1372,7 @@
   function setKeepAwake(on) {
     const locks = globalThis.navigator && globalThis.navigator.locks;
     if (on && !keepAwakeRelease && locks && typeof locks.request === 'function') {
-      const name = `chat-on-steroids-keep-awake-${Math.random().toString(36).slice(2, 12).padEnd(8, '0')}`;
+      const name = `ncode-keep-awake-${Math.random().toString(36).slice(2, 12).padEnd(8, '0')}`;
       let release = null;
       const held = new Promise((resolve) => { release = resolve; });
       keepAwakeRelease = release;
@@ -1452,7 +1452,7 @@
     const takeUtf8 = (value, budget) => {
       if (typeof value !== 'string') return value;
       if (utf8Bytes(value) <= budget) return value;
-      const marker = '\n\n[Chat On Steroids: browser observation truncated to fit transport.]';
+      const marker = '\n\n[NCode: browser observation truncated to fit transport.]';
       const markerBytes = utf8Bytes(marker);
       let low = 0;
       let high = value.length;
@@ -6355,10 +6355,10 @@
    * like a stranger's — so it produced no attribution evidence and, worse, local rows were
    * classified as ChatGPT-native activity and re-recorded as the assistant's own captions.
    * The names are this install's: the plain ones, or with this computer's suffix when one
-   * ChatGPT account is used on several computers ("Chat On Steroids Core (Windows)"). The other
+   * ChatGPT account is used on several computers ("NCode Core (Windows)"). The other
    * computer's calls run there, so they are not ours here (CLF_DOM.connectorNames).
    *
-   * Exact names, never a prefix: `Chat On Steroids Backup` would be somebody else's
+   * Exact names, never a prefix: `NCode Backup` would be somebody else's
    * connector, and a prefix test would have this app vouch for its traffic.
    */
   const LEGACY_CONNECTORS = ['TobisComputer'];
@@ -7301,7 +7301,7 @@
       return {
         mode: 'off',
         label: t('content_compact', 'Compact'),
-        hint: t('content_browser_disconnected', 'Browser connection is disconnected in Chat On Steroids.'),
+        hint: t('content_browser_disconnected', 'Browser connection is disconnected in NCode.'),
         action: 'none'
       };
     }
@@ -7309,7 +7309,7 @@
       return {
         mode: 'off',
         label: t('content_compact', 'Compact'),
-        hint: t('content_app_not_running', 'Chat On Steroids is not running on this PC.'),
+        hint: t('content_app_not_running', 'NCode is not running on this PC.'),
         action: 'none'
       };
     }
@@ -7933,7 +7933,7 @@
       'data-clf-tip',
       t(
         'content_chat_blocked_tip',
-        'This chat is blocked in the Chat On Steroids app: its tool calls are refused and Goal, Loop and auto-compaction are off. To release it, open the app’s Chat tab, hover this chat in the sessions list and press its block symbol.'
+        'This chat is blocked in the NCode app: its tool calls are refused and Goal, Loop and auto-compaction are off. To release it, open the app’s Chat tab, hover this chat in the sessions list and press its block symbol.'
       )
     );
     blocked.hidden = true;
@@ -8026,7 +8026,7 @@
     root.className = 'clf-menu';
     root.dataset.clfMenu = '1';
     root.setAttribute('role', 'dialog');
-    root.setAttribute('aria-label', t('content_settings_aria', 'Chat On Steroids settings'));
+    root.setAttribute('aria-label', t('content_settings_aria', 'NCode settings'));
     root.hidden = true;
     (document.body || document.documentElement).append(root);
     return root;
@@ -8788,7 +8788,7 @@
     // Never disabled any more: it opens a sheet, and a sheet that explains why compaction is
     // unavailable is exactly what somebody clicking a dead button wanted to be told.
     control.button.disabled = false;
-    setAttr(control.button, 'aria-label', t('content_settings_aria', 'Chat On Steroids settings'));
+    setAttr(control.button, 'aria-label', t('content_settings_aria', 'NCode settings'));
     setAttr(control.button, 'aria-haspopup', 'dialog');
     if (!control.button.hasAttribute('aria-expanded')) control.button.setAttribute('aria-expanded', 'false');
     // The meter only while the button is a button. During a run the control is saying what
@@ -10237,7 +10237,7 @@
    * the person's draft again, which is preserved (#134).
    */
   // ChatGPT's editor keeps paragraphs as elements, so in its text the marker runs straight into the
-  // instruction ("]]Chat On Steroids…"); CONTINUATION_MARKER, which wants a space, missed it live.
+  // instruction ("]]NCode…"); CONTINUATION_MARKER, which wants a space, missed it live.
   const HANDOFF_MARKED = /^\s*\[\[CLF-HANDOFF:[A-Za-z0-9_-]{16,64}\]\]/;
   /** A composer holding a handoff request this app typed (any attempt's), and no attachment. */
   function handoffMarked(box) {
@@ -11220,7 +11220,7 @@
     if (data.error) return String(data.error).slice(0, 160);
     if (reply.error === 'app_not_found') return t(
       'content_app_not_running',
-      'Chat On Steroids is not running on this PC.'
+      'NCode is not running on this PC.'
     );
     return reply.error ? String(reply.error).slice(0, 160) : '';
   }
@@ -12456,7 +12456,7 @@
     limit.published = limit.retryAt;
     emit({
       kind: 'chat_error',
-      text: t('content_history_rate_limited', 'ChatGPT temporarily rate-limited loading this conversation history. Chat On Steroids is pausing automatic recovery until the retry wait ends.'),
+      text: t('content_history_rate_limited', 'ChatGPT temporarily rate-limited loading this conversation history. NCode is pausing automatic recovery until the retry wait ends.'),
       recoverable: false,
       blocking: true,
       retryAt: limit.retryAt

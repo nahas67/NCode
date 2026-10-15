@@ -32,7 +32,7 @@ export function renderRecoveryCountdowns(host: HTMLElement, countdowns: readonly
       });
       ui(row, 'title', () => countdown.kind === 'compaction'
         ? countdown.phase === 'waiting' ? t('The handoff request is sent as soon as this turn ends.')
-          : t('Chat On Steroids is sending ChatGPT the request to write the brief for a new chat.')
+          : t('NCode is sending ChatGPT the request to write the brief for a new chat.')
         : countdown.kind === 'provider-limit'
         ? t('Automatic recovery is paused during the history rate-limit wait. Reloading earlier can prolong the limit.')
         : countdown.kind === 'pickup-stopped'

@@ -1,5 +1,5 @@
 /** Device-local read state for completed sidebar chats; session lifecycle remains authoritative elsewhere. */
-const STORAGE_KEY = 'chat-on-steroids.sidebar-completion-seen';
+const STORAGE_KEY = 'ncode.sidebar-completion-seen';
 const MAX_ENTRIES = 5000;
 const MAX_STORAGE_CHARS = 600_000;
 

@@ -2,7 +2,7 @@
  * The folder a chat is currently working in, so it can stop spelling out full paths.
  *
  * A coding session spends its whole life inside one project, and every call was repeating
- * the same prefix: `/project/chat-on-steroids/src/main/patch.ts` where `src/main/patch.ts`
+ * the same prefix: `/project/ncode/src/main/patch.ts` where `src/main/patch.ts`
  * would do. That prefix is pure overhead — it costs tokens on every call, and it is the
  * part the model is most likely to get subtly wrong.
  *
@@ -46,7 +46,7 @@ const MAX_WORKSPACES = 64;
 /**
  * Files that mean "this directory is the top of a project".
  *
- * The workspace learned from `/project/chat-on-steroids/src/main/patch.ts` should be the
+ * The workspace learned from `/project/ncode/src/main/patch.ts` should be the
  * repository, not `src/main` — otherwise the next call has to write `../../src/other.ts`
  * and nothing has been saved. Walking up to the nearest marker is what makes a relative
  * path mean the same thing it means in a terminal at the project root.
@@ -54,7 +54,7 @@ const MAX_WORKSPACES = 64;
 const PROJECT_MARKERS = ['.git', 'package.json', 'pyproject.toml', 'go.mod', 'Cargo.toml', 'pom.xml'];
 
 export interface Workspace {
-  /** Virtual path of the folder, e.g. `/project/chat-on-steroids`. */
+  /** Virtual path of the folder, e.g. `/project/ncode`. */
   virtual: string;
   real: string;
   at: number;

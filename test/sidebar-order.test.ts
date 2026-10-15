@@ -9,7 +9,7 @@ function fixture(saved?: string) {
   dom = new JSDOM('<div class="scroll"><div id="list"></div></div>', { url: 'https://local.test', pretendToBeVisual: true });
   const w = dom.window;
   Object.assign(globalThis, { window: w, document: w.document });
-  if (saved) w.localStorage.setItem('chat-on-steroids.sidebar-order', saved);
+  if (saved) w.localStorage.setItem('ncode.sidebar-order', saved);
   const list = w.document.getElementById('list')!;
   list.setPointerCapture = vi.fn(); list.hasPointerCapture = () => false;
   let entries = ['a', 'b', 'c', 'd', 'e', 'f'].map((id, index) => ({ id, scope: index < 3 ? 'project' : '' }));
@@ -34,7 +34,7 @@ function fixture(saved?: string) {
   return { w, list, order, paint, row, pointer, drag,
     ids: (scope: string) => order.ordered(scope, entries.filter(row => row.scope === scope)).map(row => row.id),
     update: (next: typeof entries) => { entries = next; },
-    saved: () => w.localStorage.getItem('chat-on-steroids.sidebar-order')!,
+    saved: () => w.localStorage.getItem('ncode.sidebar-order')!,
   };
 }
 

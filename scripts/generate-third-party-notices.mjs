@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const lock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
 const notices = [
-  'Chat On Steroids — Third-party Notices',
+  'NCode — Third-party Notices',
   '',
   'CoS remains MIT licensed; see LICENSE. This inventory preserves the license and notice texts',
   'of the production npm components present when this build was prepared. Platform-specific',
@@ -14,7 +14,7 @@ const notices = [
   'their respective packaged binaries. Optional packages for other targets are supplied by',
   'the packaging pipeline together with their notices.',
   '',
-  'Catalog artwork: Copyright (c) 2026 Chat On Steroids contributors. MIT licensed, see LICENSE.',
+  'Catalog artwork: Copyright (c) 2026 NCode contributors. MIT licensed, see LICENSE.',
   'Original illustrations are not official product logos. Product names identify independent',
   'integrations and do not imply affiliation or endorsement. External plugins installed by users',
   'are not bundled with CoS; their package directories retain their own licenses and notices.',

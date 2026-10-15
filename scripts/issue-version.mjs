@@ -32,13 +32,13 @@ export function versionDecision(issue) {
 
 export const CLOSE_COMMENT = `Thanks for the report! The **App version** field needs the exact version number, for example \`2.1.32\`. "latest" or similar can't be used: it changes with every release, so we can't tell which build you ran, and many problems are already fixed in a newer one. We can only look into reports with a version number, so this issue is closed for now.
 
-You'll find the number in the app under **Settings → Activity** ("Up to date! Chat On Steroids 2.1.32"), or in the browser extension's popup. Please **edit this issue** and put it in the App version field: the issue reopens by itself once it has a version number. If you're not on the newest release, please update first and check whether the problem is still there.`;
+You'll find the number in the app under **Settings → Activity** ("Up to date! NCode 2.1.32"), or in the browser extension's popup. Please **edit this issue** and put it in the App version field: the issue reopens by itself once it has a version number. If you're not on the newest release, please update first and check whether the problem is still there.`;
 
 export const REOPEN_COMMENT = 'Thanks for adding the version number! The issue is open again.';
 
 async function github(path, token, init = {}) {
   const response = await fetch(`${API}${path}`, { ...init, headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'chat-on-steroids-issue-version', ...(init.headers ?? {}) } });
+    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ncode-issue-version', ...(init.headers ?? {}) } });
   if (!response.ok) throw new Error(`GitHub ${path} failed with HTTP ${response.status}`);
   return response.status === 204 ? null : response.json();
 }

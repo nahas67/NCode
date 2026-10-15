@@ -4,7 +4,7 @@
 
 This fork adapts the Git Changes and exact recorded-edit review work authored by
 [@Haz4rdovisk](https://github.com/Haz4rdovisk) in upstream PR
-[#345](https://github.com/totec448-spec/chat-on-steroids/pull/345), principally source commit
+[#345](https://github.com/totec448-spec/ncode/pull/345), principally source commit
 `4f4d3d2b3c87a3ccd199ea3b24c339ca446bd5e6`, onto the fork's upstream-aligned
 `main` at `750fad9378a0cf9e37791916b11f7ed9add645dd`.
 

@@ -18,7 +18,7 @@ const MAX_FINGERPRINT_ENTRIES = 4_096;
 const MAX_FINGERPRINT_DEPTH = 32;
 const MAX_FINGERPRINT_BYTES = 64 * 1024 * 1024;
 const GIT_TIMEOUT_MS = 20_000;
-const MANAGED_FOLDER = '.chat-on-steroids-worktrees';
+const MANAGED_FOLDER = '.ncode-worktrees';
 
 export type WorkerWorkspace = Pick<Workspace, 'real' | 'virtual'>;
 

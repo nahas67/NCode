@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { Config } from '../src/shared/types.js';
+import { DEFAULT_HELPER_CHAT_MODEL } from '../src/shared/chat-models.js';
 import { readFile } from 'node:fs/promises';
 
 let dom: JSDOM;
@@ -148,20 +149,22 @@ it('keeps an unknown non-Latin saved worker model unverified instead of matching
   expect(model.value).toBe('完全不同'); expect(model.selectedOptions[0]!.disabled).toBe(true);
 });
 
-it('shows the built-in Goal, Loop and Plan model as the one GPT-6 the picker lists (#1217)', async () => {
+it('shows the built-in Goal, Loop and Plan model as the one entry the picker lists (#1217)', async () => {
   // 2.1.31 test round: the default was the lane alias gpt-6-thinking, so this select listed "GPT-6" and
-  // a selected "GPT-6 · gpt-6-thinking" with its internal id on every fresh install.
+  // a selected "GPT-6 · gpt-6-thinking" with its internal id on every fresh install. The invariant worth
+  // keeping is that the shipped default resolves to ONE clean option with no lane-alias suffix, so the
+  // catalog is built around whatever the shipped default now is rather than a retired ChatGPT lane.
   dom = new JSDOM(await readFile('src/renderer/index.html', 'utf8'));
   vi.stubGlobal('window', dom.window); vi.stubGlobal('document', dom.window.document);
   const models = [
-    { id: 'gpt-6', label: 'GPT-6', efforts: ['none', 'medium', 'high', 'xhigh'], aliases: ['gpt-6', 'gpt-6-thinking'] },
-    { id: 'gpt-5-6', label: 'GPT-5.6', efforts: ['none', 'medium', 'high', 'xhigh'] }];
+    { id: DEFAULT_HELPER_CHAT_MODEL, label: 'Thinking', efforts: ['none', 'medium', 'high', 'xhigh'] },
+    { id: 'gemini-pro', label: 'Pro', efforts: ['none', 'medium', 'high', 'xhigh'] }];
   Object.assign(dom.window, { api: { getChatModels: async () => ({ ok: true, data: { state: 'ready', models } }) } });
   const { initChatModels, applyChatModels } = await import('../src/renderer/chat-models.js');
   initChatModels(); applyChatModels({ multiAgent: {}, goal: {} } as Config); await Promise.resolve(); await Promise.resolve();
   const helper = dom.window.document.getElementById('helperModel') as HTMLSelectElement;
-  expect([...helper.options].map(option => option.textContent)).toEqual(['GPT-6', 'GPT-5.6']);
-  expect(helper.value).toBe('gpt-6');
+  expect([...helper.options].map(option => option.textContent)).toEqual(['Thinking', 'Pro']);
+  expect(helper.value).toBe(DEFAULT_HELPER_CHAT_MODEL);
   expect((dom.window.document.getElementById('helperReasoning') as HTMLSelectElement).value).toBe('high');
 });
 
@@ -446,7 +449,7 @@ it('uses observed account choices, preserves unverified defaults, and clears inc
   dom = new JSDOM('<span id="composerModelLabel"></span><p id="chatModelStatus"></p>' +
     ['composerModel', 'composerReasoning', 'workerModel', 'workerReasoning', 'helperModel', 'helperReasoning'].map(id => `<select id="${id}"><option value="">Default</option></select>`).join(''));
   const observed = { state: 'ready', requestedAt: 1, observedAt: Date.now(), models: [
-    { id: 'first', label: 'GPT-5.6 Sol', efforts: ['high'] }, { id: 'gpt-6-thinking', label: 'GPT-6', efforts: ['medium'] }
+    { id: 'first', label: 'Fast', efforts: ['high'] }, { id: DEFAULT_HELPER_CHAT_MODEL, label: 'Thinking', efforts: ['medium'] }
   ] };
   Object.assign(dom.window, { api: { getChatModels: async () => ({ ok: true, data: observed }) } });
   vi.stubGlobal('window', dom.window); vi.stubGlobal('document', dom.window.document);
@@ -464,18 +467,18 @@ it('uses observed account choices, preserves unverified defaults, and clears inc
   expect(dom.window.document.getElementById('workerModelVerification')!.title)
     .toBe("This ChatGPT account doesn't offer this model, so ChatGPT's current model is used.");
   expect(dom.window.document.getElementById('helperModelVerification')!.hasAttribute('hidden')).toBe(true);
-  // The built-in helper default is the GPT-6 family; this account lists it as gpt-6-thinking, which it resolves to.
-  expect(select('helperModel').value).toBe('gpt-6-thinking');
+  // The built-in helper default is a live Gemini tier, so a catalog that lists it needs no verification badge.
+  expect(select('helperModel').value).toBe(DEFAULT_HELPER_CHAT_MODEL);
   // Selects without the badge still say so in the option itself.
   applyChatModels({ multiAgent: { defaultModel: 'unseen', defaultReasoning: 'high' }, goal: { helperModel: 'first', helperReasoning: 'ultra' } } as Config);
   await Promise.resolve();
   expect(select('helperReasoning').value).toBe('ultra');
   expect(select('helperReasoning').selectedOptions[0]!.textContent).toBe('ultra · not verified');
-  expect([...select('composerModel').options].map(row => row.value)).toEqual(['first', 'gpt-6-thinking']);
+  expect([...select('composerModel').options].map(row => row.value)).toEqual(['first', DEFAULT_HELPER_CHAT_MODEL]);
   select('composerModel').value = 'first'; select('composerModel').dispatchEvent(new dom.window.Event('change'));
   expect([...select('composerReasoning').options].map(row => row.value)).toEqual(['high']);
   select('composerReasoning').value = 'high';
-  select('composerModel').value = 'gpt-6-thinking'; select('composerModel').dispatchEvent(new dom.window.Event('change'));
+  select('composerModel').value = DEFAULT_HELPER_CHAT_MODEL; select('composerModel').dispatchEvent(new dom.window.Event('change'));
   expect(select('composerReasoning').value).toBe('medium');
   expect([...select('composerReasoning').options].map(row => row.value)).toEqual(['medium']);
 });

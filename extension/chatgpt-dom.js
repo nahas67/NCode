@@ -1457,7 +1457,7 @@ var CLF_DOM = (() => {
   /**
    * Visible assistant activity in the exact DOM order ChatGPT drew it.
    *
-   * Chat On Steroids remains authoritative for its own call labels/results. This only supplies
+   * NCode remains authoritative for its own call labels/results. This only supplies
    * the missing chronology: a visible commentary paragraph can sit between two calls, and
    * the recorder clock cannot recover that after a fast turn. ChatGPT's completed DOM can.
    */
@@ -1657,7 +1657,7 @@ var CLF_DOM = (() => {
    * and in use" as recorded chat errors — 60 of them against 5 real transport failures in
    * one run — and every error count the app showed was inflated by them. An offscreen
    * announcement is not a banner. Neither is this extension's own surface, which was
-   * recording "Chat On Steroids Desktop is now connected" as a ChatGPT failure.
+   * recording "NCode Desktop is now connected" as a ChatGPT failure.
    */
   const acknowledgedAccessNotices = new WeakSet();
   function errors() {
@@ -1829,7 +1829,7 @@ var CLF_DOM = (() => {
    * The closing sentence every worker wake ends with (src/main/agents.ts planRevivalText), compared
    * without whitespace: ProseMirror's textContent drops the paragraph break before it.
    */
-  const REVIVAL_RESIDUE = new RegExp('\\(ChatOnSteroids:youarestill[A-Za-z0-9_-]{1,40}inthesamerun,' +
+  const REVIVAL_RESIDUE = new RegExp('\\(NCode:youarestill[A-Za-z0-9_-]{1,40}inthesamerun,' +
     'andthisistheprimeagenttalkingtoyouagaininthechatyoualreadyknow\\.' +
     'Pickupfromwhatyoudidherebeforeratherthanstartingover\\.' +
     // With a connector suffix the sentence names this computer's Core: "the agents tool of … (Windows): ".
@@ -2675,12 +2675,12 @@ var CLF_DOM = (() => {
    * This install's connector names in ChatGPT (core, desktop, plugins), as the app reports them.
    *
    * A computer that shares its ChatGPT account with another names its connectors with a suffix,
-   * "Chat On Steroids Core (Windows)", and recognizes exactly its own names; the other computer's
+   * "NCode Core (Windows)", and recognizes exactly its own names; the other computer's
    * calls run there. Null until the app has said, which keeps the plain names. Every ask to the
    * page-world helper carries them, so it never judges traffic by names it was not told.
    */
-  const PLAIN_CONNECTORS = ['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins'];
-  const SUFFIXED_CONNECTOR = /^Chat On Steroids (Core|Desktop|Plugins) \([\p{L}\p{N} ._-]{1,32}\)$/u;
+  const PLAIN_CONNECTORS = ['NCode Core', 'NCode Desktop', 'NCode Plugins'];
+  const SUFFIXED_CONNECTOR = /^NCode (Core|Desktop|Plugins) \([\p{L}\p{N} ._-]{1,32}\)$/u;
   let ownConnectors = null;
   function setConnectorNames(names) {
     if (!names || typeof names !== 'object') return false;

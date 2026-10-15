@@ -1,4 +1,4 @@
-# Chat On Steroids — product logic and agent map
+# NCode — product logic and agent map
 
 Read this file before changing the app. It explains the product, feature logic, owners and
 working rules without requiring old worklogs. If the host injected only a prefix, read the
@@ -27,7 +27,7 @@ bridge protocol **14** in the checked declarations (`package.json`, `src/main/ve
 
 ## 1. What the whole app is meant to do
 
-Chat On Steroids is a Windows/macOS/Linux Electron workspace around ChatGPT. The user can work
+NCode is a Windows/macOS/Linux Electron workspace around ChatGPT. The user can work
 from the desktop app while ChatGPT generates answers in its own browser conversation. The app
 sends instructions, records the conversation, supplies local tools over MCP, and coordinates
 long-running work. The companion extension connects that browser conversation to the local
@@ -212,7 +212,7 @@ define the tool/config/wire contract. README and worklogs are secondary and can 
 | Plugin auto-refresh | On. | Configs written before the setting existed read Off (schema default); conservative recovery also turns it off. While it is off and `ui.autoRefreshPluginsAsked` is not set, the window offers it once (`pluginRefresh:offer`); either answer sets `autoRefreshPluginsAsked`, which a settings save never clears. Local status/discovery never claims ChatGPT refreshed its connector snapshot. |
 | Browser bridge port | Auto. | `ui.browserBridgePort` accepts Auto or 8765–8769. Auto falls back to 18765–18769, then 38765–38769 (`BROWSER_BRIDGE_AUTO_PORTS`, mirrored by the extension's `PORTS`; #1314: Windows reserved the primary range). Effective `CLF_BRIDGE_PORTS` overrides it and disables the Settings control. |
 | Background chats | On. | Omitted legacy settings use On; explicit saved On/Off remains exact. Cold Windows startup requests a minimized browser window. |
-| Background placement | Window. | `ui.backgroundPlacement` `'window'` / `'group'` (an unknown saved value reads as `'window'`), published in `/status` as `backgroundPlacement`. Group mode puts every background tab in one collapsed "Chat On Steroids" tab group in the last-focused normal window (never the background window, never incognito), then keeps using it; failures fall back to the minimized window. No follow and no compaction tab selection in the user's window (#128). |
+| Background placement | Window. | `ui.backgroundPlacement` `'window'` / `'group'` (an unknown saved value reads as `'window'`), published in `/status` as `backgroundPlacement`. Group mode puts every background tab in one collapsed "NCode" tab group in the last-focused normal window (never the background window, never incognito), then keeps using it; failures fall back to the minimized window. No follow and no compaction tab selection in the user's window (#128). |
 
 Keep evidence levels separate in all reports: **source → tests → build → package → installed
 payload → live browser/device/provider behavior**. Passing one level does not prove the next.
@@ -383,9 +383,9 @@ still checks live policy. Schema visibility is never the security boundary.
 
 | Surface | Advertised operations under current eligibility |
 | --- | --- |
-| Core — `chat-on-steroids-core` | `read`, `view_image`, `find` when command execution is off, `apply_patch`, `exec_command`/`write_stdin`, `update_plan`, `agents`, `session_finish`, code-mode `exec`. |
-| Desktop — `chat-on-steroids-desktop` | All Chromium extension hosts: `browser_tabs`, `browser_snapshot`, `browser_screenshot`, `browser_console`, `browser_network`, `browser_navigate`, `browser_action`, `browser_evaluate`. Windows additionally exposes 13 Window2 operations, clipboard and `exec` with `sky`; macOS adds `observe`/`computer`. Surface `exec` composes browser tools too. |
-| Plugins — `chat-on-steroids-plugins` | Enabled external tools with their upstream names and schemas, plus code-mode `exec` when that composition name is available. |
+| Core — `ncode-core` | `read`, `view_image`, `find` when command execution is off, `apply_patch`, `exec_command`/`write_stdin`, `update_plan`, `agents`, `session_finish`, code-mode `exec`. |
+| Desktop — `ncode-desktop` | All Chromium extension hosts: `browser_tabs`, `browser_snapshot`, `browser_screenshot`, `browser_console`, `browser_network`, `browser_navigate`, `browser_action`, `browser_evaluate`. Windows additionally exposes 13 Window2 operations, clipboard and `exec` with `sky`; macOS adds `observe`/`computer`. Surface `exec` composes browser tools too. |
+| Plugins — `ncode-plugins` | Enabled external tools with their upstream names and schemas, plus code-mode `exec` when that composition name is available. |
 
 `read` needs read/browse/metadata as appropriate; images need read; patch checks each hunk's
 create/edit/move/delete permission; command controls both terminal tools.
@@ -1236,7 +1236,7 @@ model/effort, due time, optional stages and attachments. `input.ts` serializes m
 publishes a new ledger only after its write. Reusing an id with different content is rejected.
 The frozen `deliveryText` includes executor setup only for a new-chat opening at claim time; displayed authored
 text remains separate. A failed write cannot later become a successful hidden enqueue.
-Browser Send puts a Chat On Steroids Core app mention in front of the text, because some accounts
+Browser Send puts a NCode Core app mention in front of the text, because some accounts
 (Plus in Chat mode, #861) attach the app to a message only when the message mentions it.
 `ui.mentionCore` (Settings › General, default on, delivered to the page with the activity reply) can
 leave the mention off the user's own prompts, which on other accounts start plain questions with a
@@ -1258,7 +1258,7 @@ mention. A miss leaves things as before; a false alarm drops the mention from on
 One ChatGPT account used on several computers needs one connector set per computer, and the sets
 cannot share a name. `connectorSuffix` (Settings › Setup, "Several computers, one ChatGPT account";
 top-level config, never part of a setup profile) names this install's set: "Windows" gives
-"Chat On Steroids Core (Windows)", "… Desktop (Windows)" and "… Plugins (Windows)"; empty keeps the
+"NCode Core (Windows)", "… Desktop (Windows)" and "… Plugins (Windows)"; empty keeps the
 plain names. ChatGPT records a connector's calls under the exact name typed (call path,
 `invocation.server` and `invoked_resource.app_name`, measured 2026-10-04), so:
 - `surfaceDefinition()` reads the suffix on every call: Setup cards, server instructions,
@@ -1280,7 +1280,7 @@ plain names. ChatGPT records a connector's calls under the exact name typed (cal
   called that computer's tools (seen live, 2026-10-11). The worker's `redeem` reply therefore carries
   `identity: { connectorNames, connectorApps, ownCoreApp }` with a command, and the page applies it
   as it would `status`. A proven Core id also outranks a remembered sighting.
-- Plugin refresh treats any "Chat On Steroids Plugins (…)" as the Plugins kind for its action limits.
+- Plugin refresh treats any "NCode Plugins (…)" as the Plugins kind for its action limits.
 - Worker protocol text (the brief and wake-up messages) names this install's exact Core when a
   suffix is set, and the "no run" refusal names the Core that answered: a worker told only "the
   agents tool" reported through the other computer's Core (seen live, 2026-10-04).
@@ -2509,14 +2509,14 @@ tool within 60 s. No URL, cookie or credential leaves the page.
 
 In tab-group mode (#128) the extension keeps the group's id in `chrome.storage.session`
 (`chatBackgroundGroup`) and mirrors it to local storage (`chatBackgroundGroupMirror`); a mirrored id is
-trusted only while the group still carries the title "Chat On Steroids", and `onStartup` drops the
+trusted only while the group still carries the title "NCode", and `onStartup` drops the
 mirror. After a browser restart only an exactly titled group in a normal window whose every tab the
 app owns is adopted again. Group mode's reconcile never moves or regroups tabs. Only a group the app
 just created is collapsed, and every grouped tab is created inactive. A group that vanishes during
 placement is retried once, then the tab moves to the minimized window. When the last app tab closes,
 Chrome deletes the group and its auto-saved copy. Browsers without `chrome.tabGroups` use the window.
 Chrome freezes a collapsed group's tabs within seconds (2 of 7 sends stalled on Chrome 154), so every
-page in the app's group holds a Web Lock (`chat-on-steroids-keep-awake-<random>`), which Chrome's
+page in the app's group holds a Web Lock (`ncode-keep-awake-<random>`), which Chrome's
 freezing rules exempt: `register_document` answers `keepAwake`, and `clf-keep-awake { on }` from
 the maintenance pass and the `groupId` change event turns it on or off per document (told state in
 session storage `keepAwakeTabs`). A grouped page frozen before it could take the lock gets the group
@@ -3181,7 +3181,7 @@ the pre-click question shown), because a transcript can hydrate in steps, and it
 later with the same verdict. Then `releaseUndeliveredSourceDispatchNow` hands the fence back to `attempted-unresolved` (the
 app re-checks every condition) for one new Send. ChatGPT restores an unsent draft on every load,
 so an earlier attempt's own handoff request can stay in the box; in its text the marker runs
-straight into the instruction (`]]Chat On Steroids…`). `handoffMarked` recognizes it: the repair
+straight into the instruction (`]]NCode…`). `handoffMarked` recognizes it: the repair
 check does not hold on it, and the attempt replaces it only when it is exactly the instruction
 under another token (`handoffResidue`); edited text stays the person's draft (#134).
 
@@ -4299,7 +4299,7 @@ attempt per accepted round. These primitives do not change automatic preferences
 Setup counts a connector as created in ChatGPT from this run's requests or from
 `connector-proof.ts`: requests and tool calls through the same tunnel in earlier runs, an
 enrolled refresh row, or the extension's `core_plugin` message (ChatGPT's own app list names
-Chat On Steroids Core; POST `/core-plugin` with its `asdk_app_` id). `SurfaceStatus.proof`
+NCode Core; POST `/core-plugin` with its `asdk_app_` id). `SurfaceStatus.proof`
 carries it; cloudflared/manual tunnels change address per run and keep none. The OpenAI
 tunnel keeps it across restarts because ChatGPT's plugin names the tunnel id, not a URL: each
 run hands tunnel-client its own local URL, per-start token included. ChatGPT's complete plugins
@@ -4767,8 +4767,8 @@ Record changes and actual checks in a focused worklog. Keep security reproductio
 session material out of public docs and fixtures; follow `SECURITY.md`. Do not package, install,
 commit or publish merely because a source/documentation task was requested.
 
-Runtime data is under Electron userData: `%APPDATA%/chat-on-steroids` on Windows,
-`~/Library/Application Support/chat-on-steroids` on macOS and the XDG config location on Linux.
+Runtime data is under Electron userData: `%APPDATA%/ncode` on Windows,
+`~/Library/Application Support/ncode` on macOS and the XDG config location on Linux.
 Inspect exact session/state files (§4), never edit live ledgers as a repair shortcut. `logger.ts`
 keeps a redacted 500-entry ring and bounded async `app.log` batches with rotation, explicit
 overload omissions, a two-second final flush and separate `.crash` snapshot. Logs are human
@@ -4790,7 +4790,7 @@ Tests: `report-scrub.test.ts`, `diagnostics-report.test.ts` and `ipc.test.ts` (n
 ## 20. Build, installation, updater and release
 
 Source, bundle, package, installed bytes and live behavior are separate gates (§3). The app id
-is `com.chatonsteroids.app`. Native release targets are Windows x64/arm64 NSIS, macOS x64/arm64
+is `com.ncode.app`. Native release targets are Windows x64/arm64 NSIS, macOS x64/arm64
 DMG+ZIP and Linux x64/arm64 AppImage+DEB. Windows is per-user-capable and `asInvoker`; replacing
 the package preserves userData. Synchronize package/main/extension versions deliberately.
 

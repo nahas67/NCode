@@ -82,14 +82,14 @@ async function publishPage(conversationId: string, requestId: string, shape: 'li
       { type: 'user-message', messageId: user, serverMessageId: user, message: 'Diagnostic task' },
       { type: 'chatgpt-reasoning-group', items: [step] }
     ] } };
-  const path = '/Chat On Steroids Core/link_fixture/agents';
+  const path = '/NCode Core/link_fixture/agents';
   const mapping = {
     [user]: { id: user, parent: null, message: { id: user, author: { role: 'user' } } },
     [invocation]: { id: invocation, parent: user, message: { id: invocation, author: { role: 'assistant' },
       recipient: shape === 'code' ? 'functions.exec' : 'api_tool.call_tool', metadata: { request_id: requestId },
       content: { content_type: 'code', text: JSON.stringify({ path, args: { secret: 'PRIVATE_FIXTURE_ARGUMENT' } }) } } },
     [resultId]: { id: resultId, parent: invocation, message: { id: resultId, author: { role: 'tool' }, metadata: {
-      invoked_resource: { app_name: 'Chat On Steroids Core', resource_uri: path } } } }
+      invoked_resource: { app_name: 'NCode Core', resource_uri: path } } } }
   };
   const queries = paired ? [{ queryKey: ['chatgpt-conversation', conversationId], state: { data: { mapping } } }] : [];
   const top = { memoizedProps: { client: { getQueryCache: () => ({ getAll: () => queries }) } }, return: null };

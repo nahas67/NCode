@@ -6,7 +6,7 @@
  * Issue #66: the 2.0.5 arm64 DMG launched to "the application is damaged" on macOS 27, with
  * Gatekeeper assessment already disabled — so this was a structural failure, not a policy one:
  *
- *     codesign --verify --deep --strict "Chat On Steroids.app"
+ *     codesign --verify --deep --strict "NCode.app"
  *     -> code has no resources but signature indicates they must be present
  *     codesign -dvv -> flags=0x20002(adhoc,linker-signed), Sealed Resources=none
  *

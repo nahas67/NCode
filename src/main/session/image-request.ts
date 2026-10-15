@@ -2,7 +2,7 @@
  * Does a message the person wrote ask ChatGPT to create or edit an image?
  *
  * ChatGPT switches its own image tool off for a message that mentions an app, and the app
- * mentions Chat On Steroids Core in the person's messages by default (it keeps ChatGPT on this
+ * mentions NCode Core in the person's messages by default (it keeps ChatGPT on this
  * computer's tools). Measured live (2026-10-05): with the mention, "create an image of …"
  * answers that no image tool is available; the same message without it draws, also as a
  * follow-up in a chat whose first message had the mention. So such a message goes out without

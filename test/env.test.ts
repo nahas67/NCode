@@ -3,7 +3,7 @@
  *
  * These are regressions for a live incident, not hygiene. The installed 1.7 build spawned
  * every child with a `Path` of exactly
- * `C:\Users\…\Chat On Steroids\resources\rg;` — one directory, no System32, no Git, no
+ * `C:\Users\…\NCode\resources\rg;` — one directory, no System32, no Git, no
  * Node — while the machine's own registry path was healthy. `npm` was "not recognized",
  * `git` and `where.exe` and `powershell.exe` all failed ENOENT, and the visible Claude Code
  * process inherited the same crippled path.
@@ -48,11 +48,11 @@ describe.runIf(process.platform === 'win32')('the Windows child environment', ()
   it('prepends the bundled tool directory without losing a single inherited entry', () => {
     // The live failure, exactly: this is the only thing the crippled child had left.
     const env = normalizeEnvironment(windowsEnv());
-    prependPath(env, 'C:\\Program Files\\Chat On Steroids\\resources\\rg');
+    prependPath(env, 'C:\\Program Files\\NCode\\resources\\rg');
 
     expect(pathKeys(env)).toEqual(['Path']);
     expect(pathEntries(env)).toEqual([
-      'C:\\Program Files\\Chat On Steroids\\resources\\rg',
+      'C:\\Program Files\\NCode\\resources\\rg',
       'C:\\Windows\\System32',
       'C:\\Program Files\\nodejs'
     ]);

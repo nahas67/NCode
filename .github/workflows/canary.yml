@@ -72,7 +72,7 @@ jobs:
       - name: Download the candidate
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: chat-on-steroids-candidate-${{ github.run_id }}
+          name: ncode-candidate-${{ github.run_id }}
           path: publish
 
       - name: Re-verify the checksums
@@ -89,11 +89,11 @@ jobs:
           # release.yml always includes the native-source archive in the candidate so the full
           # candidate can be verified above. Canary intentionally does not attach that archive;
           # do not publish a checksum manifest that names a file users cannot download here.
-          grep -Fq '  Chat-On-Steroids-Native-Sources.tar.gz' SHA256SUMS.txt || {
+          grep -Fq '  NCode-Native-Sources.tar.gz' SHA256SUMS.txt || {
             echo 'Candidate checksum manifest is missing the native-source archive.' >&2
             exit 1
           }
-          grep -vF '  Chat-On-Steroids-Native-Sources.tar.gz' SHA256SUMS.txt > SHA256SUMS.canary.txt
+          grep -vF '  NCode-Native-Sources.tar.gz' SHA256SUMS.txt > SHA256SUMS.canary.txt
           mv SHA256SUMS.canary.txt SHA256SUMS.txt
           cat SHA256SUMS.txt
 
@@ -113,7 +113,7 @@ jobs:
           - The app does not offer canary builds as updates. It offers the next stable release as usual.
           NOTES
           # Whatever the candidate packaged, without the native sources archive a release keeps.
-          mapfile -t assets < <(find publish -maxdepth 1 -name 'Chat-On-Steroids-*' ! -name '*Native-Sources*' | sort)
+          mapfile -t assets < <(find publish -maxdepth 1 -name 'NCode-*' ! -name '*Native-Sources*' | sort)
 
           main_sha="$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq .sha)"
           if [ "$GITHUB_SHA" != "$main_sha" ]; then

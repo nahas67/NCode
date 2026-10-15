@@ -32,7 +32,7 @@ function showTrayHint(): void {
     .then(() => {
       if (!Notification.isSupported()) return;
       new Notification({
-        title: mainText('The Chat On Steroids browser is still running'),
+        title: mainText('The NCode browser is still running'),
         body: mainText(process.platform === 'darwin'
           ? 'Your chats keep going. Choose Show browser in the menu bar icon’s menu to bring it back.'
           : 'Your chats keep going. Choose Show browser in the tray icon’s menu to bring it back.')

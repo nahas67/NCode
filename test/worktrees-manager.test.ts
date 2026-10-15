@@ -83,7 +83,7 @@ describe('automatic worker Git worktrees', () => {
 
     expect(lease.sourceDirty).toBe(true);
     expect(path.relative(repo, lease.worktreePath).startsWith(`..${path.sep}`)).toBe(true);
-    expect(lease.workspace.virtual).toContain('/approved/.chat-on-steroids-worktrees/');
+    expect(lease.workspace.virtual).toContain('/approved/.ncode-worktrees/');
     expect(await fs.readFile(path.join(lease.workspace.real, 'file.txt'), 'utf8')).toBe('base\n');
     expect(await fs.readFile(path.join(repo, 'file.txt'), 'utf8')).toBe('source dirty\n');
     expect(lookupWorkerWorkspace({ runId: RUN_ID, agentId: 'worker-1' })?.ownershipToken).toBe(lease.ownershipToken);
@@ -309,7 +309,7 @@ describe('automatic worker Git worktrees', () => {
       expect(await fs.readFile(userFile, 'utf8')).toBe('{"ownedBy":"user"}\n');
       // The deterministic run slot may have empty staging directories, but Git's
       // checkout destination must not exist without its marker and owner.
-      const managed = path.join(approved, '.chat-on-steroids-worktrees');
+      const managed = path.join(approved, '.ncode-worktrees');
       const repoSlots = await fs.readdir(managed);
       expect(repoSlots).toHaveLength(1);
       const ownerDir = path.join(managed, repoSlots[0]!, RUN_ID, 'worker-1');

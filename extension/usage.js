@@ -186,13 +186,13 @@
    * prompts the app sends carry a mention of Core. Only app ids and names leave this world.
    *
    * A computer sharing its ChatGPT account with another names its Core with a suffix
-   * ("Chat On Steroids Core (Windows)"), and this world cannot know which one is this install's:
+   * ("NCode Core (Windows)"), and this world cannot know which one is this install's:
    * the page may load its hints before the extension has heard from the app. So every Core-like
    * name is reported with its app id, and the content script picks its own by exact name. A name
    * that more than one app carries is ambiguous and reported without an id.
    */
-  const CORE_APP_NAME = 'Chat On Steroids Core';
-  const CORE_NAME = /^Chat On Steroids Core(?: \([\p{L}\p{N} ._-]{1,32}\))?$/u;
+  const CORE_APP_NAME = 'NCode Core';
+  const CORE_NAME = /^NCode Core(?: \([\p{L}\p{N} ._-]{1,32}\))?$/u;
   let coreMention = null;
   async function inspectSystemHints(response) {
     if (!active) return;

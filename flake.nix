@@ -1,5 +1,5 @@
 {
-  description = "Chat On Steroids development environment";
+  description = "NCode development environment";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -114,7 +114,7 @@
         in
         {
           node-modules = nodeModules;
-          native-runtime = pkgs.runCommand "chat-on-steroids-native-runtime" {
+          native-runtime = pkgs.runCommand "ncode-native-runtime" {
             nativeBuildInputs = [ nodejs ];
             LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib pkgs.vips ];
           } ''

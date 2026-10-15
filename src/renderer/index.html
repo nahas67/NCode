@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <title>Chat On Steroids</title>
+    <title>NCode</title>
     <link rel="stylesheet" href="./icons.css" />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./settings.css" />
@@ -33,7 +33,7 @@
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-resize" id="sidebarResize" role="separator" tabindex="0" aria-label="Chat list width" aria-orientation="vertical" aria-controls="sidebar" title="Drag to resize · Double-click to reset"></div>
         <button class="btn" id="backToChat" type="button" hidden><i class="ico ph ph-arrow-left" aria-hidden="true"></i><span>Back to chat</span></button>
-        <div class="sidebar-brand"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><use href="#i-mark" /></svg></span><strong>Chat On Steroids</strong><button class="btn sidebar-brand-search" id="searchChatsButton" type="button" aria-haspopup="dialog" aria-controls="searchDialog" title="Search chats" aria-label="Search chats"><i class="ico ph ph-magnifying-glass" aria-hidden="true"></i></button></div>
+        <div class="sidebar-brand"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><use href="#i-mark" /></svg></span><strong>NCode</strong><button class="btn sidebar-brand-search" id="searchChatsButton" type="button" aria-haspopup="dialog" aria-controls="searchDialog" title="Search chats" aria-label="Search chats"><i class="ico ph ph-magnifying-glass" aria-hidden="true"></i></button></div>
         <div class="sidebar-primary" id="sidebarPrimary">
           <button class="btn new-chat" id="newChat" type="button"><i class="ico ph ph-pencil-simple" aria-hidden="true"></i>New chat</button>
           <button class="btn sidebar-primary-link" id="sidebarPlugins" data-sidebar-page="plugins" type="button"><i class="ico ph ph-puzzle-piece" aria-hidden="true"></i>Plugins</button>
@@ -110,15 +110,23 @@
                 <strong id="connectionPopoverTitle">Not connected</strong>
                 <span class="connection-popover-status-dot" aria-hidden="true"></span>
               </div>
+              <!-- NCode's three components, each with the one fact that owns it. The tone classes on
+                   these rows are painted by renderer/ncode.ts from the connection record main sends;
+                   main.ts no longer paints a ChatGPT tunnel verdict here. -->
               <div class="connection-popover-card">
                 <div class="connection-popover-row">
-                  <span>ChatGPT</span>
-                  <span id="connectionPopoverConnector" class="sr-only">Not connected</span>
+                  <span>Local Bridge</span>
+                  <span id="connectionPopoverLocalBridge" class="sr-only">Not connected</span>
                   <i aria-hidden="true"></i>
                 </div>
                 <div class="connection-popover-row">
                   <span>Extension</span>
-                  <span id="connectionPopoverBrowser" class="sr-only">Not seen</span>
+                  <span id="connectionPopoverExtension" class="sr-only">Not connected</span>
+                  <i aria-hidden="true"></i>
+                </div>
+                <div class="connection-popover-row">
+                  <span>Gemini Tab</span>
+                  <span id="connectionPopoverGeminiTab" class="sr-only">Not connected</span>
                   <i aria-hidden="true"></i>
                 </div>
               </div>
@@ -151,14 +159,14 @@
         <div class="offer-icon"><i class="ico ph ph-arrows-clockwise" aria-hidden="true"></i></div>
         <div class="offer-text">
           <b id="pluginRefreshOfferTitle">Keep plugins up to date in ChatGPT</b>
-          <em>When an update changes a plugin's tools, Chat On Steroids refreshes it in ChatGPT for you. You can change this later in Settings.</em>
+          <em>When an update changes a plugin's tools, NCode refreshes it in ChatGPT for you. You can change this later in Settings.</em>
         </div>
         <button class="offer-later" id="pluginRefreshOfferLater" type="button">Not now</button>
         <button class="offer-accept" id="pluginRefreshOfferAccept" type="button">Turn on</button>
       </div>
       <div class="notice" id="pluginRefreshReminder" role="status" hidden>
         <i class="ico ph ph-activity" aria-hidden="true"></i>
-        <span>The tools of a Chat On Steroids plugin changed. Refresh that plugin in ChatGPT; this is separate from the browser extension.</span>
+        <span>The tools of a NCode plugin changed. Refresh that plugin in ChatGPT; this is separate from the browser extension.</span>
         <button class="btn btn-icon" id="dismissPluginRefreshReminder" type="button" title="Dismiss reminder" aria-label="Dismiss reminder"><i class="ico ph ph-x" aria-hidden="true"></i></button>
       </div>
       <div class="notice" id="credentialsUnreadable" role="alert" hidden>
@@ -190,7 +198,7 @@
               <div class="settings-surface pane appearance-settings-card">
                 <label class="setting"><span class="setting-text"><b>Follow new output</b><em>Stay at the end of the chat while answers grow, here and on ChatGPT. Scrolling up pauses it.</em></span><input id="followOutput" type="checkbox" /></label>
                 <label class="setting"><span class="setting-text"><b>Playful status words</b><em>Show rotating gym jokes instead of “Working”.</em></span><input id="playfulStatus" type="checkbox" /></label>
-                <label class="setting"><span class="setting-text"><b>Mention Chat On Steroids Core</b><em>Makes sure ChatGPT can use this app in every chat. Turn it off if ChatGPT starts plain questions with an unneeded tool call. Workers, Goal, Loop and Continue always keep the mention.</em></span><input id="mentionCore" type="checkbox" /></label>
+                <label class="setting"><span class="setting-text"><b>Mention NCode Core</b><em>Makes sure ChatGPT can use this app in every chat. Turn it off if ChatGPT starts plain questions with an unneeded tool call. Workers, Goal, Loop and Continue always keep the mention.</em></span><input id="mentionCore" type="checkbox" /></label>
               </div>
             </section>
             <section class="appearance-section" id="privacyScreenshotsSetting">
@@ -266,20 +274,20 @@
           <div class="plugins-content">
           <header class="plugin-page-head"><div><h1>Plugins</h1><p>Bring your favorite tools into the conversation.</p></div><div class="plugin-search-actions"><label class="plugin-search"><i class="ico ph ph-magnifying-glass" aria-hidden="true"></i><input id="pluginsSearch" type="search" placeholder="Search plugins" aria-label="Search plugins" /></label><button class="btn plugin-add" id="pluginsAdd" type="button" aria-label="Add a plugin" title="Add a plugin"><i class="ico ph ph-plus" aria-hidden="true"></i></button></div></header>
           <section class="plugin-connection" aria-labelledby="pluginsSetupTitle">
-            <div><h2 id="pluginsSetupTitle">Set up plugins before your first use</h2><p id="pluginsSetupHint">Add Chat On Steroids Plugins to ChatGPT once, so ChatGPT can use your installed plugins.</p><span id="pluginsConnectionStatus" role="status">Setup required · connect your plugins</span></div>
+            <div><h2 id="pluginsSetupTitle">Set up plugins before your first use</h2><p id="pluginsSetupHint">Add NCode Plugins to ChatGPT once, so ChatGPT can use your installed plugins.</p><span id="pluginsConnectionStatus" role="status">Setup required · connect your plugins</span></div>
             <button class="btn btn-solid" id="pluginsSetupLink" type="button">Set up plugins</button>
           </section>
-          <div class="plugin-refresh-guide"><p>After installing, updating or changing enabled plugins, refresh <strong id="pluginsRefreshName" translate="no">Chat On Steroids Plugins</strong> in ChatGPT to make its tools available.</p><button class="btn" id="pluginsOpenChatGPT" type="button">Open ChatGPT plugins</button></div>
+          <div class="plugin-refresh-guide"><p>After installing, updating or changing enabled plugins, refresh <strong id="pluginsRefreshName" translate="no">NCode Plugins</strong> in ChatGPT to make its tools available.</p><button class="btn" id="pluginsOpenChatGPT" type="button">Open ChatGPT plugins</button></div>
           <div class="plugin-section-head"><h2>Installed <span id="pluginsCount" class="plugin-count">Loading…</span></h2><button class="btn" id="pluginsRefresh" type="button">Check local status</button></div>
           <div id="pluginsInstalled" aria-live="polite"></div>
           <div class="plugin-section-head"><h2>Explore plugins</h2><span class="muted">Made for your workflow</span></div>
           <div id="pluginsExplore" class="plugin-directory"></div>
-          <details class="plugin-legal"><summary><svg class="disclosure-chevron details-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5"></path></svg>Legal Notices / Third-party Licenses</summary><p>Catalog illustrations are original Chat On Steroids artwork, Copyright © 2026 Chat On Steroids contributors, licensed under the app’s MIT license. They illustrate independent integrations and are not official product logos or endorsements. Product names belong to their respective owners.</p><p>Installed plugins retain their own licenses. Open a plugin’s details to see its source, version and license. Review the upstream project before installation. Bundled dependency notices and reviewed catalog license texts are included in THIRD-PARTY-NOTICES.txt with the application; external plugins are downloaded separately.</p><button class="btn" id="pluginsLegalOpen" type="button">Open full third-party license texts</button></details>
+          <details class="plugin-legal"><summary><svg class="disclosure-chevron details-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5"></path></svg>Legal Notices / Third-party Licenses</summary><p>Catalog illustrations are original NCode artwork, Copyright © 2026 NCode contributors, licensed under the app’s MIT license. They illustrate independent integrations and are not official product logos or endorsements. Product names belong to their respective owners.</p><p>Installed plugins retain their own licenses. Open a plugin’s details to see its source, version and license. Review the upstream project before installation. Bundled dependency notices and reviewed catalog license texts are included in THIRD-PARTY-NOTICES.txt with the application; external plugins are downloaded separately.</p><button class="btn" id="pluginsLegalOpen" type="button">Open full third-party license texts</button></details>
           </div>
         </section>
         <section class="panel plugins-panel skills-panel" data-panel="skills">
           <div class="plugins-content">
-            <header class="plugin-page-head"><div><h1>Skills</h1><p>Reusable instructions for the work you do in Chat On Steroids.</p></div><div class="plugin-search-actions"><label class="plugin-search"><i class="ico ph ph-magnifying-glass" aria-hidden="true"></i><input id="skillsSearch" type="search" placeholder="Search skills" aria-label="Search skills" /></label><details class="plugin-menu skill-import-menu"><summary class="btn plugin-add" aria-label="Import a skill" title="Import a skill"><i class="ico ph ph-plus" aria-hidden="true"></i></summary><div class="plugin-menu-actions"><button class="btn" id="skillsImportFolder" type="button">Import folder</button><button class="btn" id="skillsImportFile" type="button">Import SKILL.md</button><button class="btn" id="skillsImportGithub" type="button">Import from GitHub</button></div></details></div></header>
+            <header class="plugin-page-head"><div><h1>Skills</h1><p>Reusable instructions for the work you do in NCode.</p></div><div class="plugin-search-actions"><label class="plugin-search"><i class="ico ph ph-magnifying-glass" aria-hidden="true"></i><input id="skillsSearch" type="search" placeholder="Search skills" aria-label="Search skills" /></label><details class="plugin-menu skill-import-menu"><summary class="btn plugin-add" aria-label="Import a skill" title="Import a skill"><i class="ico ph ph-plus" aria-hidden="true"></i></summary><div class="plugin-menu-actions"><button class="btn" id="skillsImportFolder" type="button">Import folder</button><button class="btn" id="skillsImportFile" type="button">Import SKILL.md</button><button class="btn" id="skillsImportGithub" type="button">Import from GitHub</button></div></details></div></header>
             <div class="plugin-refresh-guide pet-import-guide"><p>Import a folder, a standalone SKILL.md, or a public GitHub skill. Local skills can be linked to their GitHub source to check for updates; installing an update stays your choice.</p></div>
             <dialog class="plugin-dialog pet-delete-dialog" id="skillGithubDialog" aria-labelledby="skillGithubTitle">
               <div class="plugin-dialog-head"><h2 id="skillGithubTitle">Import from GitHub</h2><button class="btn" id="skillGithubClose" type="button">Close</button></div>
@@ -309,7 +317,7 @@
               <div class="plugin-dialog-head"><h2 id="petFormatTitle">What can I import?</h2><button class="btn" id="petsFormatClose" type="button">Close</button></div>
               <div class="plugin-dialog-body pet-format-content">
                 <div class="pet-format-guide-head"><p>A compatible pet is a folder with three files.</p><button class="btn" id="petsCopyInstructions" type="button">Copy instructions</button></div>
-                <p class="pet-format-folder">Import the folder itself with <code>pet.json</code>, <code>atlas.png</code>, and <code>animations.json</code>. Chat On Steroids validates all three before copying the pet into your local library.</p>
+                <p class="pet-format-folder">Import the folder itself with <code>pet.json</code>, <code>atlas.png</code>, and <code>animations.json</code>. NCode validates all three before copying the pet into your local library.</p>
                 <div class="pet-format-ai-help">
                   <strong>AI-assisted creation</strong>
                   <p>Copy the production brief below and replace <code>&lt;describe your character here&gt;</code> with the character, personality, colors, style, accessories, and references you want. In Codex, invoke <code>$hatch-pet</code> for visual generation and QA; its official URL is included for discovery, while this app’s 96-frame CoS format remains authoritative.</p>
@@ -451,7 +459,7 @@
                   <div class="settings-surface workspace-surface scroll">
                     <div class="big">
                       <div><b id="bigHandshake">—</b><span>verified link</span></div>
-                      <div><b id="bigRequest">—</b><span>last ChatGPT call</span></div>
+                      <div><b id="bigRequest">—</b><span>last tool call</span></div>
                     </div>
                     <div class="facts" id="facts"></div>
                     <div class="checks" id="checksBox" hidden>
@@ -597,7 +605,7 @@
                       <h3 id="browserLocationTitle" tabindex="-1">Where should ChatGPT run?</h3>
                       <p class="step-lead">You can change this later in Settings.</p>
                       <div class="browser-choice" role="radiogroup" aria-label="ChatGPT browser">
-                        <button class="browser-option" id="useCosBrowser" type="button" role="radio" data-browser-choice="cos"><img src="./browser-icons/cos.png" alt="" /><b>In Chat On Steroids</b><em>Use the app’s built-in browser.</em></button>
+                        <button class="browser-option" id="useCosBrowser" type="button" role="radio" data-browser-choice="cos"><img src="./browser-icons/cos.png" alt="" /><b>In NCode</b><em>Use the app’s built-in browser.</em></button>
                         <button class="browser-option" id="useExtensionBrowser" type="button" role="radio" data-browser-choice="extension"><img id="setupExternalIcon" src="./browser-icons/chrome.svg" alt="" /><b>In your browser</b><em id="setupExternalLabel"></em></button>
                       </div>
                       <div data-browser-variant="cos" class="browser-action"><button class="btn btn-solid" id="showCosBrowser" type="button"><i class="ico ph ph-sign-in" aria-hidden="true"></i><span>Sign in to ChatGPT</span></button><span class="status-pill" id="cosBrowserState" data-tone="off" role="status"></span></div>
@@ -747,6 +755,7 @@
                   <p class="step-lead">Click Connect and wait for Connected.</p>
                   <p class="status-pill" id="wizStatusPill" data-tone="off"></p>
                   <p class="hint is-warn" id="wizStatus" hidden></p>
+                  <p class="hint" id="wizCompanion"></p>
                   <p class="hint step-quiet" id="backgroundRunningCopy">
                     Leave it running while you use its plugins in ChatGPT. It stays available when
                     you close the window.
@@ -806,7 +815,7 @@
                         aria-describedby="connectorSuffixHint"
                       />
                       <p class="hint is-warn" id="connectorSuffixError" role="alert" hidden>Use up to 32 letters, digits, spaces, dots, dashes or underscores.</p>
-                      <p class="hint" id="connectorSuffixHint">Each computer needs its own plugins in ChatGPT, and they can't share a name. “Windows” names this computer's plugins “Chat On Steroids Core (Windows)” and so on. After changing it, rename this computer's plugins to match: in ChatGPT, open Settings → Plugins, select each one and edit its app name.</p>
+                      <p class="hint" id="connectorSuffixHint">Each computer needs its own plugins in ChatGPT, and they can't share a name. “Windows” names this computer's plugins “NCode Core (Windows)” and so on. After changing it, rename this computer's plugins to match: in ChatGPT, open Settings → Plugins, select each one and edit its app name.</p>
                     </div>
                   </details>
                   <div class="connectors step-wide" id="connectorCards"></div>
@@ -865,7 +874,7 @@
               </div>
 
               <div class="field">
-                <label class="inline" id="startAtLoginRow" hidden><input type="checkbox" id="startAtLogin" /> Start Chat On Steroids when I sign in</label>
+                <label class="inline" id="startAtLoginRow" hidden><input type="checkbox" id="startAtLogin" /> Start NCode when I sign in</label>
                 <label class="inline"><input type="checkbox" id="autoConnect" /> Connect automatically at startup</label>
                 <label class="inline"><input type="checkbox" id="minimizeToTray" /> <span id="minimizeToTrayCopy">Keep running when closed</span></label>
               </div>
@@ -889,7 +898,7 @@
               </span>
               <span class="mark"><svg class="ico" viewBox="0 0 24 24"><use href="#i-mark" /></svg></span>
               <span class="title">
-                Chat On Steroids
+                NCode
                 <span id="headerSub">Not set up yet</span>
               </span>
               <span class="state">
@@ -1071,7 +1080,7 @@
                   </div>
                 <header class="settings-section-head automation-section-head"><div><h2 class="settings-section-title">Browser & history</h2><p>Manage background tabs, browser preferences, and history compaction.</p></div></header>
                 <div class="settings-surface pane">
-                  <label class="setting"><span class="setting-text"><b>ChatGPT browser</b><em>Used when the app launches a browser. Install the browser extension and sign in to ChatGPT in this browser's active profile. Already connected tabs stay in their browser. The built-in Chat On Steroids browser needs no install and runs hidden in the tray.</em></span><select id="chatBrowser"><option value="chrome">Google Chrome / Chromium</option><option value="edge">Microsoft Edge</option><option value="brave">Brave Browser</option><option value="cos">Chat On Steroids browser (built-in)</option></select></label>
+                  <label class="setting"><span class="setting-text"><b>ChatGPT browser</b><em>Used when the app launches a browser. Install the browser extension and sign in to ChatGPT in this browser's active profile. Already connected tabs stay in their browser. The built-in NCode browser needs no install and runs hidden in the tray.</em></span><select id="chatBrowser"><option value="chrome">Google Chrome / Chromium</option><option value="edge">Microsoft Edge</option><option value="brave">Brave Browser</option><option value="cos">NCode browser (built-in)</option></select></label>
                   <div class="setting"><span class="setting-text"><b>Browser extension</b><em>Disconnect the browser extension from this app.</em></span><button class="btn" id="bridgeUnpair" type="button">Disconnect browser</button></div>
                   <label class="setting"><span class="setting-text"><b>Browser bridge port</b><em id="browserBridgePortHint">Auto uses the first available port. A fixed port must be available.</em></span><select id="browserBridgePort"><option value="auto">Auto</option><option value="8765">8765</option><option value="8766">8766</option><option value="8767">8767</option><option value="8768">8768</option><option value="8769">8769</option></select></label>
                   <label class="setting"><span class="setting-text"><b>Background chats</b><em>Keep app-created ChatGPT tabs in the background.</em></span><input id="backgroundChats" type="checkbox" /></label>
@@ -1272,7 +1281,7 @@
 
               </div>
             </div>
-            <div class="composer-dock" id="composerDock"><div class="composer-dock-body"><div class="background-exec-status" id="backgroundExecStatus" role="status" hidden><i class="ico ph ph-terminal-window" aria-hidden="true"></i><span class="queue-label"></span><span class="background-exec-time"></span><svg class="disclosure-chevron background-exec-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false" hidden><path d="M6 3.5 10.5 8 6 12.5"></path></svg><button class="background-exec-stop" type="button"><i class="ico ph ph-power" aria-hidden="true"></i><span></span></button></div><div class="sr-only" id="backgroundExecLiveStatus" role="status" aria-live="polite" hidden></div><div class="background-exec-list" id="backgroundExecList" role="list" hidden></div><section class="agent-plan" id="agentPlan" aria-label="Agent task plan" hidden></section><div id="recoveryStatus" role="status" hidden></div><div id="taskPlanPreview" aria-label="Plan stages" hidden></div><div id="finishQueue" aria-label="Queued tasks" hidden></div><div id="activeGoalRow" hidden></div></div></div>
+            <div class="composer-dock" id="composerDock"><div class="composer-dock-body"><div class="background-exec-status" id="backgroundExecStatus" role="status" hidden><i class="ico ph ph-terminal-window" aria-hidden="true"></i><span class="queue-label"></span><span class="background-exec-time"></span><svg class="disclosure-chevron background-exec-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false" hidden><path d="M6 3.5 10.5 8 6 12.5"></path></svg><button class="background-exec-stop" type="button"><i class="ico ph ph-power" aria-hidden="true"></i><span></span></button></div><div class="sr-only" id="backgroundExecLiveStatus" role="status" aria-live="polite" hidden></div><div class="background-exec-list" id="backgroundExecList" role="list" hidden></div><section class="agent-plan" id="agentPlan" aria-label="Agent task plan" hidden></section><div id="recoveryStatus" role="status" hidden></div><div id="taskPlanPreview" aria-label="Plan stages" hidden></div><div id="finishQueue" aria-label="Queued tasks" hidden></div><div id="activeGoalRow" hidden></div><div id="ncodeStatus" role="status" hidden></div></div></div>
             <form class="composer" id="composer">
               <div id="skillPicker" class="skill-autocomplete" aria-label="Skills" hidden></div>
               <div id="composerSelectedSkills" class="composer-selected-skills" aria-label="Selected skills" hidden></div>

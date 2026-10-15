@@ -58,5 +58,5 @@ Checks run: `npm run typecheck`; Vitest `correlation`, `backend-recording`,
 
 ## Credit
 
-Ported from Haz4rdovisk/chat-on-steroids-mainstream@e6755d9 (startup part only;
+Ported from Haz4rdovisk/ncode-mainstream@e6755d9 (startup part only;
 its extension first-turn changes are not included).

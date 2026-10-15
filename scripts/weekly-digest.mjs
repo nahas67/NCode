@@ -26,7 +26,7 @@ export function digest({ date, prs, issues }) {
 
 async function github(path, token, init = {}) {
   const response = await fetch(`${API}${path}`, { ...init, headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'chat-on-steroids-weekly-digest', ...(init.headers ?? {}) } });
+    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ncode-weekly-digest', ...(init.headers ?? {}) } });
   if (!response.ok) throw new Error(`GitHub ${path} failed with HTTP ${response.status}`);
   return response.json();
 }

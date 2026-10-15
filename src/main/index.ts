@@ -33,7 +33,9 @@ import { mainText, mainTextTranslations, onMainTextsChange, restoreMainTextTrans
 import { isMainText } from '../shared/main-texts.js';
 import { executableFingerprint, initKeychainNotice } from './keychain-notice.js';
 import { pluginManager } from './plugins/manager.js';
-import { setBrowserOpener, setBrowserWorkArea, shutdownBridge, startBridge } from './bridge.js';
+import { setBrowserOpener, setBrowserWorkArea, shutdownBridge, startBridge, legacyBridgeListenerEnabled } from './bridge.js';
+import { APP_NAME, NCODE_DIR_NAME, PRODUCT_NAME } from '../shared/ncode-config.js';
+import { startNCodeBridge, stopNCodeBridge } from './ncode-bridge.js';
 import { setStuckNotifier } from './stuck-notice.js';
 import { flushSessions, initSessionStore, setRecordingStorageLimit } from './session/store.js';
 import { DEFAULT_RECORDING_STORAGE_GIB } from '../shared/session.js';
@@ -166,7 +168,7 @@ function createWindow(): void {
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const, titleBarOverlay: true } : {}),
     // Painted before the renderer loads, so a dark window never flashes white.
     backgroundColor: windowBackgroundForTheme(getConfig().ui.theme, getConfig().ui.appearance),
-    title: 'Chat On Steroids',
+    title: 'NCode',
     webPreferences: {
       zoomFactor: UI_BASE_ZOOM,
       preload: path.join(__dirname, '../preload/index.js'),
@@ -356,7 +358,7 @@ function refreshTray(): void {
   const label = mainText(connected ? 'Connected' : offline ? 'No internet' : 'Not connected');
   tray.setImage(trayIcon(running));
   // Not lowercased: that would break translated nouns ("Keine Internetverbindung").
-  tray.setToolTip(`Chat On Steroids — ${label}`);
+  tray.setToolTip(`${PRODUCT_NAME} — ${label}`);
   const cosBrowser = loadedCosBrowser();
   tray.setContextMenu(
     Menu.buildFromTemplate([
@@ -386,6 +388,16 @@ function refreshTray(): void {
       }
     ])
   );
+}
+
+// NCode Runtime Isolation: Derive app identity and storage from ncode
+if (app) {
+  app.name = APP_NAME;
+  try {
+    app.setPath('userData', path.join(app.getPath('appData'), NCODE_DIR_NAME));
+  } catch {
+    // Non-fatal in environments where appData cannot be queried yet
+  }
 }
 
 app.on('second-instance', (_event, argv) => {
@@ -609,13 +621,17 @@ void app.whenReady().then(async () => {
   // traffic, so never make startup/reload wait behind years of old session history.
   queueDeterministicAttributionRepair();
 
-  // Recording, workers and direct browser tools share one extension transport.
-  // ipc.ts uses the same eligibility rule when settings change.
-  // The CoS browser starts once the bridge listens: its extension looks for the app as soon as it
-  // loads, and a miss would leave it waiting for its next retry.
-  if (browserExtensionRequired(getConfig())) {
+  // The legacy ChatGPT companion listener (8765-8769) is not bound at runtime: nothing shipped
+  // can reach it, and this machine runs a separate NCode app that owns those ports.
+  // `ncode-bridge.ts` below is the only listener NCode opens. ipc.ts and start-input.ts gate on
+  // the same predicate, so a disabled listener never fails a send.
+  if (legacyBridgeListenerEnabled() && browserExtensionRequired(getConfig())) {
     void startBridge().finally(() => void syncCosBrowser());
-  } else void syncCosBrowser();
+  } else {
+    logInfo('Legacy browser bridge disabled at runtime; NCode serves the Gemini extension on BRIDGE_PORT only.');
+    void syncCosBrowser();
+  }
+  void startNCodeBridge().catch((err: Error) => logWarn(`NCode bridge did not start: ${err.message}`));
   // Opt-in, and only once every fact it projects has been restored. ipc.ts starts and stops it
   // when the setting changes; a failed bind is logged and leaves the rest of the app untouched.
   if (getConfig().controlApi.enabled) {
@@ -684,7 +700,7 @@ app.on('will-quit', (event) => {
       {
         name: 'admission/drain',
         budgetMs: 40_000,
-        run: () => [shutdownConnection(), shutdownBridge(), shutdownControlApi(), stopAgentRuntimeGc()]
+        run: () => [shutdownConnection(), shutdownBridge(), stopNCodeBridge(), shutdownControlApi(), stopAgentRuntimeGc()]
       },
       // Phase 2: only after request handlers are done may their owned child processes go.
       {

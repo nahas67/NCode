@@ -1,4 +1,5 @@
-import { DEFAULT_HELPER_CHAT_MODEL, SUPERSEDED_HELPER_CHAT_MODELS } from '../shared/chat-models.js';
+import { DEFAULT_GEMINI_MODELS, DEFAULT_HELPER_CHAT_MODEL, SUPERSEDED_HELPER_CHAT_MODELS, resolveChatModel } from '../shared/chat-models.js';
+import { getChatModels } from './chat-models.js';
 import { UI_LANGUAGES } from '../shared/ui-language.js';
 import { DEFAULT_RECORDING_STORAGE_GIB, REASONING_EFFORTS, RECORDING_STORAGE_LIMITS_GIB, type RecordingStorageLimitGiB } from '../shared/session.js';
 import { appearanceSchema } from './appearance-schema.js';
@@ -53,7 +54,14 @@ import {
   validateCommandAllowlistRule
 } from '../shared/command-allowlist.js';
 
-export const browserBridgePortSchema = z.union([z.literal('auto'), z.literal(BROWSER_BRIDGE_PORTS)]);
+export const browserBridgePortSchema = z.union([
+  z.literal('auto'),
+  z.literal(BROWSER_BRIDGE_PORTS[0]),
+  z.literal(BROWSER_BRIDGE_PORTS[1]),
+  z.literal(BROWSER_BRIDGE_PORTS[2]),
+  z.literal(BROWSER_BRIDGE_PORTS[3]),
+  z.literal(BROWSER_BRIDGE_PORTS[4])
+]);
 
 /**
  * Defaults for the newer sections, in one place so the schema and defaultConfig()
@@ -563,7 +571,7 @@ export function defaultConfig(platform: NodeJS.Platform = process.platform, rele
     capabilities: firstLaunchCapabilities(platform, release),
     readOnly: false,
     commandAllowlist: { ...DEFAULT_COMMAND_ALLOWLIST, rules: [] },
-    tunnel: { kind: 'openai', tunnelId: '', desktopTunnelId: '', binaryPath: '' },
+    tunnel: { kind: 'manual', tunnelId: '', desktopTunnelId: '', binaryPath: '' },
     // Fresh installs refresh changed connector tools on their own: a permission chosen in Setup
     // changes the tool list, and nothing else tells a new user to refresh the plugin in ChatGPT.
     // Older configs keep the schema default (off).
@@ -627,6 +635,69 @@ function adoptCurrentGoalPrompt(config: Config): Config {
   return { ...config, goal };
 }
 
+/**
+ * Drops a persisted model id the current catalog does not hold.
+ *
+ * A saved id is free text from a listing that changes, and this file is the one place a load and a
+ * save both go through, so an identity this install cannot run never survives a config read and can
+ * never reach a select. An id that resolves — by exact id or by the alias the page reported for it
+ * — is kept verbatim; the canonical catalog id replaces it so the stored form is the one the picker
+ * compares against.
+ *
+ * Absent and empty stay absent. The catalog is empty only before `restoreChatModels()` has run or
+ * while no Gemini tab has ever reported, and an id cannot be judged against nothing, so an
+ * unanswered check leaves the value alone rather than clearing a choice the moment the app starts.
+ */
+/**
+ * One persisted model id, judged against the best catalog this process can name.
+ *
+ * The live Gemini tab's catalog is the authority when it has one. Before that tab connects — and in a
+ * fresh install, and in a test process that never scraped anything — there is no observation yet, so
+ * the shipped fallback list is the authority instead. Passing the value through unchanged in that
+ * state is the one behavior that cannot be defended: it is exactly when a stale id such as `Argon`
+ * from an older ChatGPT-era config would reach the UI untouched, so an unobserved id falls back to
+ * the shipped list rather than being trusted.
+ */
+function adoptCatalogModel(value: string | undefined): string | undefined {
+  const id = value?.trim();
+  if (!id) return value;
+  const observed = getChatModels().models;
+  const models = observed.length ? observed : [...DEFAULT_GEMINI_MODELS];
+  const match = resolveChatModel(models, id);
+  return match ? match.id : undefined;
+}
+
+/**
+ * Every persisted model id, sanitized by the one owner above.
+ *
+ * Four fields carry a model a user or an older build chose, and all four are read by the same UI
+ * and the same send path, so they are repaired together. They are not four independent fixes: one
+ * function decides, and this only names which fields it decides about.
+ *
+ * `goal.model` is deliberately NOT here. It is the API driver's own model, a sibling of
+ * `provider.kind`/`provider.baseUrl` and bounded at 160 characters precisely because an OpenRouter
+ * id is longer than a browser slug (`z-ai/glm-5.3`, `openai/gpt-4o`). A Gemini page catalog has no
+ * authority over which provider model a person wants, and judging it against one would silently
+ * reset a working OpenRouter driver to the shipped default on every load. The Goal/Loop decision
+ * model that shares this screen is `goal.helperModel`, and that one IS a picker fact, so it is
+ * sanitized here.
+ *
+ * The two optional preferences (`ui.defaultChatModel`, `multiAgent.defaultModel`) become absent,
+ * which is their own "Automatic" answer. `helperModel` requires an id, so a value the catalog does
+ * not hold becomes the shipped default rather than a name no Gemini tab can run.
+ */
+function adoptCatalogModels(config: Config): Config {
+  const multiAgent = { ...config.multiAgent };
+  multiAgent.defaultModel = adoptCatalogModel(config.multiAgent.defaultModel);
+  const goal = {
+    ...config.goal,
+    helperModel: adoptCatalogModel(config.goal.helperModel) ?? DEFAULT_HELPER_CHAT_MODEL
+  };
+  const ui = { ...config.ui };
+  ui.defaultChatModel = adoptCatalogModel(config.ui.defaultChatModel);
+  return { ...config, ui, multiAgent, goal };
+}
+
 let configPath = '';
 let current: Config = defaultConfig();
 // This run started from conservativeRecoveryConfig. Setup says so beside its access choice, because
@@ -672,10 +743,12 @@ export async function loadConfig(): Promise<Config> {
     if (!parsed.success) {
       logError('Settings file was invalid and has been reset to defaults');
       await keepUnreadable(raw);
-      current = conservativeRecoveryConfig();
+      // Recovery restores the shipped model identities too, so an unreadable file cannot be the
+      // one route by which a model this catalog does not hold comes back.
+      current = adoptCatalogModels(conservativeRecoveryConfig());
       recovered = true;
     } else {
-      current = adoptCurrentGoalPrompt(adoptWiderWindow(adoptAutoCompaction(recalibrateTokens(parsed.data))));
+      current = adoptCatalogModels(adoptCurrentGoalPrompt(adoptWiderWindow(adoptAutoCompaction(recalibrateTokens(parsed.data)))));
       // Duplicate root names would make a virtual path ambiguous.
       const seen = new Set<string>();
       current.roots = current.roots.filter((r) => {
@@ -689,11 +762,11 @@ export async function loadConfig(): Promise<Config> {
     if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       logError(`Could not read settings: ${(err as Error).message}`);
       if (raw !== null) await keepUnreadable(raw);
-      current = conservativeRecoveryConfig();
+      current = adoptCatalogModels(conservativeRecoveryConfig());
       recovered = true;
     } else {
       // A fresh install has nothing new to show: it records its own version before anything can.
-      current = { ...defaultConfig(), ui: { ...defaultConfig().ui, lastSeenVersion: APP_VERSION } };
+      current = adoptCatalogModels({ ...defaultConfig(), ui: { ...defaultConfig().ui, lastSeenVersion: APP_VERSION } });
     }
   }
   return current;
@@ -814,7 +887,9 @@ export function updateConfig(
   const operation = mutationQueue.then(async () => {
     const previous = current;
     // Validate before reserving external resources. The optional publisher owns their rollback.
-    const proposed = configSchema.parse(await update(previous));
+    // The same normalization the load path runs, so a save cannot re-persist a model id that a
+    // load already rejected — the renderer round-trips this whole object back in.
+    const proposed = adoptCatalogModels(configSchema.parse(await update(previous)));
     const persist = () => persistConfig(proposed);
     const next = await (publish ? publish(proposed, previous, persist) : persist());
     // Keep dependent durable retirement inside the same settings transaction;

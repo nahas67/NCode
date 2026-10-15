@@ -30,7 +30,7 @@ interface Selection {
   kind: ProjectFileKind | 'root';
 }
 
-const PREVIEW_HEIGHT_KEY = 'chat-on-steroids.file-preview-height';
+const PREVIEW_HEIGHT_KEY = 'ncode.file-preview-height';
 const PREVIEW_MIN_HEIGHT = 140;
 const MARKDOWN_TAGS = new Set([
   'A', 'BLOCKQUOTE', 'BR', 'CODE', 'DEL', 'EM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',

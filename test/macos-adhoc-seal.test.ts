@@ -4,7 +4,7 @@ vi.mock('node:child_process', () => ({ spawnSync: ports.spawn }));
 vi.mock('node:fs', () => ({ existsSync: ports.exists }));
 // @ts-ignore Build scripts are intentionally plain ESM JavaScript.
 import seal from '../scripts/afterpack-macos-adhoc-seal.mjs';
-const context = { electronPlatformName: 'darwin', appOutDir: '/package', packager: { appInfo: { productFilename: 'Chat On Steroids' } } };
+const context = { electronPlatformName: 'darwin', appOutDir: '/package', packager: { appInfo: { productFilename: 'NCode' } } };
 const mediaKeys = [
   'NSCameraUsageDescription',
   'NSMicrophoneUsageDescription',
@@ -23,7 +23,7 @@ function successfulSpawn(command: string, args: string[]) {
     }
   }
   return { status: 0, stdout: '',
-    stderr: args.includes('--display') ? 'Identifier=com.chatonsteroids.app\nSignature=adhoc\nTeamIdentifier=not set\n' : '' };
+    stderr: args.includes('--display') ? 'Identifier=com.ncode.app\nSignature=adhoc\nTeamIdentifier=not set\n' : '' };
 }
 
 beforeEach(() => {

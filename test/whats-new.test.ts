@@ -23,7 +23,7 @@ describe('whatsNewAction', () => {
     expect(whatsNewAction('2.1.30', '2.1.30.1', has)).toBe('record');
   });
   it('links the full notes of that exact version', () => {
-    expect(releaseNotesUrl('2.1.30')).toBe('https://github.com/totec448-spec/chat-on-steroids/releases/tag/v2.1.30');
+    expect(releaseNotesUrl('2.1.30')).toBe('https://github.com/totec448-spec/ncode/releases/tag/v2.1.30');
   });
 });
 

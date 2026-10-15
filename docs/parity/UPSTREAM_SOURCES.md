@@ -3,14 +3,14 @@
 Audit date: **2026-10-02**.
 
 This audit is a discovery document for roadmap #482 / the first slice described in #208. It is
-not a claim that Chat On Steroids should clone OpenClaw or Hermes Agent, and it does not treat
+not a claim that NCode should clone OpenClaw or Hermes Agent, and it does not treat
 matching feature names as behavioral parity.
 
 ## Exact revisions
 
 | System | Revision | Commit time (UTC) | Role in this audit |
 | --- | --- | --- | --- |
-| Chat On Steroids | [`e45f95bbfab0768e63e307b91684bb241b9038e7`](https://github.com/totec448-spec/chat-on-steroids/commit/e45f95bbfab0768e63e307b91684bb241b9038e7) | 2026-10-02 16:16:32 | Current CoS owners and invariants |
+| NCode | [`e45f95bbfab0768e63e307b91684bb241b9038e7`](https://github.com/totec448-spec/ncode/commit/e45f95bbfab0768e63e307b91684bb241b9038e7) | 2026-10-02 16:16:32 | Current CoS owners and invariants |
 | OpenClaw | [`af0390499c073d4b6b9410f08b59fa4026a151a2`](https://github.com/openclaw/openclaw/commit/af0390499c073d4b6b9410f08b59fa4026a151a2) | 2026-10-02 16:44:41 | Reference concepts for skills, memory, automations and agent scheduling |
 | Hermes Agent | [`54bc5e509c985f37265c3d416bd2c64b10fc77ba`](https://github.com/NousResearch/hermes-agent/commit/54bc5e509c985f37265c3d416bd2c64b10fc77ba) | 2026-10-02 16:29:16 | Reference concepts for memory/context plugins, skills, subagents and cron |
 

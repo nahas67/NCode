@@ -108,7 +108,7 @@ function publishedCommits() {
   const remotes = String(runGit(['remote']).stdout).split(/\r?\n/).filter(Boolean);
   const canonical = remotes.find((remote) => {
     const url = String(runGit(['remote', 'get-url', remote]).stdout).trim();
-    return /^(?:https?:\/\/github\.com\/|ssh:\/\/git@github\.com\/|git@github\.com:)totec448-spec\/chat-on-steroids(?:\.git)?\/?$/i.test(url);
+    return /^(?:https?:\/\/github\.com\/|ssh:\/\/git@github\.com\/|git@github\.com:)totec448-spec\/ncode(?:\.git)?\/?$/i.test(url);
   });
   const publishedRef = `refs/remotes/${canonical ?? 'origin'}/main`;
   const ref = runGit(['rev-parse', '--verify', '--quiet', publishedRef], {

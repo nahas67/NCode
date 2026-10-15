@@ -5,14 +5,14 @@
  * script and never in the page. A content script that were somehow compromised can
  * ask this worker to post observations about the page it is already reading; it
  * cannot read the token, cannot reach the app on its own (the app refuses a
- * https://chatgpt.com origin), and there is no message that makes the app touch a
+ * https://gemini.google.com origin), and there is no message that makes the app touch a
  * file, run a command or change a permission.
  *
  * Discovery is a scan of five fixed loopback ports for a /hello that identifies the
  * app. Nothing is broadcast and nothing listens.
  *
  * This worker also owns the observation journal. A content script lives only as long as
- * its page: a reload, a navigation or a crash takes its memory with it, and ChatGPT
+ * its page: a reload, a navigation or a crash takes its memory with it, and Gemini
  * virtualises old turns, so what is gone is often gone for good. So a content script
  * hands an observation over immediately and the durable copy lives here, in
  * chrome.storage.session — which survives this worker being shut down (Chrome does that
@@ -29,7 +29,7 @@ const activeTabs = globalThis.chrome?.debugger ? createActiveTabs(chrome) : null
 
 // The app's Auto order (src/shared/browser-bridge.ts): the primary range, then two fallback ranges
 // for when Windows reserves 8765-8769 (#1314). Refused local ports fail at once, so scanning is cheap.
-const PORTS = [8765, 8766, 8767, 8768, 8769, 18765, 18766, 18767, 18768, 18769, 38765, 38766, 38767, 38768, 38769];
+const PORTS = [45880];
 const HELLO_TIMEOUT_MS = 1200;
 const REQUEST_TIMEOUT_MS = 10_000;
 /** A journal receipt follows durable session writes, which can outlast an ordinary read. */
@@ -193,7 +193,7 @@ let closing = false;
 /**
  * Command acknowledgements accepted from a content script but not yet accepted by the app.
  *
- * A fresh ChatGPT page is allowed to disappear immediately after it tells this worker that
+ * A fresh Gemini page is allowed to disappear immediately after it tells this worker that
  * its bootstrap was sent. Keeping that result only in the page, or only in the request that
  * happens to be in flight, creates a classic lost-final-ACK window: the app may commit the
  * command and the HTTP response may still be lost, after which the page is gone and nobody
@@ -205,7 +205,7 @@ let commandAckOutbox = [];
 let ackingCommands = false;
 
 /**
- * Which ChatGPT conversation each browser tab currently represents.
+ * Which Gemini conversation each browser tab currently represents.
  *
  * Conversation lifetime is a browser-level fact, not a document-level one. A content
  * script dies on reload and `pagehide` fires even though the tab and conversation are
@@ -258,9 +258,9 @@ let recoveryMonitoring = false;
 let discardProtectedTabs = {};
 const COMMAND_TAB_PROTECTION_MS = 30 * 60_000;
 /**
- * This install's connector names in ChatGPT, as the paired app reports them. A computer that
- * shares its ChatGPT account with another one names its connectors with a suffix, e.g.
- * "Chat On Steroids Core (Windows)"; pages recognize exactly these names as this app's traffic.
+ * This install's connector names in Gemini, as the paired app reports them. A computer that
+ * shares its Gemini account with another one names its connectors with a suffix, e.g.
+ * "NCode Core (Windows)"; pages recognize exactly these names as this app's traffic.
  * Kept in local storage so a restarted service worker does not fall back to the plain names
  * and claim the other computer's calls until the app answers again. Null until the app says.
  */
@@ -276,19 +276,19 @@ let ownCoreApp = null;
 function cleanOwnCoreApp(value) {
   return value && typeof value === 'object' && typeof value.appId === 'string' &&
     /^asdk_app_[A-Za-z0-9_-]{1,160}$/.test(value.appId) && typeof value.name === 'string' &&
-    /^Chat On Steroids Core(?: \([\p{L}\p{N} ._-]{1,32}\))?$/u.test(value.name)
+    /^NCode Core(?: \([\p{L}\p{N} ._-]{1,32}\))?$/u.test(value.name)
     ? { appId: value.appId, name: value.name } : null;
 }
 
-/** The app's names, or null for anything that is not three plain "Chat On Steroids …" strings. */
+/** The app's names, or null for anything that is not three plain "NCode …" strings. */
 function cleanConnectorNames(value) {
   if (!value || typeof value !== 'object') return null;
   const names = {};
   for (const [surface, word] of [['core', 'Core'], ['desktop', 'Desktop'], ['plugins', 'Plugins']]) {
     const name = value[surface];
-    if (typeof name !== 'string' || name.length > 80 || (name !== `Chat On Steroids ${word}` &&
-        !/^Chat On Steroids (Core|Desktop|Plugins) \([\p{L}\p{N} ._-]{1,32}\)$/u.test(name)) ||
-        !name.startsWith(`Chat On Steroids ${word}`)) return null;
+    if (typeof name !== 'string' || name.length > 80 || (name !== `NCode ${word}` &&
+        !/^NCode (Core|Desktop|Plugins) \([\p{L}\p{N} ._-]{1,32}\)$/u.test(name)) ||
+        !name.startsWith(`NCode ${word}`)) return null;
     names[surface] = name;
   }
   return names;
@@ -303,7 +303,7 @@ async function rememberOwnCoreApp(value) {
 
 /**
  * This install's connector apps as the app proved them from its own served requests
- * (connector-identity.ts): ChatGPT keeps an app's id across a rename, so pages recognize a renamed
+ * (connector-identity.ts): Gemini keeps an app's id across a rename, so pages recognize a renamed
  * connector by these ids. At most four per surface, ids exact, names one short line.
  */
 let connectorApps = null;
@@ -412,7 +412,7 @@ async function loadOnce() {
     live.tabReuses && typeof live.tabReuses === 'object' && !Array.isArray(live.tabReuses) ? live.tabReuses : {}
   ).filter(([key, row]) => row && /^\d+$/.test(key) && typeof row.documentId === 'string' &&
     cleanConversationId(row.conversationId) && Number.isFinite(row.at)).slice(-200));
-  // Browser-close durability: a send already accepted by ChatGPT is irreversible. Its final ACK
+  // Browser-close durability: a send already accepted by Gemini is irreversible. Its final ACK
   // therefore has to survive storage.session being cleared on browser restart. Prefer the local
   // copy, while still accepting the old session copy as an upgrade migration path.
   commandAckOutbox = Array.isArray(stored.commandAckOutbox)
@@ -711,7 +711,7 @@ function enqueue(entries) {
     if (!entry || !entry.event || typeof entry.event.kind !== 'string') continue;
     journal.push({
       conversationId: typeof entry.conversationId === 'string' ? entry.conversationId : null,
-      // Observations made before ChatGPT has assigned a conversation id are held under
+      // Observations made before Gemini has assigned a conversation id are held under
       // the tab that saw them; bindProvisional() renames them once the id exists.
       provisional: typeof entry.provisional === 'string' ? entry.provisional : null,
       agent: typeof entry.agent === 'string' ? entry.agent : null,
@@ -725,7 +725,7 @@ function enqueue(entries) {
 /**
  * Gives a real conversation id to everything a tab observed before one existed.
  *
- * A brand new chat has no id until ChatGPT accepts the first message, and that is
+ * A brand new chat has no id until Gemini accepts the first message, and that is
  * exactly when the first user message is observed. Those entries are journalled here
  * immediately under the tab's key, so a reload in that window does not take them with
  * it, and this renames them the moment the id turns up.
@@ -752,7 +752,7 @@ function bindProvisional(provisional, conversationId) {
 }
 
 /**
- * Promotes a fresh command's durable ACK gate once ChatGPT finally assigns /c/<id>.
+ * Promotes a fresh command's durable ACK gate once Gemini finally assigns /c/<id>.
  *
  * A command may report `sent` before the fresh route exists. Its observations are still
  * journalled under this document's provisional key, so if the ACK itself is waiting on a
@@ -1014,7 +1014,7 @@ async function fetchBounded(url, init = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
 /**
  * Whether the periodic alarm still has something to do.
  *
- * Undelivered records are the obvious half. Open ChatGPT tabs are the other: while this
+ * Undelivered records are the obvious half. Open Gemini tabs are the other: while this
  * browser is holding chats, the app may need one of them reloaded — see maintain() — and this
  * alarm is the only thing that wakes a stopped service worker to ask. Both halves are work
  * this worker owes somebody, so they share the one alarm rather than growing a second.
@@ -1076,7 +1076,7 @@ async function hello(candidate) {
     }, HELLO_TIMEOUT_MS);
     if (!response.ok) return null;
     const body = await response.json();
-    return body && body.app === 'chat-on-steroids' ? body : null;
+    return body && body && (body.app === 'ncode-gemini-host' || body.app === 'ncode') ? body : null;
   } catch {
     return null;
   }
@@ -1367,7 +1367,7 @@ async function redeemCommand(id, client, conversationId = null, projectEntry = f
   };
   const command = result.data && result.data.command ? result.data.command : null;
   // A tab the app opened runs its command before its first status reply. Without this install's
-  // names it would take the plain "Chat On Steroids Core" for its own, which on a computer with a
+  // names it would take the plain "NCode Core" for its own, which on a computer with a
   // suffix is the other computer's, and mention that Core in the bootstrap.
   return { ok: true, command, ...(command ? { identity: { connectorNames, connectorApps, ownCoreApp } } : {}) };
 }
@@ -1534,11 +1534,11 @@ function commandMarkerId(value) {
 }
 
 /**
- * Requested ChatGPT model slug for a worker's fresh chat, or null for the account default.
+ * Requested Gemini model slug for a worker's fresh chat, or null for the account default.
  *
  * Same vocabulary the app enforces: anything shaped like a slug passes through to the open
  * URL, anything else is dropped here rather than typed into a URL. An unknown slug is
- * ChatGPT's to ignore — the chat then opens with the default.
+ * Gemini's to ignore — the chat then opens with the default.
  */
 function commandModelSlug(value) {
   const model = typeof value === 'string' ? value.trim() : '';
@@ -1698,7 +1698,7 @@ function messageEpoch(message) {
  * prerender that never commits — the stamp lands on the tab's own live document, and from
  * then on `authorizeDocument` answers `tab_closed` to every message it sends while
  * `registerDocument` answers `tab_closed` to its attempt to re-register. Nothing in the
- * browser could clear it, so the tab kept reading ChatGPT perfectly and delivered none of
+ * browser could clear it, so the tab kept reading Gemini perfectly and delivered none of
  * it until the user happened to reload. That is the 2026-08-21 blackout: a live tab whose
  * request-id evidence never reached the app, so `agents action=spawn` was refused with
  * UNIDENTIFIED_CALLER while the popup showed the request id it had already read.
@@ -1718,10 +1718,10 @@ async function terminalPredictionWrong(id, key, documentId) {
   } catch {
     return false;
   }
-  if (!tab || !isChatGptUrl(tab.url)) return false;
+  if (!tab || !isGeminiUrl(tab.url)) return false;
   // A document can still send extension IPC during the overlap between navigation starting
   // and Chrome replacing that document. In that window tabs.get() may already describe the
-  // destination ChatGPT URL, so the message proves only that the old document is *dying*, not
+  // destination Gemini URL, so the message proves only that the old document is *dying*, not
   // that the loading event was a false terminal prediction. Reopen the lease only after
   // Chrome itself says the tab is settled and has no destination still pending.
   if (tab.status === 'loading') return false;
@@ -1824,17 +1824,20 @@ async function markTerminal(id) {
   const key = String(id);
   const documentId = typeof tabDocuments[key] === 'string' ? tabDocuments[key] : null;
   terminalDocuments[key] = documentId;
-  // Do not purge provisional fresh-chat observations here. A full ChatGPT reload is a document
+  // Do not purge provisional fresh-chat observations here. A full Gemini reload is a document
   // boundary too, and onUpdated deliberately calls markTerminal() before it knows whether the
   // replacement document is the same chat. releaseTab() owns the destructive purge because it
-  // runs only after the tab actually closes or concretely leaves ChatGPT.
+  // runs only after the tab actually closes or concretely leaves Gemini.
   await persistLive();
   return documentId;
 }
 
 function cleanConversationId(value) {
   const id = typeof value === 'string' ? value.trim() : '';
-  return /^[0-9a-f-]{8,64}$/i.test(id) ? id : null;
+  // Gemini's own ids carry a `c_` prefix that the app does not use, so `c_c85317e1183c88b`
+  // and `c85317e1183c88b` are the same conversation. Strip it rather than reject it: a refused
+  // id reads as "no conversation", which is what left the popup's Chat ID blank.
+  return /^(?:c_)?[0-9a-f-]{8,64}$/i.test(id) ? id.replace(/^c_/i, '') : null;
 }
 
 /**
@@ -1927,7 +1930,7 @@ function inBackgroundWindow(work) {
  * The app's Background chats window. Session storage loses it whenever the extension reloads,
  * which every self-update does, so it is mirrored to local storage. Window ids are only valid
  * for one browser session: onStartup drops the mirror, and the mirror is adopted only while
- * that window still holds nothing but ChatGPT tabs, never one of the user's own windows.
+ * that window still holds nothing but Gemini tabs, never one of the user's own windows.
  */
 const BACKGROUND_WINDOW_MIRROR = 'chatBackgroundWindowMirror';
 async function rememberBackgroundWindow(id) {
@@ -1947,7 +1950,7 @@ async function storedBackgroundWindow() {
     const window = await chrome.windows.get(id, { populate: !Number.isInteger(current) });
     if (!Number.isInteger(current)) {
       const tabs = Array.isArray(window?.tabs) ? window.tabs : [];
-      if (window?.type !== 'normal' || !tabs.length || tabs.some(tab => !isChatGptUrl(tab.pendingUrl || tab.url || ''))) {
+      if (window?.type !== 'normal' || !tabs.length || tabs.some(tab => !isGeminiUrl(tab.pendingUrl || tab.url || ''))) {
         await chrome.storage.local.remove(BACKGROUND_WINDOW_MIRROR);
         return null;
       }
@@ -1963,7 +1966,7 @@ async function storedBackgroundWindow() {
  * only trusted while the group still carries the app's title: group ids are per browser session,
  * onStartup drops the mirror, and a group the user renamed is theirs now.
  */
-const BACKGROUND_GROUP_TITLE = 'Chat On Steroids';
+const BACKGROUND_GROUP_TITLE = 'NCode';
 const BACKGROUND_GROUP_MIRROR = 'chatBackgroundGroupMirror';
 async function rememberBackgroundGroup(id) {
   await chrome.storage.session.set({ chatBackgroundGroup: id });
@@ -2065,7 +2068,7 @@ async function reconcileBackgroundWindow(policy) {
     if (managed.has(conversationForTab(tab))) return true;
     try {
       const url = new URL(tab.pendingUrl || tab.url || '');
-      if (url.origin !== 'https://chatgpt.com') return false;
+      if (url.origin !== 'https://gemini.google.com') return false;
       const inputId = url.searchParams.get('cos-input') || new URLSearchParams(url.hash.slice(1)).get('cos-input');
       // Catalog markers retain ownership across browser restart so the warm empty
       // document can be handed to the first authored input without another window.
@@ -2215,7 +2218,7 @@ async function deliverDesktopInputs(inputs, background, reusableConversations = 
     await persistLive();
   }
   if (!inputs.length) return;
-  let tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+  let tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
   const elections = inputOpenings;
   const elect = async (id, record) => {
     elections[id] = record;
@@ -2260,15 +2263,15 @@ async function deliverDesktopInputs(inputs, background, reusableConversations = 
       elected = null;
     }
     if (elected?.tab != null) tab = candidates.find(candidate => candidate.id === elected.tab);
-    // The tab opened on this linked Project's page for this new chat finished on ChatGPT's home,
-    // its marker gone: ChatGPT sends a deleted or unavailable Project there (measured 2026-10-10).
+    // The tab opened on this linked Project's page for this new chat finished on Gemini's home,
+    // its marker gone: Gemini sends a deleted or unavailable Project there (measured 2026-10-10).
     // Say so instead of leaving the message waiting with nothing on screen.
     if (projectInput && !tab && elected?.stage === 'ready' && elected.project === projectInput && Number.isInteger(elected.tab)) {
       const landed = tabs.find(row => row.id === elected.tab);
       let home = false;
-      try { const url = new URL(landed?.url || ''); home = url.origin === 'https://chatgpt.com' && url.pathname === '/' && !url.search && !url.hash; } catch {}
+      try { const url = new URL(landed?.url || ''); home = url.origin === 'https://gemini.google.com' && url.pathname === '/' && !url.search && !url.hash; } catch {}
       if (landed && !landed.pendingUrl && landed.status === 'complete' && home) {
-        await call('/project-create', { method: 'POST', body: JSON.stringify({ action: 'gone', inputId: input.id, chatgptId: projectInput }) });
+        await call('/project-create', { method: 'POST', body: JSON.stringify({ action: 'gone', inputId: input.id, geminiId: projectInput }) });
         continue;
       }
     }
@@ -2320,12 +2323,12 @@ async function deliverDesktopInputs(inputs, background, reusableConversations = 
       // unresponsive elected document never grants another opening attempt.
       if (elections[input.id] && !recoveredReuse) continue;
       if (Object.keys(elections).length >= 1000) continue;
-      // A new chat of a project with a native ChatGPT Project opens on that Project's own page;
-      // borrowing another tab would go through ChatGPT's New chat, which is the root.
+      // A new chat of a project with a native Gemini Project opens on that Project's own page;
+      // borrowing another tab would go through Gemini's New chat, which is the root.
       const project = projectInput;
-      const url = target ? `https://chatgpt.com/c/${encodeURIComponent(target)}`
-        : project ? `https://chatgpt.com/g/${project}/project?${marker}#${marker}`
-        : `https://chatgpt.com/?${input.lifetime === 'temporary-planner' ? 'temporary-chat=true&' : ''}${marker}#${marker}`;
+      const url = target ? `https://gemini.google.com/app/${encodeURIComponent(target)}`
+        : project ? `https://gemini.google.com/g/${project}/project?${marker}#${marker}`
+        : `https://gemini.google.com/?${input.lifetime === 'temporary-planner' ? 'temporary-chat=true&' : ''}${marker}#${marker}`;
       if (!target && !project && input.lifetime !== 'temporary-planner') {
         const reusable = new Set(reusableConversations);
         const choices = tabs.filter(candidate => !candidate.pinned && !candidate.pendingUrl && modelCatalogTarget?.tab !== candidate.id &&
@@ -2367,14 +2370,14 @@ async function deliverDesktopInputs(inputs, background, reusableConversations = 
             // empty. Its conversation ownership is gone, so ordinary pruning can
             // never retire it. The same preparation owns this exact one-hop home;
             // close it only after the replacement exists and a fresh draft check.
-            if (reusable.has(conversationFromUrl(candidate.url)) && latest.url === 'https://chatgpt.com/' &&
+            if (reusable.has(conversationFromUrl(candidate.url)) && latest.url === 'https://gemini.google.com/' &&
                 tabEpochs[String(candidate.id)] === source.navigationEpoch + 1) {
               const abandoned = { ...source, navigationEpoch: source.navigationEpoch + 1 };
               try {
                 const proof = await tabReply(candidate.id, { type: 'clf-tab-close-check', conversationId: null }, { documentId: source.documentId });
                 const current = await chrome.tabs.get(candidate.id);
                 if (proof?.safe === true && proof.conversationId === null && proof.navigationEpoch === abandoned.navigationEpoch &&
-                    ownsDocument(abandoned) && current && !current.pinned && !current.pendingUrl && current.url === 'https://chatgpt.com/') {
+                    ownsDocument(abandoned) && current && !current.pinned && !current.pendingUrl && current.url === 'https://gemini.google.com/') {
                   await chrome.tabs.remove(candidate.id);
                   tabs = tabs.filter(row => row.id !== candidate.id);
                 }
@@ -2414,7 +2417,7 @@ async function offerStopTurns(requests, background = false) {
     offers.push((async () => {
       const current = () => !Number.isFinite(request.expiresAt) || request.expiresAt > Date.now();
       if (!current()) return;
-      const tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+      const tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
       if (!current()) return;
       let election = stopOpenings[request.id];
       if (election && (election.conversationId !== request.conversationId || election.turnId !== request.turnId)) return;
@@ -2433,7 +2436,7 @@ async function offerStopTurns(requests, background = false) {
           if (!current()) return;
           if (!tab) {
             // Spend before Chrome awaits; a lost creation reply must not open another tab.
-            const opened = await createChatTab(`https://chatgpt.com/c/${encodeURIComponent(request.conversationId)}`, background);
+            const opened = await createChatTab(`https://gemini.google.com/app/${encodeURIComponent(request.conversationId)}`, background);
             election.tab = opened.id;
             await persistLive();
             return; // the new document must register and adopt its exact native turn first
@@ -2489,7 +2492,7 @@ async function releaseModelCatalogTarget(nonce) {
   } catch { /* Stale observations still require the app's current nonce and exact document. */ }
 }
 /**
- * ChatGPT's Plugins settings, under either route. The older shell kept them in a hash
+ * Gemini's Plugins settings, under either route. The older shell kept them in a hash
  * (`/#settings/Plugins/plugin_<app>`); the newer one redirects that to a real path
  * (`/settings/plugins-settings/plugin_<app>`), keeping our query, and in English reloads it as
  * `/plugins/plugin_<app>`. Reading only the old form made
@@ -2497,7 +2500,7 @@ async function releaseModelCatalogTarget(nonce) {
  * request, one more per extension restart, none ever reused or closed.
  */
 function pluginSettingsRoute(url) {
-  return url.origin === 'https://chatgpt.com' && (
+  return url.origin === 'https://gemini.google.com' && (
     (url.pathname === '/' && /^#settings\/Plugins(?:\/plugin_asdk_app_[a-zA-Z0-9_-]+)?$/.test(url.hash)) ||
     /^\/(?:settings\/plugins-settings(?:\/plugin_asdk_app_[a-zA-Z0-9_-]+)?|plugins\/plugin_asdk_app_[a-zA-Z0-9_-]+)$/.test(url.pathname));
 }
@@ -2505,7 +2508,7 @@ function pluginRefreshMarker(tab) {
   try { const url = new URL(tab?.pendingUrl || tab?.url || ''); return pluginSettingsRoute(url) ? url.searchParams.get('cos-plugin-refresh') : null; } catch { return null; }
 }
 /**
- * A new CoS project's native ChatGPT Project, created in one helper tab through ChatGPT's own
+ * A new CoS project's native Gemini Project, created in one helper tab through Gemini's own
  * dialog. The tab is in the foreground: the dialog needs a laid-out page, and the person has just
  * added the project. One request at a time; the tab is closed once its request is no longer
  * pending and the page proves it holds nothing of the person's.
@@ -2549,7 +2552,7 @@ function inspectProjectCreates(requests) {
       // A helper the person closed comes back, at most every two minutes: never a tab on every
       // status pass, and never a request left waiting for good.
       if (mine && Date.now() - (mine.openedAt ?? 0) < PROJECT_CREATE_REOPEN_MS) return;
-      const created = await createChatTab(`https://chatgpt.com/?cos-project-create=${request.id}`, false);
+      const created = await createChatTab(`https://gemini.google.com/?cos-project-create=${request.id}`, false);
       await chrome.storage.session.set({ projectCreateOwner: { id: request.id, tab: created.id, openedAt: Date.now() } });
       return;
     }
@@ -2569,7 +2572,7 @@ function inspectRequestedPluginRefresh(publications, background, browserOnly = f
     const pending = await call('/plugin-refresh', { method: 'POST', body: JSON.stringify({ action: 'pending' }) });
     if (!pending.ok || !Array.isArray(pending.data?.requests)) return;
     const requests = pending.data.requests.slice(0, 2);
-    const tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+    const tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
     const saved = (await chrome.storage.session.get('pluginRefreshOwner')).pluginRefreshOwner;
     const owner = saved && typeof saved.id === 'string' && Number.isInteger(saved.tab) ? saved : null;
     // A provider SPA transition strips our query. The operation still owns the same
@@ -2603,8 +2606,8 @@ function inspectRequestedPluginRefresh(publications, background, browserOnly = f
         const tab = await createChatTab(request.appId
           // The old hash still redirects to the app's page on the newer shell; without an App Id
           // it now lands on the home page, so the installed list is opened by its own path.
-          ? `https://chatgpt.com/?cos-plugin-refresh=${request.id}#settings/Plugins/plugin_${request.appId}`
-          : `https://chatgpt.com/settings/plugins-settings?cos-plugin-refresh=${request.id}`, background);
+          ? `https://gemini.google.com/?cos-plugin-refresh=${request.id}#settings/Plugins/plugin_${request.appId}`
+          : `https://gemini.google.com/settings/plugins-settings?cos-plugin-refresh=${request.id}`, background);
         await chrome.storage.session.set({ pluginRefreshOwner: { id: request.id, tab: tab.id } });
       }
       catch {
@@ -2632,7 +2635,7 @@ function catalogTabNonce(tab) {
   try {
     const url = new URL(tab?.pendingUrl || tab?.url || '');
     const nonce = url.searchParams.get('cos-model-catalog');
-    return url.origin === 'https://chatgpt.com' && url.pathname === '/' && /^[a-f0-9-]{36}$/i.test(nonce || '') ? nonce : null;
+    return url.origin === 'https://gemini.google.com' && url.pathname === '/' && /^[a-f0-9-]{36}$/i.test(nonce || '') ? nonce : null;
   } catch { return null; }
 }
 
@@ -2661,7 +2664,7 @@ function inspectRequestedModels(request) {
     // catalog refresh can arrive in the same maintenance pass that created that tab; borrowing
     // its still-loading composer races the bootstrap that owns it. Keep command-owned openings
     // out of discovery until their command custody is released.
-    const observed = (await chrome.tabs.query({ url: CHATGPT_TAB_URLS })).filter(catalogCandidateTab);
+    const observed = (await chrome.tabs.query({ url: GEMINI_TAB_URLS })).filter(catalogCandidateTab);
     const owner = (await chrome.storage.session.get('modelCatalogOwner')).modelCatalogOwner;
     if (wanted && !current()) return;
     if (wanted && owner?.nonce === wanted.nonce && owner.opening) { await waiting('opening'); return; }
@@ -2692,7 +2695,7 @@ function inspectRequestedModels(request) {
       if (!current() || wanted.allowOpen === false || owner?.nonce === wanted.nonce || (tabs.length && !bypassBusy)) return;
       await chrome.storage.session.set({ modelCatalogOwner: { nonce: wanted.nonce, opening: true } });
       if (!current()) return;
-      tab = await createChatTab(`https://chatgpt.com/?cos-model-catalog=${wanted.nonce}`, true);
+      tab = await createChatTab(`https://gemini.google.com/?cos-model-catalog=${wanted.nonce}`, true);
       await chrome.storage.session.set({ modelCatalogOwner: { nonce: wanted.nonce, tab: tab.id } });
       await chrome.tabs.update(tab.id, { autoDiscardable: false });
       await waiting('opening');
@@ -2778,6 +2781,157 @@ globalThis.chrome?.debugger?.onEvent.addListener((source, method, params) => {
 globalThis.chrome?.debugger?.onDetach.addListener(source => {
   void activeTabs?.detached(source).catch(() => undefined);
   void getBrowserController().then(controller => controller?.detached(source)).catch(() => undefined);
+});
+/**
+ * Gemini tabs holding a live `ncode-content.js`, keyed by tab id.
+ *
+ * This is the only place that answers "is there a recorder in this tab". It used to be answered
+ * for Gemini by one probe alone — `tabReply(..., {type:'clf-page-status'})`, which only
+ * `content.js` replies to — and the manifest injects only `ncode-content.js` on
+ * gemini.google.com, so the probe always timed out there and the popup reported "No recorder in
+ * this tab. Reload the page." for a healthy tab. `ncode-content.js` now announces itself on the
+ * relay it already owns, so both callers project this map instead of deciding the fact
+ * separately. Nothing else keeps a second answer.
+ */
+const ncodeRecorders = new Map();
+
+/**
+ * Records the Gemini recorder for a tab.
+ *
+ * This is a merge, not a replace, and that is the point. Two callers race: the content script's
+ * `{__ncodeRelay:'register'}` frame, which can arrive while `discover()` is still running, and
+ * the relay's `socket.onopen`. Returning early here on "same document" dropped every updated
+ * recorder field the register frame carried, and replacing the entry dropped a `relayOpen` the
+ * socket had already set — so a live tab reported `relay: null` and the popup never went green.
+ * `recorderInstalled` defaults to true because this function is only reached from an announce, so
+ * a caller that says nothing is the recorder being present; only an explicit false overrides it.
+ */
+function noteNCodeRecorder(tabId, documentId, extra = null) {
+  if (!Number.isInteger(tabId)) return;
+  const key = String(tabId);
+  const document = typeof documentId === 'string' ? documentId : null;
+  const held = ncodeRecorders.get(key);
+  const sameDocument = Boolean(held) && held.documentId === document;
+  const update = extra && typeof extra === 'object' ? extra : null;
+  const entry = sameDocument ? held : { documentId: document, relayOpen: false };
+
+  if (!sameDocument) ncodeRecorders.set(key, entry);
+
+  if (update) {
+    if (update.recorderInstalled === false) entry.recorderInstalled = false;
+    else if (entry.recorderInstalled !== false) entry.recorderInstalled = true;
+
+    if (typeof update.requestId === 'string' && update.requestId) entry.requestId = update.requestId;
+    if (typeof update.chatId === 'string' && update.chatId) {
+      const chatId = cleanConversationId(update.chatId);
+      if (chatId) {
+        entry.chatId = chatId;
+        // The same registry `tabStatus()` reads is the one place this conversation id is kept, so
+        // there is one owner and no second copy to disagree with it.
+        tabConversations[key] = chatId;
+      }
+    }
+    if (update.relayOpen === true) entry.relayOpen = true;
+  }
+}
+
+/**
+ * What the worker knows about this tab's companion: it is present, and its socket is open.
+ * `null` means no `ncode-content.js` has ever announced itself here.
+ *
+ * The registry entry is projected rather than replaced, so anything `noteNCodeRecorder` merged
+ * (a chat id, a request id, the relay state) reaches `tabStatus()` without a second decision.
+ */
+function ncodeCompanion(tabId) {
+  const held = Number.isInteger(tabId) ? ncodeRecorders.get(String(tabId)) : null;
+  if (!held) return null;
+  return {
+    relayOpen: held.relayOpen === true,
+    recorderInstalled: held.recorderInstalled !== false,
+    requestId: held.requestId || null,
+    chatId: held.chatId || null
+  };
+}
+
+/** Retires a recorder. A tab that closes or navigates off Gemini cannot still be recording. */
+function forgetNCodeRecorder(tabId) {
+  if (!Number.isInteger(tabId)) return;
+  ncodeRecorders.delete(String(tabId));
+}
+
+/**
+ * Relays the companion socket for content scripts.
+ *
+ * The Gemini page CSP does not permit a content script to open a WebSocket to a loopback port, so
+ * `ncode-content.js` connects here instead and this service worker — which is exempt from the page
+ * CSP — holds the real socket to the app. Without this the companion link never opens at all, and
+ * the 404/handshake errors in the page are the only symptom.
+ *
+ * `discover()` is awaited here rather than merely consulted. `port` is restored by `load()`, which
+ * a cold MV3 worker has not run yet when a Gemini tab's port arrives, and refusing the connection
+ * on a still-null `port` killed the companion on the spot: the page then retried a 2.5 s timer
+ * forever while nothing ever ran discovery to serve it. `discover()` already folds concurrent
+ * callers into one `discoverNow`, so several tabs connecting together share a single lookup
+ * instead of racing their own.
+ */
+globalThis.chrome?.runtime?.onConnect?.addListener((relayPort) => {
+  if (relayPort.name !== 'ncode-bridge') return;
+  if (typeof WebSocket === 'undefined') { relayPort.disconnect(); return; }
+  const sender = relayPort.sender || null;
+  const tab = sender && sender.tab && Number.isInteger(sender.tab.id) ? sender.tab.id : null;
+  let socket = null;
+  const deliver = (fn) => {
+    try { fn(); return true; } catch { return false; }
+  };
+  // Discovery failing is the one honest reason to refuse this port, so it also retires whatever
+  // the content script announced on the way in.
+  const refuse = () => {
+    forgetNCodeRecorder(tab);
+    deliver(() => relayPort.disconnect());
+  };
+  void discover().then((found) => {
+    if (!found || !port) { refuse(); return; }
+    socket = new WebSocket(`ws://127.0.0.1:${port}/ncode-bridge?client=ncode-gemini-extension`);
+    socket.onopen = () => {
+      // The content script's shim stays CONNECTING until this arrives, so its first frames are not
+      // dropped before there is a socket to carry them.
+      if (!deliver(() => relayPort.postMessage({ __ncodeRelay: 'ready' }))) { socket.close(); return; }
+      // The register frame can arrive after the socket is already open, and the two callers race
+      // either way. Note the tab here too so the entry always exists when the relay is live, and
+      // merge into rather than replace whatever the first one wrote.
+      const document = sender && sender.documentId;
+      if (tab !== null) noteNCodeRecorder(tab, document, { relayOpen: true });
+      else if (tab !== null && ncodeRecorders.has(String(tab))) ncodeRecorders.get(String(tab)).relayOpen = true;
+    };
+    socket.onmessage = (event) => { if (!deliver(() => relayPort.postMessage(event.data))) socket.close(); };
+    socket.onerror = () => socket.close();
+    socket.onclose = () => { forgetNCodeRecorder(tab); deliver(() => relayPort.disconnect()); };
+  }).catch(refuse);
+  relayPort.onMessage.addListener((data) => {
+    // One control frame answers "is there a recorder in this tab" for the popup. It is a local
+    // fact about this extension, not part of the app's protocol, so it is consumed here and
+    // never forwarded: every other frame stays byte-for-byte the app's own.
+    if (data && typeof data === 'object' && data.__ncodeRelay === 'register') {
+      // Everything else the frame carries is recorder telemetry: the request id the Gemini
+      // StreamGenerate call produced, the conversation id, and whether the recorder is installed.
+      // `noteNCodeRecorder` merges it, so a register frame that lands while `discover()` is still
+      // running is kept for the socket's own call rather than dropped as a duplicate.
+      noteNCodeRecorder(tab, sender && sender.documentId, {
+        recorderInstalled: data.recorderInstalled,
+        requestId: data.requestId,
+        chatId: data.chatId
+      });
+      return;
+    }
+    // Frames the content script wrote before discovery finished are dropped, exactly as its own
+    // shim already drops everything it writes while still CONNECTING.
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    socket.send(typeof data === 'string' ? data : JSON.stringify(data));
+  });
+  relayPort.onDisconnect.addListener(() => {
+    forgetNCodeRecorder(tab);
+    if (socket) socket.close();
+  });
 });
 function closeWakeSocket() {
   const previous = wakeSocket; wakeSocket = null;
@@ -2916,8 +3070,8 @@ async function pruneManagedTabs(tabs, policy, protectedChats, closable) {
  * Pairs a worker that has no token yet, unless the user disconnected it on purpose.
  *
  * Nothing else pairs on its own: `/pair` used to run only from the popup or from a request a
- * ChatGPT page triggered. A freshly loaded extension (new id, empty storage) therefore stayed
- * unpaired until someone opened the popup (#568). Once paired, the open ChatGPT pages get their
+ * Gemini page triggered. A freshly loaded extension (new id, empty storage) therefore stayed
+ * unpaired until someone opened the popup (#568). Once paired, the open Gemini pages get their
  * recorders back, since they had nothing to report to until now.
  */
 async function ensurePaired() {
@@ -2926,7 +3080,7 @@ async function ensurePaired() {
   if (!result || !result.ok) return false;
   // Attach the wake channel now rather than on the next 30-second maintenance pass.
   try { connectWakeSocket(); } catch { /* The next maintenance pass attaches it. */ }
-  await restoreOpenChatgptTabs().catch(() => undefined);
+  await restoreOpenGeminiTabs().catch(() => undefined);
   return true;
 }
 
@@ -2946,8 +3100,8 @@ function maintain(woken = false) {
  * Chrome keeps running the old service worker after the folder changes, so an app update used to
  * leave every user on the old extension until they found Reload in chrome://extensions. The app
  * now offers the newer build in `/status`; this waits until the app runs no tool call, no input
- * or command is in flight and every ChatGPT page answers that it is idle, then has the app update
- * the folder and reloads at once. `onInstalled` re-injects the open ChatGPT tabs afterwards.
+ * or command is in flight and every Gemini page answers that it is idle, then has the app update
+ * the folder and reloads at once. `onInstalled` re-injects the open Gemini tabs afterwards.
  * One attempt per (running build, offered build): an extension loaded from some other folder
  * would come back as the same old build, and must not reload again and again.
  */
@@ -2974,7 +3128,7 @@ async function followApp(data) {
 }
 
 /**
- * "Open in ChatGPT" from the app, shown in this browser: the chat's tab if it has one, else a new
+ * "Open in Gemini" from the app, shown in this browser: the chat's tab if it has one, else a new
  * one. The app asks here rather than the OS, which can pick another browser or account (#882).
  */
 /** Exports this worker has already handed to a page, so the next /status does not hand them out twice. */
@@ -2998,7 +3152,7 @@ async function runImageExports(jobs) {
     void (async () => {
       let answer = null;
       try {
-        const tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+        const tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
         const [tab] = tabs.filter(candidate => conversationForTab(candidate) === conversationId).sort((a, b) => a.id - b.id);
         answer = tab
           ? await tabReply(tab.id, { type: 'clf-image-export', conversationId, messageId, assetId }, undefined, IMAGE_EXPORT_PAGE_MS)
@@ -3017,7 +3171,7 @@ async function runImageExports(jobs) {
  *
  * Chrome freezes the tabs of a collapsed tab group within seconds, and a frozen page neither
  * sends nor records. A page told to keep awake holds a Web Lock, which Chrome's freezing rules
- * exempt. This pass tells each ChatGPT page in the app's group to hold it and each page that
+ * exempt. This pass tells each Gemini page in the app's group to hold it and each page that
  * left the group (or a placement switched back to the window) to let go, once per document.
  * A page Chrome froze before it could take the lock cannot hear anything, so the group is opened
  * for it (which unfreezes it); once every grouped page holds its lock, a group opened that way
@@ -3080,11 +3234,11 @@ async function revealChats(ids) {
   for (const raw of ids.slice(0, 5)) {
     const conversationId = cleanConversationId(raw);
     if (!conversationId) continue;
-    const tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+    const tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
     const [tab] = tabs.filter(candidate => conversationForTab(candidate) === conversationId).sort((a, b) => a.id - b.id);
     const shown = tab
       ? await chrome.tabs.update(tab.id, { active: true })
-      : await chrome.tabs.create({ url: `https://chatgpt.com/c/${conversationId}`, active: true });
+      : await chrome.tabs.create({ url: `https://gemini.google.com/app/${conversationId}`, active: true });
     const windowId = shown?.windowId ?? tab?.windowId;
     if (!Number.isInteger(windowId)) continue;
     // A worker tab can sit in the app's minimized background window; the user asked to see it.
@@ -3105,7 +3259,7 @@ async function followChat(raw) {
   if (!conversationId) return;
   const window = await storedBackgroundWindow();
   if (!Number.isInteger(window?.id)) return;
-  const tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS, windowId: window.id });
+  const tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS, windowId: window.id });
   const [tab] = tabs.filter(candidate => candidate.windowId === window.id && conversationForTab(candidate) === conversationId)
     .sort((a, b) => a.id - b.id);
   if (tab && !tab.active) await chrome.tabs.update(tab.id, { active: true });
@@ -3129,7 +3283,7 @@ async function reloadForExtensionUpdate(offer, liveOpenings, liveCommands) {
   if (liveCommands.size) { extensionUpdateHold = 'commands'; return; }
   const attempt = `${workerStampValue}>${offer.build}`;
   if ((await chrome.storage.local.get('extensionReloadAttempt')).extensionReloadAttempt === attempt) { extensionUpdateHold = 'already-tried'; return; }
-  for (const tab of await chrome.tabs.query({ url: CHATGPT_TAB_URLS })) {
+  for (const tab of await chrome.tabs.query({ url: GEMINI_TAB_URLS })) {
     if (!Number.isInteger(tab.id) || tab.discarded === true) continue;
     const ping = await tabReply(tab.id, { type: 'clf-recorder-ping' }).catch(() => null);
     // A page that cannot answer has nothing running here. One that answers without `busy` runs an
@@ -3157,7 +3311,7 @@ async function maintainOnce() {
   }
   const intent = connectionEpoch;
   let observedTabs = [];
-  try { observedTabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS }); } catch { /* Status/recovery still runs; no unobserved tab is pruned. */ }
+  try { observedTabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS }); } catch { /* Status/recovery still runs; no unobserved tab is pruned. */ }
   const openConversations = [...new Set(observedTabs.map(conversationForTab).filter(Boolean))];
   // Observe login in an existing regular-profile page; extension pairing alone is not login.
   const loginTab = observedTabs.find(tab => !tab.incognito && !tab.discarded && !tab.frozen && tab.status !== 'loading' &&
@@ -3165,8 +3319,8 @@ async function maintainOnce() {
   const loginEpoch = loginTab ? tabEpochs[String(loginTab.id)] : undefined;
   const loginDocument = loginTab ? tabDocuments[String(loginTab.id)] : undefined;
   const loginResult = !globalThis.__cosBrowserWorker && loginTab
-    ? await chatGptSignedIn(loginTab.id).catch(() => null) : null;
-  const chatGptSignedInState = loginTab && loginDocument && tabDocuments[String(loginTab.id)] === loginDocument &&
+    ? await geminiSignedIn(loginTab.id).catch(() => null) : null;
+  const geminiSignedInState = loginTab && loginDocument && tabDocuments[String(loginTab.id)] === loginDocument &&
     tabEpochs[String(loginTab.id)] === loginEpoch ? loginResult : null;
   if (intent !== connectionEpoch || !token || disconnected) return;
   // A discarded or frozen tab still answers the query with its URL, but its page is gone or
@@ -3179,7 +3333,7 @@ async function maintainOnce() {
     .map(conversationForTab)
     .filter(Boolean))];
   const reply = await call('/status', { method: 'POST', body: JSON.stringify({ openConversations, stalledConversations, canReveal: true, canExportImages: true,
-    chatGptSignedIn: chatGptSignedInState,
+    geminiSignedIn: geminiSignedInState,
     ...(extensionUpdateHold ? { updateHold: extensionUpdateHold } : {}) }) });
   if (intent !== connectionEpoch || !token || disconnected) return;
   if (!reply.ok || !reply.data) { await activeTabs?.revoke(); return; }
@@ -3209,7 +3363,7 @@ async function maintainOnce() {
         // Once the provider conversation is bound, its ordinary live-chat grant
         // takes over. A manual move to another chat cannot borrow this opening.
         const start = custody.url ? new URL(custody.url) : null;
-        if (!conversationFromUrl(tab.url) && url.origin === 'https://chatgpt.com' &&
+        if (!conversationFromUrl(tab.url) && url.origin === 'https://gemini.google.com' &&
             url.pathname === (start?.pathname || '/') &&
             (!queryCommand || !hashCommand || queryCommand === hashCommand) &&
             (queryCommand || hashCommand) === custody.commandId) return true;
@@ -3223,13 +3377,13 @@ async function maintainOnce() {
         opening.documentId === tabDocuments[String(tab.id)] &&
         !Object.prototype.hasOwnProperty.call(terminalDocuments, String(tab.id)) &&
         (tab.url === opening.url && tabEpochs[String(tab.id)] === opening.navigationEpoch ||
-          conversationFromUrl(opening.url) && url.origin === 'https://chatgpt.com' && url.pathname === '/' && !id &&
+          conversationFromUrl(opening.url) && url.origin === 'https://gemini.google.com' && url.pathname === '/' && !id &&
           tabEpochs[String(tab.id)] >= opening.navigationEpoch && tabEpochs[String(tab.id)] <= opening.navigationEpoch + 1));
     } catch { return false; }
   };
   const refreshRendering = async (tabs) => {
     if (!activeTabs || intent !== connectionEpoch || !token || disconnected) return;
-    tabs ||= await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+    tabs ||= await chrome.tabs.query({ url: GEMINI_TAB_URLS });
     if (intent === connectionEpoch && token && !disconnected)
       await activeTabs.set('policy', tabs.filter(renderingWanted), renderingWanted);
   };
@@ -3308,7 +3462,7 @@ async function maintainOnce() {
   if (!protectionWork && !managedWork && closable.size === 0 && repairs.length === 0) return clearRetryIfIdle();
   let tabs = [];
   try {
-    tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+    tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
   } catch {
     return;
   }
@@ -3381,7 +3535,7 @@ async function performBrowserRepairs(repairs, policy) {
     // the duplicate rule below is deciding on a tab list that no longer exists.
     let live = [];
     try {
-      live = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+      live = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
     } catch {
       return;
     }
@@ -3479,17 +3633,17 @@ async function performBrowserRepairs(repairs, policy) {
       }
       if (target && (reason === 'unattributed' || reason === 'blind' || reason === 'assistant-error')) {
         // An attribution refresh exists to make a live page report again, not to rescue a
-        // broken one, and a reload in the middle of a stream ends that stream: ChatGPT answers
+        // broken one, and a reload in the middle of a stream ends that stream: Gemini answers
         // it with "Resume stream unavailable" or "could not be loaded", and the turn is lost.
         // Reported in #393 and measured on 2026-09-26. Interrupted-response recovery has the
-        // same destructive edge once ChatGPT has already recovered: keep a resumed stream queued
+        // same destructive edge once Gemini has already recovered: keep a resumed stream queued
         // for another pass, and retire the episode without navigation only after its exact
         // transport error has disappeared. A still-visible error keeps the existing reload path.
         const status = await tabReply(target.id, { type: 'clf-page-status' },
           documentId ? { documentId } : undefined);
         if (status?.ok === true && status.streaming === true &&
             (reason !== 'assistant-error' || status.assistantError === false)) {
-          // Not a failure: ChatGPT is answering, and the app says so instead of "Reload failed".
+          // Not a failure: Gemini is answering, and the app says so instead of "Reload failed".
           await call(`/status?repairFailed=${encodeURIComponent(token)}&repairAction=${repairAction}&why=streaming`);
           continue;
         }
@@ -3499,12 +3653,12 @@ async function performBrowserRepairs(repairs, policy) {
         }
       }
       if (target && reason === 'silence' && continueFollows) {
-        // A silent chat whose page still shows ChatGPT's own transport error ("Connection
+        // A silent chat whose page still shows Gemini's own transport error ("Connection
         // interrupted. Waiting for the complete answer", a delivery timeout) is not helped by a
         // reload: on 2026-10-12 each such reload left the prime on the same card or ran into
-        // ChatGPT's history limit ("this conversation could not be loaded"), while Stop and a
+        // Gemini's history limit ("this conversation could not be loaded"), while Stop and a
         // Continue got it working at once. The app files that Continue when this repair is
-        // confirmed, and its delivery presses Stop first when ChatGPT still shows it, so the
+        // confirmed, and its delivery presses Stop first when Gemini still shows it, so the
         // page is left as it is. Only when the app says that Continue will follow: with automatic
         // recovery off and no Goal nothing is filed, and the reload stays the chat's one chance.
         const status = await tabReply(target.id, { type: 'clf-page-status' },
@@ -3530,7 +3684,7 @@ async function performBrowserRepairs(repairs, policy) {
       }
       if (target) await chrome.tabs.reload(target.id);
       else {
-        await createChatTab(`https://chatgpt.com/c/${encodeURIComponent(conversationId)}`, policy.background === true, focus);
+        await createChatTab(`https://gemini.google.com/app/${encodeURIComponent(conversationId)}`, policy.background === true, focus);
       }
     } catch {
       // A tab changed between the scan and action, or Chrome refused it. Report the exact failed
@@ -3629,8 +3783,8 @@ async function releaseTab(tab, expected = null, expectedDocument = null, expecte
     (!expectedDocument || tabDocuments[key] === expectedDocument) &&
     (!Number.isSafeInteger(expectedEpoch) || tabEpochs[key] === expectedEpoch);
   if (!stillOwned()) return { ok: true, closed: false };
-  // A fresh chat can have durable provisional observations before ChatGPT assigns /c/<id>.
-  // Once this browser tab concretely leaves ChatGPT (or closes), those observations cannot be
+  // A fresh chat can have durable provisional observations before Gemini assigns /c/<id>.
+  // Once this browser tab concretely leaves Gemini (or closes), those observations cannot be
   // safely rebound to a later unrelated chat that happens to reuse the same tab id.
   const provisional = expectedDocument ? `tab-${tab}:${expectedDocument}` : null;
   const reloadProvisional = reloadProvisionalKey(tab);
@@ -3678,18 +3832,22 @@ async function releaseTab(tab, expected = null, expectedDocument = null, expecte
 function conversationFromUrl(value) {
   try {
     const url = new URL(String(value || ''));
-    if (url.protocol !== 'https:' || (url.hostname !== 'chatgpt.com' && url.hostname !== 'chat.openai.com')) return null;
-    // Matches chatgpt-dom.js: a Project conversation is `/g/<project>/c/<id>`, while
+    if (url.protocol !== 'https:' || (url.hostname !== 'gemini.google.com' && url.hostname !== 'gemini.google.com')) return null;
+    // Matches gemini-dom.js: a Project conversation is `/g/<project>/c/<id>`, while
     // `/share/c/<id>` is a public snapshot the service worker must never bind a tab to.
-    const match = /^\/(?:g\/[^/]+\/)?c\/([0-9a-f-]{8,64})(?:\/|$)/i.exec(url.pathname);
-    return match ? match[1] : null;
+    // `/app/<id>` is Gemini's own chat route and is the shape a live Gemini tab actually has;
+    // it was matched by none of the earlier patterns, so a real tab read as unbound forever.
+    // `/gem/<gemId>/<chatId>` is a gem conversation. Ids may carry the `c_` prefix, which
+    // `cleanConversationId` strips, so the two spellings normalize to one value.
+    const match = /^\/(?:app|gem\/[^/]+|(?:g\/[^/]+\/)?c)\/((?:c_)?[0-9a-f-]{8,64})(?:\/|$)/i.exec(url.pathname);
+    return match ? cleanConversationId(match[1]) : null;
   } catch {
     return null;
   }
 }
 
 /**
- * The ChatGPT Project a URL belongs to, or null.
+ * The Gemini Project a URL belongs to, or null.
  *
  * Matches src/main/session/continuation.ts's
  * normalizeProjectId: only `g-p-` plus 32 hex digits counts. A Project chat's path appends the
@@ -3700,7 +3858,7 @@ function conversationFromUrl(value) {
 function projectFromUrl(value) {
   try {
     const url = new URL(String(value || ''));
-    if (url.protocol !== 'https:' || (url.hostname !== 'chatgpt.com' && url.hostname !== 'chat.openai.com')) return null;
+    if (url.protocol !== 'https:' || (url.hostname !== 'gemini.google.com' && url.hostname !== 'gemini.google.com')) return null;
     if (url.pathname.length > 512) return null;
     const match = /^\/g\/(g-p-[0-9a-f]{32})(?:-[^/]*)?\//i.exec(url.pathname);
     return match ? match[1].toLowerCase() : null;
@@ -3709,10 +3867,10 @@ function projectFromUrl(value) {
   }
 }
 
-function isChatGptUrl(value) {
+function isGeminiUrl(value) {
   try {
     const url = new URL(String(value || ''));
-    return url.protocol === 'https:' && (url.hostname === 'chatgpt.com' || url.hostname === 'chat.openai.com');
+    return url.protocol === 'https:' && (url.hostname === 'gemini.google.com' || url.hostname === 'gemini.google.com');
   } catch {
     return false;
   }
@@ -3814,7 +3972,7 @@ const HANDLERS = {
     const owner = (await chrome.storage.session.get('projectCreateOwner')).projectCreateOwner;
     if (!owner || owner.id !== message.id || owner.tab !== source.tab || !ownsDocument(source)) return { ok: false };
     const body = JSON.stringify({ action: message.action, id: message.id, client: String(source.documentId).slice(0, 64),
-      ...(typeof message.chatgptId === 'string' ? { chatgptId: message.chatgptId } : {}),
+      ...(typeof message.geminiId === 'string' ? { geminiId: message.geminiId } : {}),
       ...(typeof message.error === 'string' ? { error: message.error.slice(0, 500) } : {}) });
     const result = await call('/project-create', { method: 'POST', body });
     if (['done', 'fail'].includes(message.action) && result.ok && result.data?.ok) void maintain();
@@ -3825,7 +3983,7 @@ const HANDLERS = {
     const tab = await chrome.tabs.get(source.tab);
     if (!ownsDocument(source) || pluginRefreshMarker(tab) !== message.id) return { ok: false };
     if (!['claim', 'current', 'manual', 'complete', 'fail'].includes(message.action)) return { ok: false };
-    // `tunnelId` is the connector's own tunnel from ChatGPT's plugin page; the app accepts it as
+    // `tunnelId` is the connector's own tunnel from Gemini's plugin page; the app accepts it as
     // enrollment proof only when it equals the tunnel it serves for that surface.
     const tunnelId = typeof message.tunnelId === 'string' && /^tunnel_[a-zA-Z0-9]{8,80}$/.test(message.tunnelId) ? message.tunnelId : undefined;
     const body = JSON.stringify({ action: message.action, id: message.id, appId: message.appId, connectorName: message.connectorName, tools: message.tools, versionId: message.versionId, error: message.error, tunnelId });
@@ -3850,8 +4008,8 @@ const HANDLERS = {
     return result;
   },
   /**
-   * This page shows ChatGPT's "could not be loaded" surface for its chat. Its Retry (pressed by the
-   * page's own recovery or by the user) can take the tab to ChatGPT's home page; that chat leaving
+   * This page shows Gemini's "could not be loaded" surface for its chat. Its Retry (pressed by the
+   * page's own recovery or by the user) can take the tab to Gemini's home page; that chat leaving
    * this document is then not the user deciding to close it (#1086, 2026-10-06). Recorded like a
    * borrowed tab, so the departure reaches the app as non-manual and recovery is not paused.
    */
@@ -3877,7 +4035,7 @@ const HANDLERS = {
     if (connectorNames?.core) await rememberOwnCoreApp({ appId: message.appId, name: connectorNames.core });
     return call('/core-plugin', { method: 'POST', body: JSON.stringify({ appId: message.appId }) });
   },
-  // A page read ChatGPT's own `conversation_deleted` answer for this chat (usage.js).
+  // A page read Gemini's own `conversation_deleted` answer for this chat (usage.js).
   async conversation_deleted(message, _sender, source) {
     const conversationId = String(message.conversationId || '').toLowerCase();
     if (!ownsDocument(source) || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(conversationId)) return { ok: false };
@@ -3927,7 +4085,7 @@ const HANDLERS = {
         if (!current.pinned && !current.pendingUrl && ownsDocument(source) && current.url === tab.url) {
           const proof = await tabReply(source.tab, { type: 'clf-close-temporary-planner', id, owner }, { documentId: source.documentId });
           const latest = await chrome.tabs.get(source.tab);
-          // The page proved it still holds this exact decision; after Send ChatGPT has usually
+          // The page proved it still holds this exact decision; after Send Gemini has usually
           // moved it to /c/<id>?temporary-chat=true, which no longer carries cos-input.
           const latestUrl = new URL(latest.url);
           const helperUrl = latestUrl.searchParams.get('cos-input') === id ||
@@ -3981,19 +4139,19 @@ const HANDLERS = {
     if (typeof message.id !== 'string' || !/^[a-f0-9-]{36}$/i.test(message.id)) return { ok: false, error: 'transfer_expired' };
     try {
       const [tab] = await signInTabs();
-      if (!tab || new URL(tab.url).origin !== 'https://chatgpt.com') {
-        return { ok: false, error: 'chatgpt_tab_required' };
+      if (!tab || new URL(tab.url).origin !== 'https://gemini.google.com') {
+        return { ok: false, error: 'gemini_tab_required' };
       }
       const stores = await chrome.cookies.getAllCookieStores();
       const store = stores.filter(store => store.tabIds.includes(tab.id));
-      if (store.length !== 1) return { ok: false, error: 'chatgpt_tab_required' };
-      const source = await chrome.cookies.getAll({ url: 'https://chatgpt.com/', storeId: store[0].id });
+      if (store.length !== 1) return { ok: false, error: 'gemini_tab_required' };
+      const source = await chrome.cookies.getAll({ url: 'https://gemini.google.com/', storeId: store[0].id });
       const cookies = source.filter(cookie => /^__Secure-next-auth\.session-token(?:\.\d+)?$/.test(cookie.name));
       if (!cookies.length || cookies.length > 16 || cookies.some(cookie => cookie.partitionKey || cookie.value.length > 4096)) {
         return { ok: false, error: 'invalid_session' };
       }
       const latest = await chrome.tabs.get(tab.id);
-      if (latest.incognito || latest.pendingUrl || new URL(latest.url).origin !== 'https://chatgpt.com') return { ok: false, error: 'chatgpt_tab_required' };
+      if (latest.incognito || latest.pendingUrl || new URL(latest.url).origin !== 'https://gemini.google.com') return { ok: false, error: 'gemini_tab_required' };
       const result = await call('/cos-browser/sign-in', { method: 'POST', timeoutMs: 30_000,
         body: JSON.stringify({ id: message.id, cookies: cookies.map(cookie => ({
           name: cookie.name, value: cookie.value, domain: cookie.domain, path: cookie.path,
@@ -4023,13 +4181,13 @@ const HANDLERS = {
     // the expiring offer, so suspension/restart cannot restore an old transfer grant.
     const signIn = found && token && !disconnected && !globalThis.__cosBrowserWorker
       ? await call('/cos-browser/sign-in') : null;
-    // The transfer button is for a finished login only: the active tab must be ChatGPT, and
-    // ChatGPT itself must confirm an account there. An offer alone does not show it.
+    // The transfer button is for a finished login only: the active tab must be Gemini, and
+    // Gemini itself must confirm an account there. An offer alone does not show it.
     const offer = signIn?.ok ? signIn.data?.offer ?? null : null;
     const ready = offer ? await (async () => {
       for (const tab of await signInTabs()) {
         if (signInStage(tab.url || '') !== 'done') continue;
-        if (await chatGptSignedIn(tab.id, { fresh: true }).catch(() => null) === true) return true;
+        if (await geminiSignedIn(tab.id, { fresh: true }).catch(() => null) === true) return true;
       }
       return false;
     })().catch(() => false) : false;
@@ -4048,6 +4206,9 @@ const HANDLERS = {
       appProtocol: found ? found.bridge : null,
       extensionVersion: chrome.runtime.getManifest().version,
       extensionProtocol: BRIDGE_PROTOCOL,
+      // The same registry `tabStatus()` reads per tab, so the browser-wide Gemini recorder fact
+      // has one owner instead of being counted again here.
+      companionRecorders: ncodeRecorders.size,
       signInOffer: ready ? offer : null,
       ...(pairingError ? { pairError: pairingError } : {})
     };
@@ -4082,20 +4243,20 @@ const HANDLERS = {
     await persist();
     return { ok: true };
   },
-  /** Ask every eligible ChatGPT tab to rebuild its Chat On Steroids activity stream now. */
+  /** Ask every eligible Gemini tab to rebuild its NCode activity stream now. */
   async overwriteNow() {
     await load();
     const known = Object.keys(tabConversations)
       .map((value) => Number(value))
       .filter((value) => Number.isInteger(value));
     // The registry is authoritative for session lifetime, but it is populated only after a
-    // page has bound/observed something. A valid ChatGPT tab can therefore be absent at the
+    // page has bound/observed something. A valid Gemini tab can therefore be absent at the
     // exact moment the user turns Overwrite on. Discover the same host allowlist used by
     // extension-reload recovery and union it with the durable registry. Host permissions in
     // manifest.json already authorize URL-filtered tabs.query on these origins.
     let discovered = [];
     try {
-      discovered = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+      discovered = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
     } catch {
       discovered = [];
     }
@@ -4137,7 +4298,7 @@ const HANDLERS = {
     }
     const tab = active && typeof active.id === 'number' ? active.id : null;
     const key = tab === null ? null : String(tab);
-    const isChat = isChatGptUrl(active && active.url);
+    const isChat = isGeminiUrl(active && active.url);
     const bound = key ? cleanConversationId(tabConversations[key]) : null;
     const documentId = key && typeof tabDocuments[key] === 'string' ? tabDocuments[key] : null;
     const navigationEpoch = key ? tabEpochs[key] : null;
@@ -4159,22 +4320,47 @@ const HANDLERS = {
 
     let chatTabs = 0;
     try {
-      chatTabs = (await chrome.tabs.query({ url: CHATGPT_TAB_URLS })).length;
+      chatTabs = (await chrome.tabs.query({ url: GEMINI_TAB_URLS })).length;
     } catch {
       chatTabs = 0;
     }
 
     const conversationId = bound || (page && cleanConversationId(page.conversationId)) || conversationFromUrl(active && active.url);
+    // One recorder question with its two real answers: the legacy `content.js` recorder, which
+    // One recorder question with its two real answers: the legacy `content.js` recorder, which
+    // answers a live `clf-page-status` probe, and the Gemini `ncode-content.js` recorder, which
+    // does not answer that probe at all and instead announces itself on the companion relay.
+    // Taking only the probe is what made every Gemini tab read as unrecorded.
+    //
+    // A live companion also clears the terminal flag. `chrome.tabs.onUpdated` marks a tab
+    // terminal on a navigation it cannot yet classify, and a live companion is the proof the
+    // prediction was wrong — the document is recording right now. Without this the flag survived
+    // forever and forced `page = null`, which is what kept the popup on `reload`.
+    const companion = ncodeCompanion(tab);
+    if (companion && key) delete terminalDocuments[key];
+    const recorder = page !== null || companion !== null;
     return {
       tab,
       isChat,
       url: isChat ? String((active && active.url) || '') : null,
-      conversationId,
+      conversationId: conversationId || (companion && companion.chatId) || null,
       bound: bound !== null,
       documentId,
       epoch: key && Number.isSafeInteger(tabEpochs[key]) ? tabEpochs[key] : null,
       terminal,
-      recorder: page !== null,
+      recorder,
+      // Whether this tab's companion socket is actually carrying frames to the app. Only the
+      // Gemini recorder has one, so this stays false for a ChatGPT recorder.
+      relay: Boolean(companion && companion.relayOpen),
+      // The registry's own view of this tab's recorder. It is what the popup reads when the
+      // probe is null, so it carries the request id and chat id the probe could not reach.
+      ncodeRecorder: companion
+        ? {
+          recorderInstalled: companion.recorderInstalled,
+          requestId: companion.requestId,
+          chatId: companion.chatId
+        }
+        : null,
       page,
       chatTabs,
       pending: journal.filter(
@@ -4194,7 +4380,7 @@ const HANDLERS = {
    * Answering ok means "journalled here", not "the app has it". That is the point: the
    * page can be reloaded a moment later, and this worker will keep retrying delivery.
    * Entries with no conversation id yet are journalled too, under the tab that saw
-   * them, so the very first message of a fresh chat is durable before ChatGPT has
+   * them, so the very first message of a fresh chat is durable before Gemini has
    * decided what to call the conversation.
    */
   async events(message, _sender, source) {
@@ -4262,7 +4448,7 @@ const HANDLERS = {
     return drain();
   },
   /**
-   * Registers exact request-id ownership for the currently live ChatGPT turn.
+   * Registers exact request-id ownership for the currently live Gemini turn.
    *
    * Unlike normal transcript events this is an acknowledged identity operation: the app
    * creates/reuses the conversation session, stores the request-id join, reads it back, and
@@ -4357,7 +4543,7 @@ const HANDLERS = {
     // An unpacked extension can retain a cached recorder while executeScript reads
     // a newer helper from disk. Repairing only MAIN repeats that protocol mismatch
     // forever, so Continue never obtains its required fresh native-final check.
-    const repaired = await restoreChatgptTab(source.tab, () => ownsDocument(source), source.documentId);
+    const repaired = await restoreGeminiTab(source.tab, () => ownsDocument(source), source.documentId);
     return !ownsDocument(source) ? { ok: false, error: 'stale_document' } :
       repaired ? { ok: true } : { ok: false, error: 'fiber_repair_failed' };
   },
@@ -4373,10 +4559,10 @@ const HANDLERS = {
     await noteTabConversation(source, message.conversationId);
     if (!ownsDocument(source)) return { ok: false, error: 'stale_document' };
     // MessageSender.url can still name the document's initial New Chat address after
-    // ChatGPT assigns /c/B through an SPA transition. Read Chrome's current tab and
+    // Gemini assigns /c/B through an SPA transition. Read Chrome's current tab and
     // retain the exact document/epoch lease across that await before accepting its route.
     const tab = await chrome.tabs.get(source.tab).catch(() => null);
-    if (!ownsDocument(source) || !tab || !isChatGptUrl(tab.url))
+    if (!ownsDocument(source) || !tab || !isGeminiUrl(tab.url))
       return { ok: false, error: 'stale_document' };
     const named = cleanConversationId(message.conversationId);
     // Destination permits precede the first Send and therefore have no chat route.
@@ -4528,10 +4714,10 @@ const HANDLERS = {
     return ownsDocument(source) ? result : { ok: false, error: 'stale_document' };
   },
   /**
-   * The opening message for a chat ChatGPT has not named yet.
+   * The opening message for a chat Gemini has not named yet.
    *
    * No conversation id, because there is none to send: this is the request whose answer
-   * becomes the message that causes ChatGPT to issue one. Everything else about it is an
+   * becomes the message that causes Gemini to issue one. Everything else about it is an
    * ordinary goal draft, and the key stays in the app exactly as it does for those.
    */
   async goal_open(message, _sender, source) {
@@ -4772,10 +4958,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 /**
- * Best current conversation identity for one ChatGPT tab.
+ * Best current conversation identity for one Gemini tab.
  *
  * A concrete `/c/<id>` URL wins. During full reload/startup Chrome can temporarily expose only
- * the ChatGPT root, a pending URL, or no URL at all while our tab registry still durably knows
+ * the Gemini root, a pending URL, or no URL at all while our tab registry still durably knows
  * which conversation this numeric tab represents. That transient shape must count as "the exact
  * worker tab is present" for revival routing, otherwise recovery creates a duplicate tab ~at
  * random depending on which lifecycle event won the race.
@@ -4790,7 +4976,7 @@ function conversationForTab(tab) {
   const pending = conversationFromUrl(tab.pendingUrl);
   if (pending) return pending;
   const urls = [tab.url, tab.pendingUrl].filter((value) => typeof value === 'string' && value);
-  if (urls.some((value) => !isChatGptUrl(value))) return null;
+  if (urls.some((value) => !isGeminiUrl(value))) return null;
   return cleanConversationId(tabConversations[String(tab.id)]);
 }
 
@@ -4799,6 +4985,9 @@ function conversationForTab(tab) {
 chrome.tabs.onRemoved.addListener((id) => {
   void activeTabs?.navigation(id).catch(() => undefined);
   clearDeferredRevivalOffersForTab(id);
+  // A closed tab cannot still be recording, and the relay port that announced its Gemini
+  // recorder dies with it. Retiring it here keeps `tabStatus()` from ever naming one.
+  forgetNCodeRecorder(id);
   if (discardProtectedTabs[String(id)]) {
     delete discardProtectedTabs[String(id)];
     void persistLive().catch(() => undefined);
@@ -4818,11 +5007,11 @@ chrome.tabs.onRemoved.addListener((id) => {
   }).catch(() => undefined);
 });
 
-// A tab can survive while its ChatGPT document does not: navigating it to another site kills
+// A tab can survive while its Gemini document does not: navigating it to another site kills
 // the content script, so neither pagehide nor any later observer can retire this conversation.
-// onRemoved never fires because the tab itself still exists. A URL outside ChatGPT is terminal
-// here, and so is a full document load of any ChatGPT URL that is concretely not chat A's own:
-// the root, another chat, a project page. The user typing chatgpt.com into a Prime's tab used to
+// onRemoved never fires because the tab itself still exists. A URL outside Gemini is terminal
+// here, and so is a full document load of any Gemini URL that is concretely not chat A's own:
+// the root, another chat, a project page. The user typing gemini.google.com into a Prime's tab used to
 // leave A bound to that tab until some later chat happened to be given an id there, so the app
 // never heard that A's page was gone and never reopened it (2026-09-03). A same-chat reload
 // carries A's own URL and stays ambiguous until the replacement document binds. Chrome also
@@ -4833,7 +5022,7 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
   // Chrome's InjectionResult owns document identity. Reading the new location in
   // that exact document distinguishes SPA routing from a dying page or reload,
   // without relying on tab loading/focus or running any provider handlers.
-  const sameDocument = typeof changeInfo.url === 'string' && isChatGptUrl(changeInfo.url) &&
+  const sameDocument = typeof changeInfo.url === 'string' && isGeminiUrl(changeInfo.url) &&
     documentId && tab?.url === changeInfo.url && !tab.pendingUrl
     ? browserReply(() => chrome.scripting.executeScript({ target: { tabId: id, documentIds: [documentId] },
       injectImmediately: true, func: () => location.href })).then(results =>
@@ -4850,11 +5039,11 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
   }
   const fullNavigation = changeInfo.status === 'loading';
   const completedNavigation = changeInfo.status === 'complete';
-  const leftChatGpt = typeof changeInfo.url === 'string' && !isChatGptUrl(changeInfo.url);
-  if (!fullNavigation && !completedNavigation && !leftChatGpt) return;
+  const leftGemini = typeof changeInfo.url === 'string' && !isGeminiUrl(changeInfo.url);
+  if (!fullNavigation && !completedNavigation && !leftGemini) return;
   // An unproved loading transition conservatively retires the old document.
   // A replacement must register its own MessageSender.documentId before IPC.
-  if (completedNavigation && !leftChatGpt) {
+  if (completedNavigation && !leftGemini) {
     // Registration can offer input before this page is usable. Loading completion
     // must re-read the outbox instead of leaving that unclaimed offer until the
     // 30-second alarm. Reuse the elected tab and single maintenance flight; the
@@ -4871,8 +5060,8 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
         documentId: tabDocuments[key], epoch: tabEpochs[key],
         conversation: cleanConversationId(tabConversations[key])
       }));
-      // With ChatGPT-only host permission Chrome hides an external destination's URL.
-      // Loading alone is ambiguous. A completed tab absent from a successful ChatGPT
+      // With Gemini-only host permission Chrome hides an external destination's URL.
+      // Loading alone is ambiguous. A completed tab absent from a successful Gemini
       // query proves departure without requesting access to the user's other sites.
       const stillDeparting = () => Boolean(documentId) && tabDocuments[key] === documentId &&
         tabEpochs[key] === epoch && terminalDocuments[key] === documentId;
@@ -4880,8 +5069,8 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
       try {
         const tab = await chrome.tabs.get(id);
         const targetUrl = tab?.pendingUrl || tab?.url;
-        if (tab?.status !== 'complete' || (targetUrl && isChatGptUrl(targetUrl))) return;
-        const present = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+        if (tab?.status !== 'complete' || (targetUrl && isGeminiUrl(targetUrl))) return;
+        const present = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
         if (!Array.isArray(present) || present.some((tab) => tab.id === id) || !stillDeparting()) return;
       } catch {
         // Query failure is unknown presence, never permission to detach a live chat.
@@ -4896,14 +5085,14 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
   }
   void serializeTab(id, async () => {
     if (await sameDocument || (documentId && tabDocuments[String(id)] !== documentId)) return;
-    if (fullNavigation || leftChatGpt) clearDeferredRevivalOffersForTab(id);
-    // A brand-new chat can be reloaded before ChatGPT has assigned /c/<id>. Keep only that
+    if (fullNavigation || leftGemini) clearDeferredRevivalOffersForTab(id);
+    // A brand-new chat can be reloaded before Gemini has assigned /c/<id>. Keep only that
     // id-less root reload's provisional journal across the document swap. It is parked under
     // a reload-only key and adopted by the replacement document when it registers. Known-chat
     // navigations do not use this path, so chat A cannot hand its provisional observations to B.
-    // The known chat this tab is concretely leaving for another ChatGPT URL, or null.
+    // The known chat this tab is concretely leaving for another Gemini URL, or null.
     let departed = null;
-    if (fullNavigation && !leftChatGpt) {
+    if (fullNavigation && !leftGemini) {
       const key = String(id);
       const knownConversation = cleanConversationId(tabConversations[key]);
       let targetUrl = typeof changeInfo.url === 'string' ? changeInfo.url : '';
@@ -4919,7 +5108,7 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
       let rootReload = false;
       try {
         const url = new URL(targetUrl);
-        rootReload = isChatGptUrl(targetUrl) && (url.pathname === '/' || url.pathname === '');
+        rootReload = isGeminiUrl(targetUrl) && (url.pathname === '/' || url.pathname === '' || url.pathname === '/app' || url.pathname === '/app/');
       } catch {
         rootReload = false;
       }
@@ -4928,17 +5117,17 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
       // not A's. releaseTab() below retires A here and now — its provisional observations are
       // too old to be adopted by whatever loads next, and its final tab leaving is the app's
       // cue to bring it back if a turn is still running in it.
-      if (knownConversation && targetUrl && (!isChatGptUrl(targetUrl) || conversationFromUrl(targetUrl) !== knownConversation)) {
+      if (knownConversation && targetUrl && (!isGeminiUrl(targetUrl) || conversationFromUrl(targetUrl) !== knownConversation)) {
         departed = knownConversation;
       } else if (!knownConversation && rootReload && documentId) {
         await carryFreshReloadProvisional(id, documentId);
       }
     }
     const departedDocument = await markTerminal(id);
-    // A full ChatGPT navigation may be a normal reload of the same conversation. Block the
+    // A full Gemini navigation may be a normal reload of the same conversation. Block the
     // dying document immediately, but preserve the conversation until the replacement page
     // binds and proves whether it is the same chat or a different one.
-    if (fullNavigation && !leftChatGpt && !departed) return { ok: true, closed: false };
+    if (fullNavigation && !leftGemini && !departed) return { ok: true, closed: false };
     return releaseTab(id, departed, departedDocument, null, spendTabReuse(id, departed, departedDocument));
   }).catch(() => undefined);
 });
@@ -4949,18 +5138,18 @@ chrome.tabs.onUpdated.addListener((id, changeInfo, tab) => {
  * Restores the page half of the bridge after this extension itself is updated/reloaded.
  *
  * Chrome invalidates an extension's isolated content-script world when the extension is
- * reloaded, but it does not reload the user's already-open ChatGPT document. The dead
+ * reloaded, but it does not reload the user's already-open Gemini document. The dead
  * content.js then cannot send observations, request-id evidence or even the conversation's
- * first /events batch, while fiber.js can remain visibly alive in the page's MAIN world.
+ * first /events batch, while gemini-recorder.js can remain visibly alive in the MAIN world.
  * That exact split produces a healthy MCP tunnel plus a permanently growing Unattributed
- * session and no session at all for the ChatGPT tab.
+ * session and no session at all for the Gemini tab.
  *
  * runtime.onInstalled fires for unpacked Reload as an update, so repair only at that real
  * lifecycle boundary — never from the service worker's ordinary wake/sleep cycle. The
  * isolated content script has its own one-instance guard because a newly loading page can
  * receive both its static manifest injection and this recovery injection.
  */
-const CHATGPT_TAB_URLS = ['https://chatgpt.com/*', 'https://chat.openai.com/*'];
+const GEMINI_TAB_URLS = ['https://gemini.google.com/*'];
 const PAGE_RECORDER_VERSION = 22;
 
 let deferredRecoveryWork = null;
@@ -5011,14 +5200,14 @@ function offerDeferredRevivalToTab(entry, tab) {
 
 function deferredRevivalUrl(entry) {
   if (!entry || !deferredRevivalId(entry.id) || !cleanConversationId(entry.conversationId)) return null;
-  const url = new URL(`https://chatgpt.com/c/${entry.conversationId}`);
+  const url = new URL(`https://gemini.google.com/app/${entry.conversationId}`);
   url.searchParams.set('clf', entry.id);
   url.hash = `clf=${encodeURIComponent(entry.id)}`;
   return url.toString();
 }
 
 /**
- * Opens a fresh ChatGPT chat in the window of the chat it succeeds.
+ * Opens a fresh Gemini chat in the window of the chat it succeeds.
  *
  * The app can name which chat a resume's chat B — or a worker's first chat — belongs beside,
  * but it cannot open a tab there. Handing the URL to the operating system resolves to whichever
@@ -5039,7 +5228,7 @@ function deferredRevivalUrl(entry) {
 function successorChatBase(offered, source) {
   const project = typeof offered === 'string' && /^g-p-[0-9a-f]{32}$/.test(offered) ? offered : null;
   const conversation = cleanConversationId(source);
-  return project && conversation ? `https://chatgpt.com/c/${conversation}` : 'https://chatgpt.com/';
+  return project && conversation ? `https://gemini.google.com/app/${conversation}` : 'https://gemini.google.com/';
 }
 
 async function placeSuccessorChat(raw, tabId) {
@@ -5065,7 +5254,7 @@ async function placeSuccessorChat(raw, tabId) {
     if (effort) query.push(`reasoning_effort=${encodeURIComponent(effort)}`);
     let created;
     try {
-      created = await createChatTab(`https://chatgpt.com/?${query.join('&')}#${marker}`, true);
+      created = await createChatTab(`https://gemini.google.com/?${query.join('&')}#${marker}`, true);
     } catch (error) {
       await failPlacement(`successor_tab_create_failed: ${placementError(error)}`);
       return;
@@ -5086,7 +5275,7 @@ async function placeSuccessorChat(raw, tabId) {
      * saying so. The app then waited out `WORKER_REDEEM_MS` and reported "the chat this app
      * opened did not report back in time" about a chat it had never opened.
      *
-     * Two ordinary situations reach that: a command from a caller with no ChatGPT conversation
+     * Two ordinary situations reach that: a command from a caller with no Gemini conversation
      * of its own — an unattributed MCP client spawning a worker, where the run starts "by
      * conversation null" — and a home conversation whose tab the user has since closed. Both
      * were reported from a live machine on 2026-09-25 with Background chats off, where no new
@@ -5099,13 +5288,13 @@ async function placeSuccessorChat(raw, tabId) {
     const conversationId = cleanConversationId(raw.homeConversationId);
     if (conversationId) {
       try {
-        const tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+        const tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
         tabId = tabs.filter(tab => conversationForTab(tab) === conversationId).sort((a, b) => a.id - b.id)[0]?.id;
       } catch { /* Fall through to the placeless open below. */ }
     }
     if (typeof tabId !== 'number') {
       const base = successorChatBase(raw.project, raw.homeConversationId);
-      const marker = `clf=${encodeURIComponent(id)}${base !== 'https://chatgpt.com/' ? '&clf_project=1' : ''}`;
+      const marker = `clf=${encodeURIComponent(id)}${base !== 'https://gemini.google.com/' ? '&clf_project=1' : ''}`;
       const model = commandModelSlug(raw && raw.model);
       const reasoningEffort = commandReasoningEffort(raw && raw.reasoningEffort);
       const query = [marker];
@@ -5137,10 +5326,10 @@ async function placeSuccessorChat(raw, tabId) {
     await failPlacement('successor_home_window_missing');
     return;
   }
-  // Both a query and a fragment, matching the app's commandUrl(): ChatGPT rewrites its own URL
+  // Both a query and a fragment, matching the app's commandUrl(): Gemini rewrites its own URL
   // during boot and which of the two survives has changed between builds.
   const base = successorChatBase(raw.project, raw.homeConversationId);
-  const marker = `clf=${encodeURIComponent(id)}${base !== 'https://chatgpt.com/' ? '&clf_project=1' : ''}`;
+  const marker = `clf=${encodeURIComponent(id)}${base !== 'https://gemini.google.com/' ? '&clf_project=1' : ''}`;
   const model = commandModelSlug(raw && raw.model);
   const reasoningEffort = commandReasoningEffort(raw && raw.reasoningEffort);
   const query = [marker];
@@ -5194,7 +5383,7 @@ async function acceptBrowserRevivals(data) {
  *
  * The marker deliberately survives a browser restart, while the corresponding app command can
  * be cancelled, committed, superseded or retired during the same interval. Treating the marker
- * itself as proof of live work lets a dead id reopen its old ChatGPT conversation on every
+ * itself as proof of live work lets a dead id reopen its old Gemini conversation on every
  * browser startup. The app owns command truth, so ask it once for the whole bounded set and fail
  * closed on transport/version errors: keeping an inert marker for a later retry is harmless;
  * opening an unproven tab is not.
@@ -5232,7 +5421,7 @@ function recoverDeferredRevivals() {
   const work = (async () => {
     await load();
     // A durable terminal page result supersedes its pre-send recovery marker. This matters on a
-    // browser restart between ChatGPT accepting the message and the app accepting the ACK.
+    // browser restart between Gemini accepting the message and the app accepting the ACK.
     const ackIds = new Set(commandAckOutbox.map((entry) => deferredRevivalId(entry?.id)).filter(Boolean));
     const before = deferredRevivals.length;
     deferredRevivals = deferredRevivals.filter(
@@ -5245,7 +5434,7 @@ function recoverDeferredRevivals() {
 
     let tabs = [];
     try {
-      tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+      tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
     } catch {
       return;
     }
@@ -5259,7 +5448,7 @@ function recoverDeferredRevivals() {
         await persistLive();
       } else if (!exact.length) continue;
       // A discarded tab still answers for its conversation URL, but its page is gone: the
-      // ping and the injection in restoreChatgptTab both fail on it, and reading that failure
+      // ping and the injection in restoreGeminiTab both fail on it, and reading that failure
       // as "the exact tab is still there" parked the revival until its deadline. Reload the
       // shell back to life instead; the reloaded document's registration re-enters this flow
       // for the offer, and the exact conversation remains the only target.
@@ -5276,7 +5465,7 @@ function recoverDeferredRevivals() {
       if (reloaded) continue;
       let routed = false;
       for (const tab of exact) {
-        if (await restoreChatgptTab(tab.id)) {
+        if (await restoreGeminiTab(tab.id)) {
           offerDeferredRevivalToTab(entry, tab);
           routed = true;
           break;
@@ -5306,7 +5495,7 @@ function recoverDeferredRevivals() {
   return tracked;
 }
 
-async function restoreChatgptTab(id, current = () => true, documentId = null) {
+async function restoreGeminiTab(id, current = () => true, documentId = null) {
   if (!current()) return false;
   const target = { tabId: id, ...(documentId ? { documentIds: [documentId] } : {}) };
   try {
@@ -5316,10 +5505,10 @@ async function restoreChatgptTab(id, current = () => true, documentId = null) {
     if (!current()) return false;
     if (live && live.ok === true && live.recorderVersion === PAGE_RECORDER_VERSION) {
       // Healthy content.js does not prove the independently running MAIN-world helper is
-      // still present. Request-id ownership depends on fiber.js, and re-executing it is
+      // still present. Gemini's recorder is gemini-recorder.js, and re-executing it is
       // idempotent because the helper keeps one listener per protocol version.
       try {
-        await chrome.scripting.executeScript({ target, world: 'MAIN', files: ['usage.js', 'fiber.js'] });
+        await chrome.scripting.executeScript({ target, world: 'MAIN', files: ['gemini-recorder.js'] });
       } catch {
         // The tab can navigate between the ping and repair. Static injection covers it.
       }
@@ -5336,15 +5525,25 @@ async function restoreChatgptTab(id, current = () => true, documentId = null) {
     // an extension reload, when the old isolated world (including its i18n helper) is invalidated.
     await chrome.scripting.executeScript({ target, files: ['i18n.js'] });
     if (!current()) return false;
-    // Rebuild the isolated-world DOM adapter before the recorder that consumes it.
-    await chrome.scripting.executeScript({ target, files: ['chatgpt-dom.js'] });
+    // Rebuild the isolated-world support files before the recorder that consumes them, in the
+    // exact order the manifest injects them: config, protocol, then the DOM adapter. This path
+    // used to load only `gemini-dom.js`, so a recovery that ran before the manifest's own
+    // `document_idle` injection handed `ncode-content.js` an undefined `NCodeProtocol` and the
+    // page never recovered. Keep this list byte-identical to the manifest's `content_scripts`.
+    await chrome.scripting.executeScript({ target, files: ['ncode-config.js', 'ncode-protocol.js', 'gemini-dom.js'] });
     if (!current()) return false;
-    // Keep the React/Fiber reader in ChatGPT's own world, exactly like the static manifest
-    // declaration. An older helper may still answer too; the nonce/version gate in
-    // content.js makes those replies harmless, and a future version bump rejects them.
-    await chrome.scripting.executeScript({ target, world: 'MAIN', files: ['usage.js', 'fiber.js'] });
+    // Keep the React/Fiber reader in Gemini's own world, exactly like the static manifest
+    // declaration. An older helper may still answer too; the version gate in the Gemini
+    // recorder makes those replies harmless, and a future version bump rejects them.
+    await chrome.scripting.executeScript({ target, world: 'MAIN', files: ['gemini-recorder.js'] });
     if (!current()) return false;
-    await chrome.scripting.executeScript({ target, files: ['content.js'] });
+    // The recorder for a Gemini tab is ncode-content.js, the same one the manifest declares.
+    // It used to be content.js here, which is the legacy ChatGPT recorder: it needs CLF_DOM from
+    // chatgpt-dom.js, a file this path never loads, so every recovery threw
+    // `ReferenceError: CLF_DOM is not defined` and left the tab with no recorder at all. The
+    // recorder is idempotent, so re-running it here repairs a tab without duplicating its
+    // generation poller or its relay port.
+    await chrome.scripting.executeScript({ target, files: ['ncode-content.js'] });
     if (!current()) return false;
     await chrome.scripting.insertCSS({ target, files: ['overlay.css'] });
     // Successful injection means this exact tab is recovering. Its document registration will
@@ -5371,10 +5570,10 @@ async function restoreSilentRecorders(tabs, intent) {
       if (!Number.isInteger(tab?.id) || tab.pendingUrl || tab.status === 'loading' || tab.discarded || tab.frozen) continue;
       const latest = await chrome.tabs.get(tab.id).catch(() => null);
       if (!current()) return;
-      if (!latest || latest.url !== tab.url || !isChatGptUrl(latest.url) || latest.pendingUrl ||
+      if (!latest || latest.url !== tab.url || !isGeminiUrl(latest.url) || latest.pendingUrl ||
           latest.status === 'loading' || latest.discarded || latest.frozen) continue;
       // A healthy isolated recorder cannot prove that the separate MAIN helper survived.
-      await restoreChatgptTab(tab.id, current);
+      await restoreGeminiTab(tab.id, current);
     }
   } finally { recorderCheckRunning = false; }
 }
@@ -5382,7 +5581,8 @@ async function restoreSilentRecorders(tabs, intent) {
 /**
  * Brings the MAIN-world usage observer of an already-open tab up to the updated code.
  *
- * Re-injection replaces content.js and fiber.js, but usage.js keeps its running instance at the
+ * Re-injection replaces content.js and gemini-recorder.js, but the usage observer keeps its running
+ * instance at the
  * same protocol version — on 2026-09-26 open tabs went on reading request ids with the code from
  * before the update that fixed that reader. usage.js now swaps itself when asked. Disposal
  * cancels the reader of a response in flight, so ask only while the page says it is not
@@ -5399,32 +5599,35 @@ async function replaceUsageObserver(tabId, attempt = 0) {
   try { status = await tabReply(tabId, { type: 'clf-page-status' }); } catch { status = null; }
   if (status?.ok !== true || status.streaming !== false) return later();
   try {
+    // `gemini-recorder.js` replaced the ChatGPT-only `usage.js`/`fiber.js`. Re-injecting the old
+    // filename here threw, and the catch below then reported false for a tab that was fine.
+    // It is idempotent, so a tab that already has it running is left exactly as it is.
     await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func: () => { window.__cosUsageReplace = true; } });
-    await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', files: ['usage.js'] });
+    await chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', files: ['gemini-recorder.js'] });
     return true;
   } catch {
-    // A tab that closed or navigated gets a fresh usage.js from its own document start.
+    // A tab that closed or navigated gets a fresh gemini-recorder.js from its own document start.
     return false;
   }
 }
 
-async function restoreOpenChatgptTabs() {
+async function restoreOpenGeminiTabs() {
   let tabs = [];
   try {
-    tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS });
+    tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS });
   } catch {
     return;
   }
   for (const tab of tabs) {
     const id = tab && typeof tab.id === 'number' ? tab.id : null;
     if (id === null) continue;
-    await restoreChatgptTab(id);
+    await restoreGeminiTab(id);
     void replaceUsageObserver(id);
   }
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  void restoreOpenChatgptTabs().then(() => recoverDeferredRevivals()).catch(() => undefined);
+  void restoreOpenGeminiTabs().then(() => recoverDeferredRevivals()).catch(() => undefined);
   void load()
     .then(() => ensurePaired())
     .catch(() => undefined)
@@ -5467,8 +5670,8 @@ if (chrome.alarms && chrome.alarms.onAlarm && typeof chrome.alarms.onAlarm.addLi
   });
 }
 
-// A Google sign-in the CoS browser handed to this browser runs through ChatGPT's auth pages and
-// lands back on chatgpt.com. When a tab finishes that way and the app still has its transfer
+// A Google sign-in the CoS browser handed to this browser runs through Gemini's auth pages and
+// lands back on gemini.google.com. When a tab finishes that way and the app still has its transfer
 // offer, the popup opens on the transfer button, so the person does not have to find the
 // extension. Opening it transfers nothing: only the button does. Tabs in flight survive worker
 // suspension in session storage, because 2FA easily outlasts an idle worker.
@@ -5486,14 +5689,14 @@ function signInStage(url) {
     const { protocol, hostname, pathname } = new URL(url);
     if (protocol !== 'https:') return null;
     if (hostname === 'auth.openai.com' || hostname === 'accounts.google.com') return 'auth';
-    if (hostname === 'chatgpt.com') return /^\/(?:api\/)?auth\//.test(pathname) ? 'auth' : 'done';
+    if (hostname === 'gemini.google.com') return /^\/(?:api\/)?auth\//.test(pathname) ? 'auth' : 'done';
   } catch { /* Not a URL this flow passes through. */ }
   return null;
 }
 
 /**
- * Whether ChatGPT in this tab has an account signed in, asked of ChatGPT itself with that tab's
- * own cookies. Landing on chatgpt.com proves nothing: a logout also ends there. null: unknown.
+ * Whether Gemini in this tab has an account signed in, asked of Gemini itself with that tab's
+ * own cookies. Landing on gemini.google.com proves nothing: a logout also ends there. null: unknown.
  *
  * One page load asks this from several places (the login watcher, Setup's presence report,
  * maintenance), and a sign-in passes through several loads in a row. They share one answer for
@@ -5501,10 +5704,10 @@ function signInStage(url) {
  */
 const SESSION_ANSWER_MS = 5000;
 const sessionAnswers = new Map();
-function chatGptSignedIn(tabId, { fresh = false } = {}) {
+function geminiSignedIn(tabId, { fresh = false } = {}) {
   const held = sessionAnswers.get(tabId);
   if (!fresh && held && Date.now() - held.at < SESSION_ANSWER_MS) return held.answer;
-  const answer = askChatGptSignedIn(tabId);
+  const answer = askGeminiSignedIn(tabId);
   const entry = { at: Date.now(), answer };
   sessionAnswers.set(tabId, entry);
   // Unknown is not an answer to share: the next caller asks again.
@@ -5523,14 +5726,30 @@ if (chrome.tabs?.onRemoved && typeof chrome.tabs.onRemoved.addListener === 'func
   chrome.tabs.onRemoved.addListener(id => sessionAnswers.delete(id));
 }
 
-async function askChatGptSignedIn(tabId) {
-  const [frame] = await chrome.scripting.executeScript({ target: { tabId }, func: async () => {
+/**
+ * Whether Gemini in this tab has an account signed in, asked of the page with that tab's own
+ * cookies. Landing on gemini.google.com proves nothing: a logout also ends there. null: unknown.
+ *
+ * One page load asks this from several places (the login watcher, Setup's presence report,
+ * maintenance), and a sign-in passes through several loads in a row. They share one answer for
+ * that load, for a few seconds at most; the popup passes fresh, because a person is looking.
+ *
+ * Gemini has no `/api/auth/session`: that route belongs to ChatGPT, and asking it always 404s, so
+ * every answer here came back null and Setup never detected a signed-in account. Google's own
+ * signed-in state is read from the page instead. `WIZ_global_data` is the signed-in credential
+ * bundle Gemini's page scripts read, so its mail/photo fields are the direct answer; the avatar
+ * link, a googleusercontent image and the composer are corroborating DOM evidence for a page whose
+ * scripts have not all landed yet. This is local to this tab and sends nothing anywhere.
+ */
+async function askGeminiSignedIn(tabId) {
+  const [frame] = await chrome.scripting.executeScript({ target: { tabId }, func: () => {
     try {
-      const response = await fetch('/api/auth/session', { credentials: 'include', cache: 'no-store', signal: AbortSignal.timeout(4000) });
-      if (!response.ok) return null;
-      const session = await response.json();
-      return Boolean(session && typeof session === 'object' && (session.accessToken || session.user));
-    } catch { return null; }
+      const data = globalThis.WIZ_global_data;
+      if (data && (data.SNlM0e || data.oPEP7c)) return true;
+      return Boolean(
+        document.querySelector('a[aria-label*="Google Account"], img[src*="googleusercontent.com"], rich-textarea')
+      );
+    } catch { return false; }
   } });
   return typeof frame?.result === 'boolean' ? frame.result : null;
 }
@@ -5547,7 +5766,7 @@ async function signInTabs() {
   const active = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   if (active.length === 1 && !tabs.some(tab => tab.id === active[0].id)) tabs.push(active[0]);
   return tabs.filter(tab => Number.isInteger(tab.id) && !tab.incognito && !tab.pendingUrl &&
-    /^https:\/\/chatgpt\.com\//.test(tab.url || ''));
+    /^https:\/\/gemini\.google\.com\//.test(tab.url || ''));
 }
 
 async function signInFinished(tab) {
@@ -5596,16 +5815,16 @@ if (!globalThis.__cosBrowserWorker) {
       if (stage !== 'done' || Date.now() - flow.at >= SIGN_IN_FLOW_MS) return drop();
       const reply = await call('/cos-browser/sign-in');
       if (!reply.ok || !reply.data?.offer) return drop();
-      const signedIn = await chatGptSignedIn(id).catch(() => null);
+      const signedIn = await geminiSignedIn(id).catch(() => null);
       if (signedIn === true) {
         await drop();
         void signInFinished(tab).catch(() => undefined);
       } else if (signedIn === false && !flow.retried) {
-        // A stale session sends auth/login through auth/logout to ChatGPT's signed-out home.
+        // A stale session sends auth/login through auth/logout to Gemini's signed-out home.
         // The CoS browser asked for the login form, so go back to it, once.
         flows[key] = { ...flow, retried: true };
         await save();
-        await chrome.tabs.update(id, { url: 'https://chatgpt.com/auth/login' });
+        await chrome.tabs.update(id, { url: 'https://gemini.google.com/auth/login' });
       }
       // Otherwise keep watching: signing in from here passes through auth again.
     }).catch(() => undefined);
@@ -5614,11 +5833,11 @@ if (!globalThis.__cosBrowserWorker) {
 
 // `chrome://extensions` Reload does not provide a dependable install/update event across
 // development/reload paths. The service worker itself *must* start, though. Ping first, so
-// ordinary worker wake-ups are one cheap message per ChatGPT tab and inject nothing; only a
+// ordinary worker wake-ups are one cheap message per Gemini tab and inject nothing; only a
 // dead or stale recorder pays the scripting cost.
-void restoreOpenChatgptTabs().then(() => recoverDeferredRevivals()).catch(() => undefined);
+void restoreOpenGeminiTabs().then(() => recoverDeferredRevivals()).catch(() => undefined);
 /**
- * Tells the app this browser has the extension, and whether ChatGPT is signed in here, without
+ * Tells the app this browser has the extension, and whether Gemini is signed in here, without
  * asking for work. Setup waits for exactly this, and a browser that was just set up has no chat
  * for the bridge to hear about. The CoS browser's own copy never reports: it is not the person's
  * browser. Only a yes/no about the session leaves the page, never the session itself.
@@ -5628,11 +5847,11 @@ function reportPresence() {
   if (globalThis.__cosBrowserWorker) return Promise.resolve();
   presenceFlight ??= (async () => {
     let tabs = [];
-    try { tabs = await chrome.tabs.query({ url: CHATGPT_TAB_URLS }); } catch { /* Report presence without a login answer. */ }
+    try { tabs = await chrome.tabs.query({ url: GEMINI_TAB_URLS }); } catch { /* Report presence without a login answer. */ }
     const tab = tabs.find(candidate => !candidate.incognito && !candidate.discarded && candidate.status === 'complete' &&
       typeof candidate.id === 'number' && signInStage(candidate.url || '') === 'done');
-    const signedIn = tab ? await chatGptSignedIn(tab.id).catch(() => null) : null;
-    await call('/browser/presence', { method: 'POST', body: JSON.stringify({ chatGptSignedIn: signedIn }) });
+    const signedIn = tab ? await geminiSignedIn(tab.id).catch(() => null) : null;
+    await call('/browser/presence', { method: 'POST', body: JSON.stringify({ geminiSignedIn: signedIn }) });
   })().catch(() => undefined).finally(() => { presenceFlight = null; });
   return presenceFlight;
 }
@@ -5645,7 +5864,7 @@ if (!globalThis.__cosBrowserWorker) {
 // A tab moved into or out of the app's tab group is told at once: Chrome pauses a collapsed
 // group's tabs within seconds, long before the next maintenance pass (#128).
 chrome.tabs.onUpdated.addListener((_id, changeInfo, tab) => {
-  if (changeInfo.groupId === undefined || !tab || !isChatGptUrl(tab.pendingUrl || tab.url || '')) return;
+  if (changeInfo.groupId === undefined || !tab || !isGeminiUrl(tab.pendingUrl || tab.url || '')) return;
   void load().then(() => syncKeepAwake([tab], false)).catch(() => undefined);
 });
 

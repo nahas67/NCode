@@ -185,7 +185,7 @@ export function describeMacOSDesktopAccess(
     checks.push(check(
       'macOS Accessibility',
       access.accessibility,
-      'macOS denied AXUIElement access to the in-process Chat On Steroids.app backend. Open Privacy & Security → Accessibility (Device Control and Data Access on newer macOS).'
+      'macOS denied AXUIElement access to the in-process NCode.app backend. Open Privacy & Security → Accessibility (Device Control and Data Access on newer macOS).'
     ));
   }
   return checks;

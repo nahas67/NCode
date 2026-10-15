@@ -98,7 +98,7 @@ export interface SurfaceDefinition {
  */
 const CORE: SurfaceDefinition = {
   id: 'core',
-  serverName: 'chat-on-steroids-core',
+  serverName: 'ncode-core',
   connectorName: `${CONNECTOR_BRAND} Core`,
   description:
     'Read and edit code and text files on this computer, and run commands in a real terminal. ' +
@@ -124,7 +124,7 @@ const CORE: SurfaceDefinition = {
  */
 const DESKTOP: SurfaceDefinition = {
   id: 'desktop',
-  serverName: 'chat-on-steroids-desktop',
+  serverName: 'ncode-desktop',
   connectorName: `${CONNECTOR_BRAND} Desktop`,
   description:
     'Control browser tabs in the background and this computer desktop, including its clipboard. ' +
@@ -138,9 +138,9 @@ const DESKTOP: SurfaceDefinition = {
 };
 
 const PLUGINS: SurfaceDefinition = {
-  id: 'plugins', serverName: 'chat-on-steroids-plugins',
+  id: 'plugins', serverName: 'ncode-plugins',
   connectorName: `${CONNECTOR_BRAND} Plugins`,
-  description: 'Tools from external MCP integrations installed and enabled in Chat On Steroids Settings, including Blender and other connected applications and services.',
+  description: 'Tools from external MCP integrations installed and enabled in NCode Settings, including Blender and other connected applications and services.',
   cardSummary: 'One shared connector for your enabled external MCP plugins.',
   required: false,
   // Dynamic declarations are owned and bounded by the plugin manager.

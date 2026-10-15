@@ -6,34 +6,13 @@
   "default_locale": "en",
   "minimum_chrome_version": "125",
   "permissions": [
-    "storage",
-    "scripting",
-    "alarms",
-    "debugger",
     "tabs",
-    "tabGroups"
+    "storage",
+    "scripting"
   ],
-  "optional_permissions": ["cookies"],
   "host_permissions": [
-    "http://*/*",
-    "https://*/*",
-    "https://chatgpt.com/*",
-    "https://chat.openai.com/*",
-    "http://127.0.0.1:8765/*",
-    "http://127.0.0.1:8766/*",
-    "http://127.0.0.1:8767/*",
-    "http://127.0.0.1:8768/*",
-    "http://127.0.0.1:8769/*",
-    "http://127.0.0.1:18765/*",
-    "http://127.0.0.1:18766/*",
-    "http://127.0.0.1:18767/*",
-    "http://127.0.0.1:18768/*",
-    "http://127.0.0.1:18769/*",
-    "http://127.0.0.1:38765/*",
-    "http://127.0.0.1:38766/*",
-    "http://127.0.0.1:38767/*",
-    "http://127.0.0.1:38768/*",
-    "http://127.0.0.1:38769/*"
+    "https://gemini.google.com/*",
+    "http://127.0.0.1:45880/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -42,13 +21,14 @@
   "content_scripts": [
     {
       "matches": [
-        "https://chatgpt.com/*",
-        "https://chat.openai.com/*"
+        "https://gemini.google.com/*"
       ],
       "js": [
         "i18n.js",
-        "chatgpt-dom.js",
-        "content.js"
+        "ncode-config.js",
+        "ncode-protocol.js",
+        "gemini-dom.js",
+        "ncode-content.js"
       ],
       "css": [
         "overlay.css"
@@ -57,22 +37,10 @@
     },
     {
       "matches": [
-        "https://chatgpt.com/*",
-        "https://chat.openai.com/*"
+        "https://gemini.google.com/*"
       ],
       "js": [
-        "fiber.js"
-      ],
-      "world": "MAIN",
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://chatgpt.com/*",
-        "https://chat.openai.com/*"
-      ],
-      "js": [
-        "usage.js"
+        "gemini-recorder.js"
       ],
       "world": "MAIN",
       "run_at": "document_start"

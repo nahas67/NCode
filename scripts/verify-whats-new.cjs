@@ -111,7 +111,7 @@ app.whenReady().then(async () => {
       await shot(`whats-new-${theme}.png`);
       // The release notes open externally, for this exact version.
       await js(`document.getElementById('whatsNewNotes').click()`);
-      assert.deepEqual(await js('window.openedLinks'),['https://github.com/totec448-spec/chat-on-steroids/releases/tag/v2.1.36']);
+      assert.deepEqual(await js('window.openedLinks'),['https://github.com/totec448-spec/ncode/releases/tag/v2.1.36']);
       // "Got it" closes it, with its motion.
       await js(`document.getElementById('whatsNewDone').click()`);
       await until(`!document.getElementById('whatsNewDialog').open`);

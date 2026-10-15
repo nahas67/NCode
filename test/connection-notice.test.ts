@@ -27,7 +27,7 @@ it.each(['core', 'desktop', 'plugins'] as const)('localizes the %s loss notice a
   const fixture = noticeFixture();
   expect(fixture.notify(surface)).toBe(true);
   const title = { core: 'Core connection lost', desktop: 'Desktop connection lost', plugins: 'Plugins connection lost' }[surface];
-  const body = 'The tunnel disconnected unexpectedly. Open Chat On Steroids to check the connection.';
+  const body = 'The tunnel disconnected unexpectedly. Open NCode to check the connection.';
   expect(fixture.mainText.mock.calls).toEqual([[title], [body]]);
   expect(fixture.create).toHaveBeenCalledExactlyOnceWith({ title: `translated:${title}`, body: `translated:${body}` });
   expect(fixture.show).toHaveBeenCalledTimes(1);

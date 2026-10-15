@@ -18,7 +18,7 @@ export function compareVersions(left, right) {
  * Run an otool inspection without handing otool-classic a parenthesized pathname.
  *
  * Xcode's classic otool parser treats `file(member)` as archive-member syntax. Electron's
- * nested helpers are legitimately named e.g. `Chat On Steroids Helper (GPU)`, so passing that
+ * nested helpers are legitimately named e.g. `NCode Helper (GPU)`, so passing that
  * pathname directly makes otool strip the parenthesized suffix and report a nonexistent file.
  * A temporary symlink with a parser-safe basename keeps the bytes and audit semantics identical
  * without modifying the packaged bundle.

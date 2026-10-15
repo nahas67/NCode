@@ -42,7 +42,7 @@ const listeners = new Set<(state: PetLibraryState) => void>();
 const builtin: Omit<PetRecord, 'enabled' | 'favorite'> = {
   id: BUILTIN_PET_ID,
   displayName: 'Tur Tur Sahur',
-  description: 'The built-in Chat On Steroids companion.',
+  description: 'The built-in NCode companion.',
   kind: 'builtin',
   builtin: true
 };

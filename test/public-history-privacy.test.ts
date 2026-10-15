@@ -181,9 +181,9 @@ describe('public-history privacy gate', () => {
   });
 
   it.each([
-    'https://github.com/totec448-spec/chat-on-steroids.git',
-    'git@github.com:totec448-spec/chat-on-steroids.git',
-    'ssh://git@github.com/totec448-spec/chat-on-steroids'
+    'https://github.com/totec448-spec/ncode.git',
+    'git@github.com:totec448-spec/ncode.git',
+    'ssh://git@github.com/totec448-spec/ncode'
   ])('recognizes canonical main under an arbitrary remote name (%s)', (url) => {
     const repository = makeRepository();
     execFileSync('git', ['remote', 'add', 'origin', 'https://github.com/example/fork.git'], { cwd: repository });
@@ -198,9 +198,9 @@ describe('public-history privacy gate', () => {
   });
 
   it.each([
-    'https://github.com/example/chat-on-steroids.git',
-    'https://github.com/totec448-spec/chat-on-steroids-extra.git',
-    'https://github.com.example/totec448-spec/chat-on-steroids.git'
+    'https://github.com/example/ncode.git',
+    'https://github.com/totec448-spec/ncode-extra.git',
+    'https://github.com.example/totec448-spec/ncode.git'
   ])('does not trust an unrelated upstream URL (%s)', (url) => {
     const repository = makeRepository();
     execFileSync('git', ['remote', 'add', 'upstream', url], { cwd: repository });
@@ -212,7 +212,7 @@ describe('public-history privacy gate', () => {
 
   it('does not fall back to fork history when canonical main has not been fetched', () => {
     const repository = makeRepository();
-    execFileSync('git', ['remote', 'add', 'upstream', 'https://github.com/totec448-spec/chat-on-steroids.git'], { cwd: repository });
+    execFileSync('git', ['remote', 'add', 'upstream', 'https://github.com/totec448-spec/ncode.git'], { cwd: repository });
     commit(repository, 'Only published on a fork', ['totec448', 'gmail.com'].join('@'));
     execFileSync('git', ['update-ref', 'refs/remotes/origin/main', 'HEAD'], { cwd: repository });
     expect(verify(repository).status).toBe(1);

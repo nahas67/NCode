@@ -88,7 +88,7 @@ describe('connector identity', () => {
   });
 
   it('learns nothing from a request it never served (another computer, another app, before a restart)', () => {
-    expect(noteAppSightings([{ requestId: 'foreign', appId: A, linkId: L, appName: 'Chat On Steroids Core' }])).toBe(false);
+    expect(noteAppSightings([{ requestId: 'foreign', appId: A, linkId: L, appName: 'NCode Core' }])).toBe(false);
     expect(connectorApps().core).toEqual([]);
   });
 
@@ -283,7 +283,7 @@ describe('connector identity through the bridge', () => {
     const conversationId = 'a1a1a1a1-0000-4000-8000-00000000c1d1';
     await request('POST', '/events', { body: { conversationId, events: [{ kind: 'app_sightings', time: Date.now(), apps: [
       { requestId: 'req-renamed', appId: 'asdk_app_6ac261da79588191af4e6096fadeeee2', linkId: 'link_6ac262533e048191933934eaee5cd69f', appName: 'My tools' },
-      { requestId: 'not-ours', appId: 'asdk_app_foreign', linkId: null, appName: 'Chat On Steroids Core' }
+      { requestId: 'not-ours', appId: 'asdk_app_foreign', linkId: null, appName: 'NCode Core' }
     ] }] } });
     const status = (await request('GET', '/status')).body;
     expect(status.connectorApps.core).toEqual([{ appId: 'asdk_app_6ac261da79588191af4e6096fadeeee2', linkId: 'link_6ac262533e048191933934eaee5cd69f', name: 'My tools' }]);
@@ -402,10 +402,10 @@ it('names a renamed connector as ChatGPT shows it in model-facing text, but serv
   noteServedRequest('r', 'core');
   noteAppSightings([{ requestId: 'r', appId: 'asdk_app_x1', linkId: 'link_x1', appName: 'My tools' }]);
   expect(surfaceDefinition('core').connectorName).toBe('My tools');
-  expect(configuredConnectorName('core')).toBe('Chat On Steroids Core');
+  expect(configuredConnectorName('core')).toBe('NCode Core');
   expect(coreInstructions(ctx)).toContain('My tools for files, terminal');
   resetConnectorIdentityForTests();
-  expect(surfaceDefinition('core').connectorName).toBe('Chat On Steroids Core');
+  expect(surfaceDefinition('core').connectorName).toBe('NCode Core');
 });
 ```
 (`coreInstructions`/`ctx` as already used in `test/mcp.test.ts`; import from the same places.) Also
@@ -580,28 +580,28 @@ const ID = 'asdk_app_6ac261da79588191af4e6096fadeeee2', LINK = 'link_6ac262533e0
 
 it('treats a renamed connector as ours by its learned app id and link', async () => {
   const turn = [REQ(`/My tools/${LINK}/exec_command`, 'q1'), RES(`/${ID}/${LINK}/exec_command`, 'My tools', 'q1', 'm-q1')];
-  const answer = await askWith(turn, { apps: ['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins'],
+  const answer = await askWith(turn, { apps: ['NCode Core', 'NCode Desktop', 'NCode Plugins'],
     appIds: [{ surface: 'core', appId: ID, linkId: LINK, name: 'My tools' }] });
   expect(answer.turns[0].calls.map(call => call.tool)).toEqual(['exec_command']);
 });
 
 it('does not claim a same-named app once the real app id is learned', async () => {
-  const turn = [REQ('/Chat On Steroids Core/link_foreign/exec_command', 'q2'), RES('/asdk_app_foreign/link_foreign/exec_command', 'Chat On Steroids Core', 'q2', 'm-q2')];
-  const answer = await askWith(turn, { apps: ['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins'],
-    appIds: [{ surface: 'core', appId: ID, linkId: LINK, name: 'Chat On Steroids Core' }] });
+  const turn = [REQ('/NCode Core/link_foreign/exec_command', 'q2'), RES('/asdk_app_foreign/link_foreign/exec_command', 'NCode Core', 'q2', 'm-q2')];
+  const answer = await askWith(turn, { apps: ['NCode Core', 'NCode Desktop', 'NCode Plugins'],
+    appIds: [{ surface: 'core', appId: ID, linkId: LINK, name: 'NCode Core' }] });
   expect(answer.turns[0]?.calls ?? []).toEqual([]);
 });
 
 it('falls back to names when nothing is learned (today\'s behavior)', async () => {
-  const turn = [REQ('/Chat On Steroids Core/link_a/exec_command', 'q3'), RES('/asdk_app_a/link_a/exec_command', 'Chat On Steroids Core', 'q3', 'm-q3')];
-  const answer = await askWith(turn, { apps: ['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins'], appIds: [] });
+  const turn = [REQ('/NCode Core/link_a/exec_command', 'q3'), RES('/asdk_app_a/link_a/exec_command', 'NCode Core', 'q3', 'm-q3')];
+  const answer = await askWith(turn, { apps: ['NCode Core', 'NCode Desktop', 'NCode Plugins'], appIds: [] });
   expect(answer.turns[0].calls.map(call => call.tool)).toEqual(['exec_command']);
 });
 
 it('reports a sighting for every connector result row, ours or not', async () => {
   const turn = [REQ(`/My tools/${LINK}/exec_command`, 'q4'), RES(`/${ID}/${LINK}/exec_command`, 'My tools', 'q4', 'm-q4'),
     REQ('/Gmail/link_g/search', 'q5'), RES('/asdk_app_gmail/link_g/search', 'Gmail', 'q5', 'm-q5')];
-  const answer = await askWith(turn, { apps: ['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins'], appIds: [] });
+  const answer = await askWith(turn, { apps: ['NCode Core', 'NCode Desktop', 'NCode Plugins'], appIds: [] });
   expect(answer.turns[0].sightings).toEqual([
     { requestId: 'q4', appId: ID, linkId: LINK, appName: 'My tools' },
     { requestId: 'q5', appId: 'asdk_app_gmail', linkId: 'link_g', appName: 'Gmail' }
@@ -811,7 +811,7 @@ git commit -m "content: report app sightings, trust fiber's ownership, find a re
 
 - [ ] **Step 1: Write the failing tests**
   - Plugin page for `asdk_app_x1` whose connector is named "My tools", with learned Core
-    `asdk_app_x1`. `pluginRefreshView('Chat On Steroids Core', [...], null)` must resolve the
+    `asdk_app_x1`. `pluginRefreshView('NCode Core', [...], null)` must resolve the
     snapshot (today it refuses on the name mismatch).
   - Picker: candidates `[{ name: 'My tools', path: 'app://asdk_app_x1' }]` with learned Core
     `asdk_app_x1` must be chosen for a Core mention.
@@ -865,7 +865,7 @@ git commit -m "Plugin refresh and mentions find a renamed connector by its app I
   4. check that `instructions` now name "CoS Core VM Rename Test" (connector refresh, or read
      `surfaceDefinition` via the app window);
   5. a chat calling the stale "CoS Win Core" stays foreign;
-  6. restore the exact name "Chat On Steroids Core (Windows VM)" and confirm on the plugin page.
+  6. restore the exact name "NCode Core (Windows VM)" and confirm on the plugin page.
 - [ ] **Step 4:** Mac regression with default names on the next canary (one call and a Goal), batched
   with any other Mac install to avoid an extra keychain prompt.
 - [ ] **Step 5:** commit the docs, push, and open the PR with the full checklist (a Setup card

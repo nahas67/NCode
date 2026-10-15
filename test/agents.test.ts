@@ -516,7 +516,7 @@ describe('a worker wake ChatGPT restored as the chat draft (#882)', () => {
 
   it('reclaims the wake on a computer whose Core carries a name suffix', async () => {
     // With a connector suffix the closing sentence names this computer's Core ("Report with the
-    // agents tool of Chat On Steroids Core (Windows): …"); a leftover of that wake has to be
+    // agents tool of NCode Core (Windows): …"); a leftover of that wake has to be
     // reclaimed exactly like the plain one, or every later wake into the chat fails.
     const previous = getConfig();
     await saveConfig({ ...previous, connectorSuffix: 'Windows' });
@@ -526,7 +526,7 @@ describe('a worker wake ChatGPT restored as the chat draft (#882)', () => {
       finishAgent(worker.caller, 'first round done');
       stageMessages(prime, [{ to: 'worker-1', text: 'Check the R11 inputs read-only and report.' }]).commit();
       const wake = pendingWorkerRevivals()[0]!.text;
-      expect(wake).toContain('the agents tool of Chat On Steroids Core (Windows):');
+      expect(wake).toContain('the agents tool of NCode Core (Windows):');
 
       const left = domWithDraft(wake);
       expect(left.api.clearRevivalResidue()).toBe(true);
@@ -5395,11 +5395,11 @@ describe('one ChatGPT account on several computers', () => {
     // Seen live (2026-10-04): a Windows worker reported through the Mac's Core, which answered only
     // "No sub-agent run is active". Naming the connector lets the model see it called the wrong one.
     const stranger: Caller = { conversationId: 'a-chat-of-another-computer' };
-    expect(() => sendMessage(stranger, PRIME_ID, 'done')).toThrow('No sub-agent run is active in Chat On Steroids Core. ');
+    expect(() => sendMessage(stranger, PRIME_ID, 'done')).toThrow('No sub-agent run is active in NCode Core. ');
     const previous = getConfig();
     await saveConfig({ ...previous, connectorSuffix: 'Windows' });
     try {
-      expect(() => sendMessage(stranger, PRIME_ID, 'done')).toThrow('No sub-agent run is active in Chat On Steroids Core (Windows). ');
+      expect(() => sendMessage(stranger, PRIME_ID, 'done')).toThrow('No sub-agent run is active in NCode Core (Windows). ');
     } finally { await saveConfig(previous); }
   });
 });

@@ -10,7 +10,7 @@
  *
  * That is not hypothetical. The installed build prefixed the bundled ripgrep directory onto
  * `env.PATH`, and the process it spawned came up with a `Path` of exactly
- * `…\Chat On Steroids\resources\rg;` — no System32, no Git, no Node. Every
+ * `…\NCode\resources\rg;` — no System32, no Git, no Node. Every
  * `spawn powershell.exe ENOENT`, every `'npm' is not recognized`, every failed `where.exe`
  * in the recorded sessions traces back to those four characters. The machine's own registry
  * path was healthy throughout; the damage was done in this process.

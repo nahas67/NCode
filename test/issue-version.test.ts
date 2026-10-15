@@ -22,7 +22,7 @@ it('reads the App version answer of the bug form', () => {
 });
 
 it('accepts only a real version number', () => {
-  for (const value of ['2.1.32', 'v2.1.31', '2.1.32 (extension 2.1.32)', 'Chat On Steroids 2.1.29']) expect(hasVersionNumber(value)).toBe(true);
+  for (const value of ['2.1.32', 'v2.1.31', '2.1.32 (extension 2.1.32)', 'NCode 2.1.29']) expect(hasVersionNumber(value)).toBe(true);
   // Answers seen in real reports.
   for (const value of ['latest', 'lastest linux', 'last', '21.0', '2.01', '.9', '_No response_', '']) expect(hasVersionNumber(value)).toBe(false);
 });

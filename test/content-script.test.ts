@@ -1815,14 +1815,14 @@ describe('desktop input delivery and helper ownership', () => {
   });
 
   it.each([
-    ['the reported Core app', { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'Chat On Steroids Core' }, { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'Chat On Steroids Core' }],
+    ['the reported Core app', { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'NCode Core' }, { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'NCode Core' }],
     ['no report', null, null],
     ['an ambiguous report', { path: null, name: null }, null],
-    ['a malformed path', { path: 'https://evil.example/', name: 'Chat On Steroids Core' }, null]
+    ['a malformed path', { path: 'https://evil.example/', name: 'NCode Core' }, null]
   ])('mentions %s on a desktop-delivered prompt (#861)', async (_case, report, expected) => {
     live = await harness(`https://chatgpt.com/?cos-input=${inputId}`, {
       status: () => ({ connected: true, paired: true, port: 8765, pending: 0, connectorNames: {
-        core: 'Chat On Steroids Core', desktop: 'Chat On Steroids Desktop', plugins: 'Chat On Steroids Plugins' } }),
+        core: 'NCode Core', desktop: 'NCode Desktop', plugins: 'NCode Plugins' } }),
       desktop_input: message => ({ ok: true, data: message.authorize || message.ack ? { ok: true } : { input: claimed() } })
     });
     await settle();
@@ -1843,17 +1843,17 @@ describe('desktop input delivery and helper ownership', () => {
 
   it.each([
     ['its own suffixed Core among both computers\' Cores', [
-      { name: 'Chat On Steroids Core', path: 'app://asdk_app_mac1111' },
-      { name: 'Chat On Steroids Core (Windows)', path: 'app://asdk_app_win2222' }
-    ], { path: 'app://asdk_app_win2222', name: 'Chat On Steroids Core (Windows)' }],
-    ['nothing when only the other computer\'s Core is listed', [{ name: 'Chat On Steroids Core', path: 'app://asdk_app_mac1111' }], null],
-    ['nothing when its own name is ambiguous', [{ name: 'Chat On Steroids Core (Windows)', path: null }], null]
+      { name: 'NCode Core', path: 'app://asdk_app_mac1111' },
+      { name: 'NCode Core (Windows)', path: 'app://asdk_app_win2222' }
+    ], { path: 'app://asdk_app_win2222', name: 'NCode Core (Windows)' }],
+    ['nothing when only the other computer\'s Core is listed', [{ name: 'NCode Core', path: 'app://asdk_app_mac1111' }], null],
+    ['nothing when its own name is ambiguous', [{ name: 'NCode Core (Windows)', path: null }], null]
   ])('mentions %s on a computer with its own connector names', async (_case, candidates, expected) => {
     // One ChatGPT account on two computers: the page lists every Core, and this install mentions
     // the one with its own name, so its prompts reach its own tools and never the other computer.
     live = await harness(`https://chatgpt.com/?cos-input=${inputId}`, {
       status: () => ({ connected: true, paired: true, port: 8765, pending: 0, connectorNames: {
-        core: 'Chat On Steroids Core (Windows)', desktop: 'Chat On Steroids Desktop (Windows)', plugins: 'Chat On Steroids Plugins (Windows)' } }),
+        core: 'NCode Core (Windows)', desktop: 'NCode Desktop (Windows)', plugins: 'NCode Plugins (Windows)' } }),
       desktop_input: message => ({ ok: true, data: message.authorize || message.ack ? { ok: true } : { input: claimed() } })
     });
     await settle();
@@ -1865,7 +1865,7 @@ describe('desktop input delivery and helper ownership', () => {
       live!.document.querySelector('#prompt-textarea')!.textContent = '';
     });
     const adapter = (live.window as any).CLF_DOM;
-    expect(adapter.connectorNames()).toEqual(['Chat On Steroids Core (Windows)', 'Chat On Steroids Desktop (Windows)', 'Chat On Steroids Plugins (Windows)']);
+    expect(adapter.connectorNames()).toEqual(['NCode Core (Windows)', 'NCode Desktop (Windows)', 'NCode Plugins (Windows)']);
     const send = adapter.send;
     const mentions: unknown[] = [];
     adapter.send = (options: { mention?: unknown }) => { mentions.push(options.mention ?? null); return send({ ...options, mention: null }); };
@@ -1874,10 +1874,10 @@ describe('desktop input delivery and helper ownership', () => {
   });
 
   it.each([
-    ['the remembered Core before the page lists its apps', 'Chat On Steroids Core (Windows)', null,
-      { path: 'app://asdk_app_win2222', name: 'Chat On Steroids Core (Windows)' }],
-    ['nothing when the remembered Core has another name', 'Chat On Steroids Core', null, null],
-    ['nothing once the page\'s complete list lacks this Core', 'Chat On Steroids Core (Windows)',
+    ['the remembered Core before the page lists its apps', 'NCode Core (Windows)', null,
+      { path: 'app://asdk_app_win2222', name: 'NCode Core (Windows)' }],
+    ['nothing when the remembered Core has another name', 'NCode Core', null, null],
+    ['nothing once the page\'s complete list lacks this Core', 'NCode Core (Windows)',
       { type: 'cos-core-mention', path: null, name: null, candidates: [], pluginList: true }, null]
   ] as const)('mentions %s in a fresh tab (#1086)', async (_case, rememberedName, pageList, expected) => {
     // A worker's fresh tab can send before its own plugin list arrives. Its first message then went
@@ -1885,7 +1885,7 @@ describe('desktop input delivery and helper ownership', () => {
     // the worker's calls to that computer's plain Core. Another tab's sighting stands in.
     live = await harness(`https://chatgpt.com/?cos-input=${inputId}`, {
       status: () => ({ connected: true, paired: true, port: 8765, pending: 0, connectorNames: {
-        core: 'Chat On Steroids Core (Windows)', desktop: 'Chat On Steroids Desktop (Windows)', plugins: 'Chat On Steroids Plugins (Windows)' },
+        core: 'NCode Core (Windows)', desktop: 'NCode Desktop (Windows)', plugins: 'NCode Plugins (Windows)' },
         ownCoreApp: { appId: 'asdk_app_win2222', name: rememberedName } }),
       desktop_input: message => ({ ok: true, data: message.authorize || message.ack ? { ok: true } : { input: claimed() } })
     });
@@ -1907,7 +1907,7 @@ describe('desktop input delivery and helper ownership', () => {
 
   it('takes no Core for its own while the app has not named it', async () => {
     // Seen live (2026-10-11): a suffixed computer's fresh tab got the plugin list before the app's
-    // names, matched the plain "Chat On Steroids Core" (the other computer's) and reported it as
+    // names, matched the plain "NCode Core" (the other computer's) and reported it as
     // its own. The worker remembered it under this computer's name, and a later Compact & Resume
     // bootstrap mentioned the other computer's Core, whose sandbox refused the chat's calls.
     const asks: any[] = [];
@@ -1919,8 +1919,8 @@ describe('desktop input delivery and helper ownership', () => {
     await settle();
     live.window.dispatchEvent(new live.window.MessageEvent('message', {
       source: live.window as unknown as Window, origin: 'https://chatgpt.com', data: { type: 'cos-core-mention', path: null, name: null,
-        candidates: [{ name: 'Chat On Steroids Core', path: 'app://asdk_app_mac1111' },
-          { name: 'Chat On Steroids Core (Windows)', path: 'app://asdk_app_win2222' }], pluginList: true } }));
+        candidates: [{ name: 'NCode Core', path: 'app://asdk_app_mac1111' },
+          { name: 'NCode Core (Windows)', path: 'app://asdk_app_win2222' }], pluginList: true } }));
     await settle();
     expect(asks).toEqual([]);
     live.document.querySelector('[data-testid="send-button"]')!.addEventListener('click', () => {
@@ -1942,9 +1942,9 @@ describe('desktop input delivery and helper ownership', () => {
     // computer's app. The app's proven Core id outranks it.
     live = await harness(`https://chatgpt.com/?cos-input=${inputId}`, {
       status: () => ({ connected: true, paired: true, port: 8765, pending: 0, connectorNames: {
-        core: 'Chat On Steroids Core (Windows)', desktop: 'Chat On Steroids Desktop (Windows)', plugins: 'Chat On Steroids Plugins (Windows)' },
-        connectorApps: { core: [{ appId: 'asdk_app_win2222', linkId: 'link_w', name: 'Chat On Steroids Core (Windows)' }], desktop: [], plugins: [] },
-        ownCoreApp: { appId: 'asdk_app_mac1111', name: 'Chat On Steroids Core (Windows)' } }),
+        core: 'NCode Core (Windows)', desktop: 'NCode Desktop (Windows)', plugins: 'NCode Plugins (Windows)' },
+        connectorApps: { core: [{ appId: 'asdk_app_win2222', linkId: 'link_w', name: 'NCode Core (Windows)' }], desktop: [], plugins: [] },
+        ownCoreApp: { appId: 'asdk_app_mac1111', name: 'NCode Core (Windows)' } }),
       desktop_input: message => ({ ok: true, data: message.authorize || message.ack ? { ok: true } : { input: claimed() } })
     });
     await settle();
@@ -2008,10 +2008,10 @@ describe('desktop input delivery and helper ownership', () => {
   it('keeps the plain names for a status reply that carries foreign or malformed names', async () => {
     live = await harness(`https://chatgpt.com/c/${chatA}`, {
       status: () => ({ connected: true, paired: true, port: 8765, pending: 0, connectorNames: {
-        core: 'Chat On Steroids Backup', desktop: 'Chat On Steroids Desktop (Windows)', plugins: 'Chat On Steroids Plugins (Windows)' } })
+        core: 'NCode Backup', desktop: 'NCode Desktop (Windows)', plugins: 'NCode Plugins (Windows)' } })
     });
     await settle();
-    expect((live.window as any).CLF_DOM.connectorNames()).toEqual(['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins']);
+    expect((live.window as any).CLF_DOM.connectorNames()).toEqual(['NCode Core', 'NCode Desktop', 'NCode Plugins']);
   });
 
   it.each([
@@ -2020,7 +2020,7 @@ describe('desktop input delivery and helper ownership', () => {
   ] as const)('follows the mention setting when it is off: %s (#952)', async (_case, extra, expected) => {
     // Off is for accounts where ChatGPT reads the mention as "use this app now" and opens a plain
     // question with a probe call. Continue keeps it, Goal's helper never gets it.
-    const core = { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'Chat On Steroids Core' };
+    const core = { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'NCode Core' };
     live = await harness(`https://chatgpt.com/c/${chatA}`, {
       activity: () => ({ ok: true, data: { entries: [], stream: [], nextSince: 0, activeTurnId: null, userAnchors: [], mentionCore: false } }),
       desktop_input: message => ({ ok: true, data: message.authorize || message.ack || message.response ? { ok: true } : { input: claimed({ ...extra }) } })
@@ -2046,10 +2046,10 @@ describe('desktop input delivery and helper ownership', () => {
   ] as const)('leaves the Core mention off only where the app says so: %s', async (_case, extra, expected) => {
     // ChatGPT switches its own image tool off for a message that mentions an app, so the app marks
     // a person's request for a picture; every other message keeps the mention (setting on).
-    const core = { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'Chat On Steroids Core' };
+    const core = { path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'NCode Core' };
     live = await harness(`https://chatgpt.com/c/${chatA}`, {
       status: () => ({ connected: true, paired: true, port: 8765, pending: 0, connectorNames: {
-        core: 'Chat On Steroids Core', desktop: 'Chat On Steroids Desktop', plugins: 'Chat On Steroids Plugins' } }),
+        core: 'NCode Core', desktop: 'NCode Desktop', plugins: 'NCode Plugins' } }),
       activity: () => ({ ok: true, data: { entries: [], stream: [], nextSince: 0, activeTurnId: null, userAnchors: [], mentionCore: true } }),
       desktop_input: message => ({ ok: true, data: message.authorize || message.ack || message.response ? { ok: true } : { input: claimed({ ...extra }) } })
     });
@@ -5292,7 +5292,7 @@ describe('the app-owned chronological stream', () => {
       ({ messageId, rawMessageId: messageId, stable: true, rawText, renderedHtml: '' }));
     section.setAttribute('data-clf-fiber-turn', '0');
     await replyFiber([{
-      v: fiberVersion, index: 0, messageId: 'interim-native-X', tool: 'read', app: 'Chat On Steroids Core', answered: true,
+      v: fiberVersion, index: 0, messageId: 'interim-native-X', tool: 'read', app: 'NCode Core', answered: true,
       conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
     }], [{ turnId: 'interrupted-fold-page', conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', messages,
       calls: [{ messageId: 'interim-native-X', requestId, tool: 'read', order: 0, answered: true }], activities: [],
@@ -6642,10 +6642,10 @@ describe('the app-owned chronological stream', () => {
     blocks[0]!.setAttribute('data-clf-fiber', '0');
     blocks[1]!.setAttribute('data-clf-fiber', '1');
     const rows = (secondAnswered: boolean) => [
-      { v: fiberVersion, index: 0, messageId: 'fiber-one', tool: 'read_file', path: '/Chat On Steroids Core/read_file',
-        app: 'Chat On Steroids Core', answered: true, conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' },
-      { v: fiberVersion, index: 1, messageId: 'fiber-two', tool: 'exec_command', path: '/Chat On Steroids Core/exec_command',
-        app: 'Chat On Steroids Core', answered: secondAnswered, conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
+      { v: fiberVersion, index: 0, messageId: 'fiber-one', tool: 'read_file', path: '/NCode Core/read_file',
+        app: 'NCode Core', answered: true, conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' },
+      { v: fiberVersion, index: 1, messageId: 'fiber-two', tool: 'exec_command', path: '/NCode Core/exec_command',
+        app: 'NCode Core', answered: secondAnswered, conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
     ];
     const turn = (secondAnswered: boolean) => ({
       turnId: 'page-live-call-gap',
@@ -6671,8 +6671,8 @@ describe('the app-owned chronological stream', () => {
   });
 
   it.each([
-    ['Chat On Steroids Plugins', true],
-    ['Chat On Steroids Backup', false]
+    ['NCode Plugins', true],
+    ['NCode Backup', false]
   ] as const)('suppresses only an answered exact supported connector block (%s)', async (app, hidden) => {
     live = await harness(undefined, { activity: () => ({ ok: true, data: {
       entries: [], userAnchors: [{ seq: 0, time: 50, messageId: 'm-exact-block-owner' }], stream: [
@@ -6696,7 +6696,7 @@ describe('the app-owned chronological stream', () => {
 
   it.each([
     ['My tools', true, true],
-    ['Chat On Steroids Plugins', false, false]
+    ['NCode Plugins', false, false]
   ] as const)('trusts fiber.js\'s own verdict for a connector row (%s, own %s)', async (app, own, hidden) => {
     // A connector renamed in ChatGPT is recognized by its app id in fiber.js (2026-10-11); a
     // same-named app that fiber.js proved foreign stays native.
@@ -6755,7 +6755,7 @@ describe('the app-owned chronological stream', () => {
     blocks.forEach((block, index) => block.setAttribute('data-clf-fiber', String(index)));
     const calls = ['read', secondTool].map((tool, index) => ({ messageId: `result-provider-${index}`, tool, order: index, requestId, answered: true }));
     await replyFiber(calls.map((call, index) => ({ v: fiberVersion, index, ...call, path: null,
-      app: 'Chat On Steroids Core', resource: `/asdk_app_fixture/link_fixture/${call.tool}`,
+      app: 'NCode Core', resource: `/asdk_app_fixture/link_fixture/${call.tool}`,
       conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' })), [{ turnId: 'result-only-page', calls }]);
     await live.hook.pullActivity(); live.hook.renderStreams();
     expect(overwriteRows(section, '[data-clf-call]')).toHaveLength(1);
@@ -7725,7 +7725,7 @@ describe('the app-owned chronological stream', () => {
     block.setAttribute('data-clf-fiber', '0');
     const bind = async (answered: boolean) => replyFiber([{
       v: fiberVersion, index: 0, messageId: 'fiber-moved-call', tool: 'read_file',
-      path: '/Chat On Steroids Core/read_file', app: 'Chat On Steroids Core', answered,
+      path: '/NCode Core/read_file', app: 'NCode Core', answered,
       conversationId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
     }], [{ turnId, calls: [{ messageId: 'fiber-moved-call', tool: 'read_file', order: 0,
       answered, requestId: 'wfr-app-stream' }] }]);
@@ -13559,7 +13559,7 @@ describe('content-script localization', () => {
 
   it('uses the page-local catalog for settings, accessibility and progress labels', async () => {
     live = await harness(undefined, {}, localized({
-      content_settings_aria: 'Chat On Steroids ayarları',
+      content_settings_aria: 'NCode ayarları',
       content_mode_off: 'Kapalı',
       content_mode_goal: 'Hedef',
       content_mode_loop: 'Döngü',
@@ -13573,8 +13573,8 @@ describe('content-script localization', () => {
 
     const control = live.document.querySelector('.clf-compact-btn') as HTMLElement;
     const menu = live.document.querySelector('.clf-menu') as HTMLElement;
-    expect(control.getAttribute('aria-label')).toBe('Chat On Steroids ayarları');
-    expect(menu.getAttribute('aria-label')).toBe('Chat On Steroids ayarları');
+    expect(control.getAttribute('aria-label')).toBe('NCode ayarları');
+    expect(menu.getAttribute('aria-label')).toBe('NCode ayarları');
     expect(menu.querySelector('.clf-menu-mode-track')?.getAttribute('aria-label')).toBe('Hedef modu');
     expect([...menu.querySelectorAll('.clf-menu-mode-option')].map(node => node.textContent)).toEqual([
       'Kapalı',
@@ -14076,7 +14076,7 @@ describe('the Compact & resume control', () => {
     expect(state({})).toMatchObject({ mode: 'idle', label: 'Compact', action: 'start' });
     expect(state({ disconnected: true })).toMatchObject({
       mode: 'off',
-      hint: 'Browser connection is disconnected in Chat On Steroids.',
+      hint: 'Browser connection is disconnected in NCode.',
       action: 'none'
     });
     expect(state({ pressedAt: 900 })).toMatchObject({ mode: 'busy', label: 'Starting…', action: 'none' });
@@ -14741,7 +14741,7 @@ describe('the Compact & resume control', () => {
     live.hook.injectControl();
     const stale =
       '[[CLF-HANDOFF:fedcba9876543210fedcba9876543210]]\n\n' +
-      'Chat On Steroids is compacting this conversation so a fresh chat can continue the work. Stop whatever you were doing and do only this.\n\n' +
+      'NCode is compacting this conversation so a fresh chat can continue the work. Stop whatever you were doing and do only this.\n\n' +
       'stale rejected handoff prompt';
     live.document.querySelector('#prompt-textarea')!.textContent = stale;
 
@@ -15677,12 +15677,12 @@ describe('the fresh chat the app opened', () => {
   it('mentions this install\'s own Core on the bootstrap before its first status reply', async () => {
     // Seen live (2026-10-11): a computer with a suffix shares its ChatGPT account with another
     // computer. Its resume tab sent the bootstrap before status arrived, matched the plain
-    // "Chat On Steroids Core" (the other computer's) and the new chat called that computer's tools.
+    // "NCode Core" (the other computer's) and the new chat called that computer's tools.
     let releaseStatus: () => void = () => undefined;
     const statusHeld = new Promise((resolve) => {
       releaseStatus = () => resolve({ connected: true, paired: true, port: 8765, pending: 0 });
     });
-    const names = { core: 'Chat On Steroids Core (Windows)', desktop: 'Chat On Steroids Desktop (Windows)', plugins: 'Chat On Steroids Plugins (Windows)' };
+    const names = { core: 'NCode Core (Windows)', desktop: 'NCode Desktop (Windows)', plugins: 'NCode Plugins (Windows)' };
     let releaseRedeem: () => void = () => undefined;
     const redeemHeld = new Promise((resolve) => {
       releaseRedeem = () => resolve({
@@ -15710,12 +15710,12 @@ describe('the fresh chat the app opened', () => {
     adapter.send = (options: { mention?: unknown }) => { mentions.push(options.mention ?? null); return send({ ...options, mention: null }); };
     live.window.dispatchEvent(new live.window.MessageEvent('message', {
       source: live.window as unknown as Window, origin: 'https://chatgpt.com', data: { type: 'cos-core-mention', path: null, name: null,
-        candidates: [{ name: 'Chat On Steroids Core', path: 'app://asdk_app_mac1111' },
-          { name: 'Chat On Steroids Core (Windows)', path: 'app://asdk_app_win2222' }], pluginList: true } }));
+        candidates: [{ name: 'NCode Core', path: 'app://asdk_app_mac1111' },
+          { name: 'NCode Core (Windows)', path: 'app://asdk_app_win2222' }], pluginList: true } }));
     releaseRedeem();
     await settle(200);
     await settle();
-    expect(mentions).toEqual([{ path: 'app://asdk_app_win2222', name: 'Chat On Steroids Core (Windows)' }]);
+    expect(mentions).toEqual([{ path: 'app://asdk_app_win2222', name: 'NCode Core (Windows)' }]);
     releaseStatus();
     await settle();
   });
@@ -16550,7 +16550,7 @@ describe('the fresh chat the app opened', () => {
     // them — reported to the app as ChatGPT having replaced the composer, which retired
     // the worker slot before the chat had said a word. Live, both workers of a two-worker
     // run died this way.
-    const task = 'Read /project/chat-on-steroids/package.json and report the version field.';
+    const task = 'Read /project/ncode/package.json and report the version field.';
     live = await harness(
       'https://chatgpt.com/?clf=cmd-10',
       {
@@ -16561,7 +16561,7 @@ describe('the fresh chat the app opened', () => {
             type: 'worker',
             text: `${task}
 
-(You are a worker agent in a Chat On Steroids multi-agent run.)`,
+(You are a worker agent in a NCode multi-agent run.)`,
             agent: 'worker-1'
           }
         }),
@@ -16571,7 +16571,7 @@ describe('the fresh chat the app opened', () => {
         document.querySelector('[data-testid="send-button"]')!.addEventListener('click', () => {
           submitted = composerText(document);
           dom.reconfigure({ url: 'https://chatgpt.com/c/22222222-3333-4444-5555-666666666666' });
-          userTurn(document, 'accepted-short-worker', `${task}\n\n(You are a worker agent in a Chat On Steroids multi-agent run.)`, { sent: false });
+          userTurn(document, 'accepted-short-worker', `${task}\n\n(You are a worker agent in a NCode multi-agent run.)`, { sent: false });
         });
       }
     );
@@ -16901,7 +16901,7 @@ describe('the fresh chat the app opened', () => {
     // tab opens again. The wake waited for an empty editor until its deadline, every time.
     const chat = reclaim ? '25252525-3636-4747-8888-818181818181' : '26262626-3737-4848-8989-828282828282';
     const draft = reclaim
-      ? 'Old instruction.\n\n(Chat On Steroids: you are still worker-1 in the same run, and this is the prime agent talking to you again in the chat you already know. Pick up from what you did here before rather than starting over. Report with agents action=message to="prime" as you go and action=finish when this piece is done.)'
+      ? 'Old instruction.\n\n(NCode: you are still worker-1 in the same run, and this is the prime agent talking to you again in the chat you already know. Pick up from what you did here before rather than starting over. Report with agents action=message to="prime" as you go and action=finish when this piece is done.)'
       : 'My own note for this worker';
     let redeemCalls = 0;
     let sends = 0;
@@ -18509,7 +18509,7 @@ describe('one live isolated-world recorder per document', () => {
     await settle();
     expect(live.sent.some(message => message.type === 'register_document')).toBe(true);
     expect(locks.request).toHaveBeenCalledTimes(1);
-    expect(locks.request.mock.calls[0]![0]).toMatch(/^chat-on-steroids-keep-awake-[a-z0-9]{8,}$/);
+    expect(locks.request.mock.calls[0]![0]).toMatch(/^ncode-keep-awake-[a-z0-9]{8,}$/);
     expect(locks.held).toHaveLength(1);
   });
 
@@ -18546,7 +18546,7 @@ describe('one live isolated-world recorder per document', () => {
     live = await harness();
     await settle();
     const chat = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
-    const sighting = { requestId: '11111111-2222-4333-8444-555555555555', appId: 'asdk_app_6ac261da', linkId: 'link_6ac26253', appName: 'Chat On Steroids Core' };
+    const sighting = { requestId: '11111111-2222-4333-8444-555555555555', appId: 'asdk_app_6ac261da', linkId: 'link_6ac26253', appName: 'NCode Core' };
     const publish = (conversationId: string, sightings: unknown[]) => live!.window.dispatchEvent(new live!.window.MessageEvent('message', {
       source: live!.window as unknown as Window, origin: 'https://chatgpt.com',
       data: { type: 'cos-app-sighting', conversationId, sightings }
@@ -22973,9 +22973,9 @@ describe('ordinary Continue native recovery', () => {
     live = await harness(`https://chatgpt.com/c/${chat}`);
     await settle();
     const composer = live.document.getElementById('prompt-textarea')!;
-    composer.textContent = '[[CLF-HANDOFF:IRpyIega8lPGQZNCPaB0tQ]]Chat On Steroids is compacting this conversation';
+    composer.textContent = '[[CLF-HANDOFF:IRpyIega8lPGQZNCPaB0tQ]]NCode is compacting this conversation';
     expect(await live.runtimeMessage({ type: 'clf-repair-check', conversationId: chat })).not.toMatchObject({ why: 'draft' });
-    composer.textContent = 'Chat On Steroids is compacting this conversation';
+    composer.textContent = 'NCode is compacting this conversation';
     expect(await live.runtimeMessage({ type: 'clf-repair-check', conversationId: chat })).toMatchObject({ safe: false, why: 'draft' });
   });
 
@@ -23144,7 +23144,7 @@ it.each([false, true])('opens the first turn of a prompt sent with an app mentio
     const node = live!.document.createElement('span');
     node.setAttribute('data-prompt-link-href', 'app://asdk_app_fixture');
     node.setAttribute('app-mention-path', 'app://asdk_app_fixture');
-    node.textContent = 'Chat On Steroids Core';
+    node.textContent = 'NCode Core';
     parent.append(node);
   };
   if (chip) addChip(box);

@@ -515,5 +515,5 @@ it('explains a "not a function" from another connector\'s tool in a Core script 
   const response = await call(who.requestId, 'try { await tools.read_clipboard({}); } catch (error) { text(String(error)); }');
   const all = text(response);
   expect(all).toContain('not a function');
-  expect(all).toContain('UNKNOWN_TOOL_NAMES: this script used tools.read_clipboard (a Chat On Steroids Desktop tool), which Chat On Steroids Core does not offer');
+  expect(all).toContain('UNKNOWN_TOOL_NAMES: this script used tools.read_clipboard (a NCode Desktop tool), which NCode Core does not offer');
 });

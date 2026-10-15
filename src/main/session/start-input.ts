@@ -1,9 +1,11 @@
 /** Explicit desktop sends bring up the existing connection/browser authorities. */
 import { connect, getStatus, onStatusChange } from '../connection.js';
-import { startBridge } from '../bridge.js';
+import { startBridge, legacyBridgeListenerEnabled } from '../bridge.js';
 import { wakeBrowserUrl, resetBrowserStartupForTests } from '../browser-startup.js';
 import { getConfig } from '../config.js';
 import { enqueueInput, cancelInput, listInputs, noteInputStartupError, type InputArgs, type InputEntry } from './input.js';
+import { isExtensionConnected, startGoalInGemini } from '../ncode-bridge.js';
+import { buildNCodeBootstrapPrompt } from '../prompts/ncode-bootstrap.js';
 
 function wakeBrowser(entry: InputEntry, retry = false): Promise<void> {
   const marker = `cos-input=${encodeURIComponent(entry.id)}`;
@@ -41,11 +43,20 @@ async function ready(signal?: AbortSignal): Promise<void> {
     unsubscribe = onStatusChange(inspect); inspect();
   });
   signal?.throwIfAborted();
-  if (!await startBridge()) throw new Error('The browser bridge could not start.');
+  // The legacy ChatGPT listener is off at runtime (see legacyBridgeListenerEnabled); NCode's own
+  // readiness signal is the Gemini companion socket, so its absence must not fail a send.
+  if (legacyBridgeListenerEnabled() && !await startBridge()) throw new Error('The browser bridge could not start.');
   signal?.throwIfAborted();
 }
 async function deliver(entry: InputEntry, retry = false): Promise<InputEntry> {
   try {
+    if (isExtensionConnected()) {
+      const prompt = buildNCodeBootstrapPrompt({
+        goal: entry.text,
+        workspacePath: getConfig().roots?.[0]?.path
+      });
+      startGoalInGemini(entry.text, prompt);
+    }
     await wakeBrowser(entry, retry);
     return await noteInputStartupError(entry.id, null) ?? entry;
   } catch (error) {

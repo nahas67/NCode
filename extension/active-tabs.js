@@ -4,7 +4,7 @@ export function createActiveTabs(chrome) {
   const scopes = new Map(), states = new Map(), retiring = new Set(), cancelled = new Map();
   let syncing = null, again = false;
   const valid = tab => Number.isInteger(tab?.id) && tab.id > 0 && typeof tab.url === 'string' &&
-    tab.url.length <= 4096 && /^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(tab.url) && !tab.pendingUrl;
+    tab.url.length <= 4096 && /^https:\/\/gemini\.google\.com\//.test(tab.url) && !tab.pendingUrl;
   const save = () => chrome.storage.session.set({ [KEY]: [...states.values(), ...retiring]
     .filter(s => s.attached || s.failed).map(s => ({ id: s.id, url: s.url, attached: s.attached, failed: s.failed === true })) });
   const loaded = (async () => {

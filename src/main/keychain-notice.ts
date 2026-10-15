@@ -3,7 +3,7 @@
  *
  * macOS builds are ad-hoc signed (electron-builder.yml, `identity: null`), so the Keychain knows
  * each build only by its code hash. The first launch of a new build therefore asks for the login
- * password before it may read "chat-on-steroids Safe Storage", and until the prompt is answered
+ * password before it may read "ncode Safe Storage", and until the prompt is answered
  * the saved keys, the browser pairing and the chat list all wait for it: on 2.1.26 the window sat
  * on "Loading chats…" with no word about why.
  *

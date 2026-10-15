@@ -9,7 +9,7 @@
  * decision to quit, and by that point the tray icon is already destroyed and the window is
  * gone. So a teardown task that never settles does not merely delay the exit — it leaves an
  * invisible main process running, still holding the single-instance lock, which makes every
- * later attempt to start Chat On Steroids do nothing at all. The user's only way out is Task
+ * later attempt to start NCode do nothing at all. The user's only way out is Task
  * Manager. Every task below is individually bounded (the bridge force-closes wedged sockets,
  * the MCP endpoint forces its drain, tunnel teardown races a timer), but "each piece is
  * bounded" is not the same claim as "the sequence terminates", and it is the sequence that

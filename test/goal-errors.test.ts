@@ -15,7 +15,7 @@ import ptPT from '../src/renderer/locales/pt-PT.json';
 describe('Goal failure explanations', () => {
   it('explains that missing tool evidence may be a question or lost connection without disabling Loop', () => {
     const message = goalErrorMessage('loop_mcp_call_missing');
-    expect(message).toContain('ChatGPT may be asking you something');
+    expect(message).toContain('Gemini may be asking you something');
     expect(message).toContain('the tool connection may have been lost');
     expect(message).toContain('Answer it');
     expect(message).toContain('Loop remains enabled');
@@ -81,7 +81,7 @@ describe('Goal failure explanations', () => {
       for (const source of [...fixed, ...parameterized]) {
         expect(Object.hasOwn(catalog, source), `${locale}: ${source}`).toBe(true);
       }
-      expect(catalog[goalErrorMessage('loop_mcp_call_missing')], locale).toContain('ChatGPT');
+      expect(catalog[goalErrorMessage('loop_mcp_call_missing')], locale).toContain('Gemini');
     }
   });
 
@@ -102,7 +102,7 @@ describe('Goal failure explanations', () => {
       for (const locale of locales) {
         const message = catalogs[locale]?.[`content_goal_error_${key}`]?.message;
         expect(message, `${locale}: ${code}`).toBeTruthy();
-        if (code === 'loop_mcp_call_missing') expect(message, `${locale}: ${code}`).toContain('ChatGPT');
+        if (code === 'loop_mcp_call_missing') expect(message, `${locale}: ${code}`).toContain('Gemini');
       }
     }
     expect(catalogs.de?.content_goal_error_out_of_credit?.message).not.toBe(catalogs.en?.content_goal_error_out_of_credit?.message);

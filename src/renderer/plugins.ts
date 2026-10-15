@@ -56,7 +56,7 @@ async function mutate(work: ReturnType<typeof window.api.pluginsSnapshot>, notif
 }
 /** This computer's Plugins connector name, which carries its suffix when one is set. */
 function pluginsConnectorName(): string {
-  return appState?.status.surfaces.find(item => item.id === 'plugins')?.connectorName ?? 'Chat On Steroids Plugins';
+  return appState?.status.surfaces.find(item => item.id === 'plugins')?.connectorName ?? 'NCode Plugins';
 }
 export async function refreshPlugins(): Promise<void> { await mutate(window.api.pluginsSnapshot(), false); }
 export function applyPluginsState(next: AppState): void {
@@ -66,16 +66,16 @@ export function applyPluginsState(next: AppState): void {
   const contacted = surface?.state === 'live' && !!surface.lastRequestAt;
   const configured = !!next.config.tunnel.pluginsTunnelId?.trim() || surface?.state === 'live';
   $('pluginsSetupTitle').closest('.plugin-connection')!.classList.toggle('is-configured', configured);
-  ui($('pluginsSetupTitle'), 'textContent', () => configured ? t("Chat On Steroids Plugins in ChatGPT") : t("Set up plugins before your first use"));
+  ui($('pluginsSetupTitle'), 'textContent', () => configured ? t("NCode Plugins in ChatGPT") : t("Set up plugins before your first use"));
   ui($('pluginsSetupHint'), 'textContent', () => configured
-    ? t("Your enabled plugins reach ChatGPT through one plugin there: Chat On Steroids Plugins. Manage its connection here.")
+    ? t("Your enabled plugins reach ChatGPT through one plugin there: NCode Plugins. Manage its connection here.")
     : t("Add {0} to ChatGPT once, so ChatGPT can use your installed plugins.", [pluginsConnectorName()]));
   ui($('pluginsSetupLink'), 'textContent', () => configured ? t("Plugin setup") : t("Set up plugins"));
   ui($('pluginsRefreshName'), 'textContent', pluginsConnectorName);
   $('pluginsSetupLink').classList.toggle('btn-solid', !configured);
   ui(status, 'textContent', () => surface?.state === 'live'
     ? contacted ? t("Connected to ChatGPT") : t("Plugin online · waiting for ChatGPT")
-    : configured ? t("Chat On Steroids Plugins offline") : t("Setup required · connect your plugins"));
+    : configured ? t("NCode Plugins offline") : t("Setup required · connect your plugins"));
   status.dataset.live = String(surface?.state === 'live');
   ui(status, 'title', () => t(surface?.detail ?? ''));
   const setupStatus = document.getElementById('pluginSetupStatus');
@@ -108,8 +108,8 @@ function showConnection(): void {
     else key = field(body, () => t("Tunnel API key"), '', true, () => t("Use a restricted key with Tunnels: Read and Tunnels: Use. It is stored securely and shared with Core and Desktop."));
   }
   // Values needed for ChatGPT setup stay copyable; tool lists belong to each plugin.
-  copy(t("Name in ChatGPT"), surface?.connectorName ?? 'Chat On Steroids Plugins');
-  copy(t("Description"), surface?.description ?? 'Tools from your enabled Chat On Steroids plugins.');
+  copy(t("Name in ChatGPT"), surface?.connectorName ?? 'NCode Plugins');
+  copy(t("Description"), surface?.description ?? 'Tools from your enabled NCode plugins.');
   const url = surface?.publicUrl ?? (config.tunnel.kind === 'manual' ? surface?.localUrl : null);
   if (url) copy(t("MCP server URL"), url);
   body.append(el('p', 'hint', () => config.tunnel.kind === 'openai'

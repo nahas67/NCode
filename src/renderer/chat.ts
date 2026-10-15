@@ -89,6 +89,7 @@ import { browserExtensionRequired, type AppState, type Config } from '../shared/
 import { $, ago, clockTime, compactNumber, disclosureChevron, el, icon, run, setIcon, toast } from './dom.js';
 import { APPROVAL_ANSWERED_TEXT, APPROVAL_PROGRESS_PREFIX, APPROVAL_WAITING_TEXT } from '../shared/approval-wait.js';
 import { openRowMenu, rowMenuOpenFor, toggleRowMenu, type RowMenuItem } from './row-menu.js';
+import { ncodeConnected, startNCodeGoal } from './ncode.js';
 
 const api = window.api;
 let chatSearch: ChatSearch | null = null;
@@ -931,11 +932,12 @@ function sessionRow(summary: SessionSummary): HTMLElement {
     }
     items.push(
       { action: 'rename', icon: 'i-pencil', label: () => t('Rename'), title: () => t("Rename this chat in the app. Its title in ChatGPT stays the same."), run: () => startRename(summary) },
-      { action: 'open', icon: 'i-out', label: () => t('Open in browser'), title: () => t("Open this chat in your browser"), run: () => void run(api.openSessionChat(summary.id)) },
-      // ChatGPT opens /c/<id> wherever the chat lives, a project included (#1107).
-      { action: 'copy-link', icon: 'i-copy', label: () => t('Copy link'), title: () => t("Copy this chat's ChatGPT link"),
-        run: async () => { if (await run(api.writeClipboard(`https://chatgpt.com/c/${summary.conversationId}`))) toast(t('Link copied')); } }
+      { action: 'open', icon: 'i-out', label: () => t('Open in browser'), title: () => t("Open this chat in your browser"), run: () => void run(api.openSessionChat(summary.id)) }
     );
+    // No "Copy link" here any more: the only share URL this app could build was a
+    // chatgpt.com/c/<id> route, and this conversation's id is Gemini's, so the menu would
+    // hand the user a dead link on every real chat. Nothing replaces it until a Gemini
+    // share route exists to point at.
     // The stop this app can actually make. It does not touch the running ChatGPT turn — nothing
     // here can — it takes this chat's tools away, and a model whose every call is refused with
     // an instruction to stop finishes its turn on its own.
@@ -6388,6 +6390,13 @@ async function sendComposer(delivery?: 'finish', plan?: string[], planObjective?
       await adoptAcceptedOpening(result);
     }
     $('composerStatus').textContent = '';
+    // A Goal or Loop submission is also a goal for the Gemini extension. Fired only when the
+    // extension is paired and only after the outbox accepted the input, so an unpaired one
+    // changes nothing about this send and no send ever waits on this call.
+    if (ncodeConnected()) {
+      const automation = $<HTMLSelectElement>('chatAutomation').value;
+      if (automation === 'goal' || automation === 'loop') startNCodeGoal(objective ?? text, text);
+    }
     void refreshInputQueue();
     return true;
   } finally { cancelledStarts.delete(id); startingInputs.delete(id); paintDeliveryControls(); void refreshInputQueue(); }

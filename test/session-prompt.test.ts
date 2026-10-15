@@ -161,7 +161,7 @@ it('uses the allocated worker checkout as the only working directory while retai
   await fs.writeFile(path.join(sourcePath, 'AGENTS.md'), 'SOURCE_PROJECT_INSTRUCTIONS_ONLY');
   const prime = await createSession({ title: 'Prime', conversationId: 'prime-chat' });
   await assignSessionProject(prime.id, project.id);
-  const checkout = '/work/.chat-on-steroids-worktrees/owned/tree';
+  const checkout = '/work/.ncode-worktrees/owned/tree';
 
   const managed = await prepareSessionPrompt('Only edit the checkout', { sessionId: prime.id, workingDirectory: checkout });
   expect(managed).toContain(`Worker working directory (allocated Git worktree): ${checkout}`);

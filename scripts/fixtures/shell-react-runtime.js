@@ -37,7 +37,7 @@ window.verifyCommittedShellReact = async (fiberSource, domSource) => {
       messageIds: [user, call], items: [
         { type: 'user-message', messageId: user, serverMessageId: user, message: 'Diagnostic task' },
         { type: 'chatgpt-reasoning-group', items: [{ type: 'mcp-tool-call', callId: call,
-          completed: false, invocation: { server: 'Chat On Steroids Core', tool: 'read' } }] }
+          completed: false, invocation: { server: 'NCode Core', tool: 'read' } }] }
       ] } },
     mapping: {
       [user]: { id: user, parent: null, message: { id: user, author: { role: 'user' } } },

@@ -21,13 +21,13 @@ export function mainTexts(): Record<MainText, string> {
     'Core connection lost': t('Core connection lost'),
     'Desktop connection lost': t('Desktop connection lost'),
     'Plugins connection lost': t('Plugins connection lost'),
-    'The tunnel disconnected unexpectedly. Open Chat On Steroids to check the connection.':
-      t('The tunnel disconnected unexpectedly. Open Chat On Steroids to check the connection.'),
+    'The tunnel disconnected unexpectedly. Open NCode to check the connection.':
+      t('The tunnel disconnected unexpectedly. Open NCode to check the connection.'),
     'Astra is wrapping up': t('Astra is wrapping up'),
     'Send an automatic Goal or write your next instruction.': t('Send an automatic Goal or write your next instruction.'),
     'Send Automatic Goal': t('Send Automatic Goal'),
     'Write Directly': t('Write Directly'),
-    'The Chat On Steroids browser is still running': t('The Chat On Steroids browser is still running'),
+    'The NCode browser is still running': t('The NCode browser is still running'),
     'Your chats keep going. Choose Show browser in the tray icon’s menu to bring it back.':
       t('Your chats keep going. Choose Show browser in the tray icon’s menu to bring it back.'),
     'Your chats keep going. Choose Show browser in the menu bar icon’s menu to bring it back.':

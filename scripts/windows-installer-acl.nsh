@@ -8,10 +8,10 @@
     # During an update this runs before any page exists, where Abort ends the installer
     # silently (#1258). Say why, and what usually helps, unless the install is silent.
     ${IfNot} ${Silent}
-      MessageBox MB_ICONSTOP|MB_OK "Windows could not set the folder access needed to start Chat On Steroids safely (icacls exit code $0) for:$\r$\n$INSTDIR$\r$\n$\r$\nIf Chat On Steroids is installed in a protected folder such as Program Files, run this installer as administrator."
+      MessageBox MB_ICONSTOP|MB_OK "Windows could not set the folder access needed to start NCode safely (icacls exit code $0) for:$\r$\n$INSTDIR$\r$\n$\r$\nIf NCode is installed in a protected folder such as Program Files, run this installer as administrator."
     ${EndIf}
     SetErrorLevel 2
-    Abort "Windows could not set the folder access needed to start Chat On Steroids safely."
+    Abort "Windows could not set the folder access needed to start NCode safely."
   ${EndIf}
 !macroend
 

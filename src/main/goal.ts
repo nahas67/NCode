@@ -98,8 +98,8 @@ const OPENROUTER_BASE = 'https://openrouter.ai/api/v1';
  * uses to attribute traffic. Neither header carries anything about the user or the chat.
  */
 const ATTRIBUTION_HEADERS: Record<string, string> = {
-  'HTTP-Referer': 'https://github.com/chat-on-steroids',
-  'X-Title': 'Chat On Steroids'
+  'HTTP-Referer': 'https://github.com/ncode',
+  'X-Title': 'NCode'
 };
 
 /** Which LLM endpoint the Goal/Loop second model runs on, resolved per call from config. */
@@ -2613,7 +2613,7 @@ export async function conversationMessages(sessionId: string, deliveredInput: re
   }
   for (const [turn, at] of lastAnswerOfTurn) {
     const count = callsByTurn.get(turn)!;
-    ordered[at] = { ...ordered[at]!, content: `${ordered[at]!.content}\n\n[Chat On Steroids: ${count} tool call${count === 1 ? '' : 's'} ran in this turn. Arguments and results are not shown.]` };
+    ordered[at] = { ...ordered[at]!, content: `${ordered[at]!.content}\n\n[NCode: ${count} tool call${count === 1 ? '' : 's'} ran in this turn. Arguments and results are not shown.]` };
   }
   for (const text of deliveredInput.slice(-5)) {
     const content = clip(userPromptText(text) ?? text, MAX_USER_MESSAGE_CHARS);

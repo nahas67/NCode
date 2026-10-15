@@ -127,19 +127,19 @@
    * (`server.ts`), so these are this app naming itself rather than labels somebody typed.
    * The pre-1.7.1 name stays so an older chat's evidence still reads.
    *
-   * Exact names, never a prefix: `Chat On Steroids Backup` would be somebody else's
+   * Exact names, never a prefix: `NCode Backup` would be somebody else's
    * connector, and a prefix test would have this app vouch for its traffic.
    *
    * A computer that shares its ChatGPT account with another names its connectors with a suffix
-   * ("Chat On Steroids Core (Windows)"). The content script passes this install's names with
+   * ("NCode Core (Windows)"). The content script passes this install's names with
    * every ask, and only those are ours: the other computer's calls run there, not here. Measured
    * 2026-10-04: the call path, `invocation.server` and `app_name` all carry the name as typed.
    */
-  const PLAIN_APPS = ['Chat On Steroids Core', 'Chat On Steroids Desktop', 'Chat On Steroids Plugins'];
+  const PLAIN_APPS = ['NCode Core', 'NCode Desktop', 'NCode Plugins'];
   const LEGACY_APPS = ['TobisComputer'];
-  const SUFFIXED_APP = /^Chat On Steroids (Core|Desktop|Plugins) \([\p{L}\p{N} ._-]{1,32}\)$/u;
+  const SUFFIXED_APP = /^NCode (Core|Desktop|Plugins) \([\p{L}\p{N} ._-]{1,32}\)$/u;
   let OUR_APPS = [...PLAIN_APPS, ...LEGACY_APPS];
-  /** Takes the names an ask carries: three "Chat On Steroids …" names, in core/desktop/plugins order. */
+  /** Takes the names an ask carries: three "NCode …" names, in core/desktop/plugins order. */
   function adoptAppNames(names) {
     if (!Array.isArray(names) || names.length !== 3) return;
     const words = ['Core', 'Desktop', 'Plugins'];
@@ -1365,7 +1365,7 @@
     return out;
   }
 
-  /** "/Chat On Steroids Core/link_…/read" -> "read", or null if that is not a name. */
+  /** "/NCode Core/link_…/read" -> "read", or null if that is not a name. */
   function toolName(value) {
     if (typeof value !== 'string' || value.length === 0) return null;
     const tail = value.slice(value.lastIndexOf('/') + 1);

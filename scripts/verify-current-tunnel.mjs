@@ -17,7 +17,7 @@ export async function assertCurrentTunnelRelease({
   const headers = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'chat-on-steroids-release-preflight'
+    'User-Agent': 'ncode-release-preflight'
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 

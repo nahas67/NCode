@@ -801,7 +801,7 @@ it('lets the file preview expand vertically over the tree and persists that heig
   handle.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
   expect(previewPane.style.height).toMatch(/^\d+px$/);
   expect(Number.parseInt(previewPane.style.height, 10)).toBeGreaterThanOrEqual(160);
-  expect(dom.window.localStorage.getItem('chat-on-steroids.file-preview-height')).toBe(previewPane.style.height.replace('px', ''));
+  expect(dom.window.localStorage.getItem('ncode.file-preview-height')).toBe(previewPane.style.height.replace('px', ''));
 });
 
 it('keeps the same PDF viewer mounted across unrelated panel repaints and unchanged watcher refreshes', async () => {
@@ -925,7 +925,7 @@ it('keeps the original synchronous vertical resize behavior while a PDF is open'
   // PDF-specific fixes must not change the shared preview separator's original immediate drag.
   expect(Number.parseInt(previewPane.style.height, 10)).toBeGreaterThan(200);
   handle.dispatchEvent(pointer('pointerup', 180));
-  expect(dom.window.localStorage.getItem('chat-on-steroids.file-preview-height')).toBe(previewPane.style.height.replace('px', ''));
+  expect(dom.window.localStorage.getItem('ncode.file-preview-height')).toBe(previewPane.style.height.replace('px', ''));
   expect(captured).toBe(false);
   expect(createPdfViewer).toHaveBeenCalledTimes(1);
 });

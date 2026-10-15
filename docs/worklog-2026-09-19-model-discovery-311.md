@@ -3,7 +3,7 @@
 ## Scope and evidence
 
 This change addresses reproducible discovery waits and model-identity failures related to
-[#311](https://github.com/totec448-spec/chat-on-steroids/issues/311). It does not claim that
+[#311](https://github.com/totec448-spec/ncode/issues/311). It does not claim that
 the reporter's alternate editor, picker metadata or missing transcript has been fully diagnosed.
 
 The previous implementation required an idle recognized composer, but any existing ChatGPT

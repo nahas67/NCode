@@ -3,7 +3,7 @@
  * stays above the unpinned chats of its own list (the main Chats list or its project) and keeps
  * its manual order among the other pinned chats there. Session and project ownership never change.
  */
-const STORAGE_KEY = 'chat-on-steroids.sidebar-pins';
+const STORAGE_KEY = 'ncode.sidebar-pins';
 const MAX_PINS = 500;
 const PINNED_SCOPE = 'pinned:';
 

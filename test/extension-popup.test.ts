@@ -36,7 +36,9 @@ it('declares Chrome locale placeholders and loads the shared i18n helper before 
   expect(manifest.name).toBe('__MSG_extension_name__');
   expect(manifest.description).toBe('__MSG_extension_description__');
   expect(manifest.action.default_title).toBe('__MSG_extension_action_title__');
-  expect(manifest.content_scripts[0].js[0]).toBe('i18n.js');
+  // i18n.js leads the isolated entry: the DOM adapter and the recorder both read the catalog it
+  // publishes, and background.js's repair path injects it first for the same reason.
+  expect(manifest.content_scripts[0].js).toEqual(['i18n.js', 'ncode-config.js', 'ncode-protocol.js', 'gemini-dom.js', 'ncode-content.js']);
   expect(html.indexOf('src="i18n.js"')).toBeLessThan(html.indexOf('src="popup.js"'));
   expect((html.match(/<script\b[^>]*>/gi) ?? []).every((tag) => /\bsrc=/.test(tag))).toBe(true);
 
@@ -85,7 +87,7 @@ it('reports only app reachability from compatible health and pairing', () => {
   expect(document.getElementById('state')!.textContent).toBe('App not reachable');
   // Unreachable is the state people report as "it doesn't work": say what to do, right there.
   expect(hint.hidden).toBe(false);
-  expect(hint.textContent).toBe('Make sure Chat On Steroids is open on this computer. The extension connects on its own.');
+  expect(hint.textContent).toBe('Make sure NCode is open on this computer. The extension connects on its own on port 45880.');
   expect(document.getElementById('unpairBtn')).toBeNull();
   (popup!.window as any).paintHeader({ connected: true, paired: false, disconnected: true, compatible: true, port: 8765 });
   expect(document.getElementById('retryBtn')!.textContent).toBe('Connect');

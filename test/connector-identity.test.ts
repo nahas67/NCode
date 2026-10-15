@@ -17,7 +17,7 @@ describe('connector identity', () => {
   });
 
   it('learns nothing from a request it never served (another computer, another app, before a restart)', () => {
-    expect(noteAppSightings([{ requestId: 'foreign', appId: A, linkId: L, appName: 'Chat On Steroids Core' }])).toBe(false);
+    expect(noteAppSightings([{ requestId: 'foreign', appId: A, linkId: L, appName: 'NCode Core' }])).toBe(false);
     expect(connectorApps().core).toEqual([]);
   });
 

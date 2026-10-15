@@ -6,20 +6,20 @@ import { strFromU8, unzipSync } from 'fflate';
 
 /** The files release.yml publishes, in its SHA256SUMS.txt order. */
 export const RELEASE_FILES = [
-  'Chat-On-Steroids-Setup-x64.exe',
-  'Chat-On-Steroids-Setup-arm64.exe',
-  'Chat-On-Steroids-macOS-x64.dmg',
-  'Chat-On-Steroids-macOS-x64.zip',
-  'Chat-On-Steroids-macOS-arm64.dmg',
-  'Chat-On-Steroids-macOS-arm64.zip',
-  'Chat-On-Steroids-Linux-x64.AppImage',
-  'Chat-On-Steroids-Linux-x64.deb',
-  'Chat-On-Steroids-Linux-arm64.AppImage',
-  'Chat-On-Steroids-Linux-arm64.deb',
-  'Chat-On-Steroids-Extension.zip',
-  'Chat-On-Steroids-Native-Sources.tar.gz'
+  'NCode-Setup-x64.exe',
+  'NCode-Setup-arm64.exe',
+  'NCode-macOS-x64.dmg',
+  'NCode-macOS-x64.zip',
+  'NCode-macOS-arm64.dmg',
+  'NCode-macOS-arm64.zip',
+  'NCode-Linux-x64.AppImage',
+  'NCode-Linux-x64.deb',
+  'NCode-Linux-arm64.AppImage',
+  'NCode-Linux-arm64.deb',
+  'NCode-Extension.zip',
+  'NCode-Native-Sources.tar.gz'
 ];
-const EXTENSION = 'Chat-On-Steroids-Extension.zip';
+const EXTENSION = 'NCode-Extension.zip';
 
 function sha256(file) {
   return new Promise((resolve, reject) => {

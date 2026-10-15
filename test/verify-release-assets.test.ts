@@ -27,7 +27,7 @@ function release(change: { manifest?: object; stamp?: string | null; omit?: stri
   for (const name of EXTENSION_FILES) extensionEntries[name] = strToU8(name);
   const sums: string[] = [];
   for (const name of RELEASE_FILES) {
-    const bytes = name === 'Chat-On-Steroids-Extension.zip' ? zipSync(extensionEntries) : Buffer.from(`contents of ${name}`);
+    const bytes = name === 'NCode-Extension.zip' ? zipSync(extensionEntries) : Buffer.from(`contents of ${name}`);
     sums.push(`${createHash('sha256').update(bytes).digest('hex')}  ${name}`);
     if (name !== change.omit) writeFileSync(path.join(dir, name), bytes);
   }
@@ -37,24 +37,24 @@ function release(change: { manifest?: object; stamp?: string | null; omit?: stri
 }
 
 it('accepts a complete release whose files match their checksums and whose extension is the tagged build', async () => {
-  expect(RELEASE_FILES).not.toContain('Chat-On-Steroids-Firefox.zip');
+  expect(RELEASE_FILES).not.toContain('NCode-Firefox.zip');
   expect(await verifyReleaseAssets({ dir: release(), tag: 'v2.1.21' })).toEqual([]);
 });
 
 it('reports a file whose bytes differ from the published checksum', async () => {
-  const folder = release({ afterSums: () => writeFileSync(path.join(dir, 'Chat-On-Steroids-Setup-x64.exe'), 'truncated') });
+  const folder = release({ afterSums: () => writeFileSync(path.join(dir, 'NCode-Setup-x64.exe'), 'truncated') });
   expect(await verifyReleaseAssets({ dir: folder, tag: 'v2.1.21' })).toEqual([
-    'Chat-On-Steroids-Setup-x64.exe does not match its SHA256SUMS.txt checksum.'
+    'NCode-Setup-x64.exe does not match its SHA256SUMS.txt checksum.'
   ]);
 });
 
 it('reports missing files and a Chromium extension whose version or build stamp is wrong', async () => {
-  expect(await verifyReleaseAssets({ dir: release({ omit: 'Chat-On-Steroids-Linux-arm64.deb' }), tag: 'v2.1.21' }))
-    .toEqual(['Chat-On-Steroids-Linux-arm64.deb is missing from the release.']);
+  expect(await verifyReleaseAssets({ dir: release({ omit: 'NCode-Linux-arm64.deb' }), tag: 'v2.1.21' }))
+    .toEqual(['NCode-Linux-arm64.deb is missing from the release.']);
   rmSync(dir, { recursive: true, force: true });
   expect(await verifyReleaseAssets({ dir: release({ manifest: { version: '2.1.20' }, stamp: null }), tag: 'v2.1.21' })).toEqual([
-    'Chat-On-Steroids-Extension.zip is missing build-stamp.txt.',
-    'The extension in Chat-On-Steroids-Extension.zip is version 2.1.20, not 2.1.21.'
+    'NCode-Extension.zip is missing build-stamp.txt.',
+    'The extension in NCode-Extension.zip is version 2.1.20, not 2.1.21.'
   ]);
 });
 

@@ -31,6 +31,6 @@ checks; only this validation record and the review disposition were updated.
 ## Credit and scope
 
 Translation credit: [PourrezJ](https://github.com/PourrezJ), PR
-[#369](https://github.com/totec448-spec/chat-on-steroids/pull/369).
+[#369](https://github.com/totec448-spec/ncode/pull/369).
 The public adaptation is based on the #370 merge `93573d836b2b6feac02f6a5fc584995b10cb48ee`.
 No installation, release or native macOS interaction is claimed.

@@ -1,4 +1,5 @@
 import { REASONING_EFFORTS } from '../src/shared/session.js';
+import { DEFAULT_GEMINI_MODELS, DEFAULT_HELPER_CHAT_MODEL } from '../src/shared/chat-models.js';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -736,12 +737,16 @@ describe('shipped defaults', () => {
 describe('the goal loop settings', () => {
   it('keeps helper settings independent from the API and preserves a chosen idle tab budget', async () => {
     const config = defaultConfig();
-    expect(config.goal).toMatchObject({ helperModel: 'gpt-6', helperReasoning: 'high', model: DEFAULT_GOAL_MODEL });
+    expect(config.goal).toMatchObject({ helperModel: DEFAULT_HELPER_CHAT_MODEL, helperReasoning: 'high', model: DEFAULT_GOAL_MODEL });
     await saveConfig({ ...config, ui: { ...config.ui, tabsToKeepOpen: 7 }, goal: {
       ...config.goal, model: 'provider/api-model', reasoning: 'low', helperModel: 'account-browser-model', helperReasoning: 'medium'
     } });
     const loaded = await loadConfig();
-    expect(loaded.goal).toMatchObject({ model: 'provider/api-model', reasoning: 'low', helperModel: 'account-browser-model', helperReasoning: 'medium' });
+    // `model` is the API driver's own id beside `provider.baseUrl`, so a provider slug a Gemini
+    // page catalog has never heard of still survives. `helperModel` is a picker fact, so an id the
+    // live Gemini catalog does not offer falls back to the shipped default instead of persisting
+    // a legacy ChatGPT name no Gemini tab could ever run.
+    expect(loaded.goal).toMatchObject({ model: 'provider/api-model', reasoning: 'low', helperModel: DEFAULT_HELPER_CHAT_MODEL, helperReasoning: 'medium' });
     expect(loaded.ui.tabsToKeepOpen).toBe(7);
   });
   it('is off out of the box', () => {
@@ -757,15 +762,18 @@ describe('the goal loop settings', () => {
     expect(config.goal.objectivePrompt).toContain('Read it together with the original task');
   });
 
-  it('moves the exact superseded helper models to GPT-6 and keeps any other choice', async () => {
+  it('moves every superseded or unknown helper model to the shipped default', async () => {
     await saveConfig({ ...defaultConfig(), goal: { ...defaultConfig().goal, helperModel: 'gpt-5.6-sol', helperReasoning: 'medium' } });
     // GPT-5.6 Sol is no longer in ChatGPT's catalog; the untouched shipped value adopts the current default.
-    expect((await loadConfig()).goal).toMatchObject({ helperModel: 'gpt-6', helperReasoning: 'medium' });
+    expect((await loadConfig()).goal).toMatchObject({ helperModel: DEFAULT_HELPER_CHAT_MODEL, helperReasoning: 'medium' });
     // 2.1.31's own shipped lane alias adopts the family too, so Settings shows one GPT-6 (#1217).
     await saveConfig({ ...defaultConfig(), goal: { ...defaultConfig().goal, helperModel: 'gpt-6-thinking', helperReasoning: 'high' } });
-    expect((await loadConfig()).goal).toMatchObject({ helperModel: 'gpt-6', helperReasoning: 'high' });
+    expect((await loadConfig()).goal).toMatchObject({ helperModel: DEFAULT_HELPER_CHAT_MODEL, helperReasoning: 'high' });
+    // Any other legacy ChatGPT lane is no longer kept either: `adoptCatalogModels` judges every
+    // helper id against the live Gemini catalog, so an id the account does not offer becomes the
+    // shipped default rather than persisting a name no Gemini tab could run.
     await saveConfig({ ...defaultConfig(), goal: { ...defaultConfig().goal, helperModel: 'gpt-5-6-thinking' } });
-    expect((await loadConfig()).goal.helperModel).toBe('gpt-5-6-thinking');
+    expect((await loadConfig()).goal.helperModel).toBe(DEFAULT_HELPER_CHAT_MODEL);
   });
 
   it('keeps the model, reasoning level and system prompt that were chosen', async () => {
@@ -790,7 +798,7 @@ describe('the goal loop settings', () => {
       loopBackend: 'chatgpt',
       includeToolCalls: false,
       impulseMinutes: 0,
-      helperModel: 'gpt-6',
+      helperModel: DEFAULT_HELPER_CHAT_MODEL,
       helperReasoning: 'high',
       enabled: true,
       mode: 'loop',
@@ -937,7 +945,7 @@ describe('the goal loop settings', () => {
       loopBackend: 'chatgpt',
       includeToolCalls: false,
       impulseMinutes: 0,
-      helperModel: 'gpt-6',
+      helperModel: DEFAULT_HELPER_CHAT_MODEL,
       helperReasoning: 'high',
       enabled: false,
       mode: 'goal',
@@ -1041,11 +1049,19 @@ it('persists optional ordinary new-chat model defaults without inventing them fo
   const config = defaultConfig();
   expect(config.ui.defaultChatModel).toBeUndefined();
   expect(config.ui.defaultChatReasoning).toBeUndefined();
-  Object.assign(config.ui, { defaultChatModel: 'gpt-5.6-sol', defaultChatReasoning: 'xhigh' });
+  // An observed model id is kept verbatim; the effort choice beside it is independent of the id.
+  const observedId = DEFAULT_GEMINI_MODELS[0]!.id;
+  Object.assign(config.ui, { defaultChatModel: observedId, defaultChatReasoning: 'xhigh' });
   await saveConfig(config);
   const loaded = await loadConfig();
-  expect(loaded.ui.defaultChatModel).toBe('gpt-5.6-sol');
+  expect(loaded.ui.defaultChatModel).toBe(observedId);
   expect(loaded.ui.defaultChatReasoning).toBe('xhigh');
+  // A legacy ChatGPT-era id is no longer a Gemini choice, so it reads back as absent. Absent is the
+  // honest answer: it is what makes the composer fall back to "Automatic" rather than offering a
+  // model no Gemini tab can run. This is the same rule that keeps `Argon` off the screen.
+  Object.assign(config.ui, { defaultChatModel: 'gpt-5.6-sol' });
+  await saveConfig(config);
+  expect((await loadConfig()).ui.defaultChatModel).toBeUndefined();
 });
 
 describe('a settings file the app cannot read as is', () => {

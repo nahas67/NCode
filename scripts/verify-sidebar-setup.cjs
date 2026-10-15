@@ -17,7 +17,7 @@ app.setPath('userData', path.join(output, 'runtime'));
 app.whenReady().then(async () => {
   const { createServer } = await import('vite');
   const fixture = `
-    if (new URL(location.href).searchParams.has('reset')) localStorage.removeItem('chat-on-steroids.sidebar-order');
+    if (new URL(location.href).searchParams.has('reset')) localStorage.removeItem('ncode.sidebar-order');
     localStorage.removeItem('cos.ui.language');
     ${fixtureConfigSource()}
     const config = fixtureConfig({

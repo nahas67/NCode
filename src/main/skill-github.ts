@@ -33,7 +33,7 @@ async function githubJson(endpoint: string, signal: AbortSignal, limit = 1024 * 
   try {
     response = await fetch(`https://api.github.com${endpoint}`, {
       redirect: 'error', signal: AbortSignal.any([signal, AbortSignal.timeout(20_000)]),
-      headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ChatOnSteroids-Skills' }
+      headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'NCode-Skills' }
     });
   } catch {
     throw new Error(signal.aborted ? 'GitHub download timed out. Try again.' : 'Could not reach GitHub. Try again.');

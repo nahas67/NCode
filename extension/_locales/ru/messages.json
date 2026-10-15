@@ -6,7 +6,7 @@
     "message": "приложение не ответило"
   },
   "content_app_not_running": {
-    "message": "Chat On Steroids не запущен на этом ПК."
+    "message": "NCode не запущен на этом ПК."
   },
   "content_auto_compaction": {
     "message": "Автосжатие"
@@ -36,10 +36,10 @@
     "message": "редактор сообщения изменился перед отправкой запуска; черновик сохранён"
   },
   "content_bootstrap_composer_replaced": {
-    "message": "ChatGPT заменил редактор сообщения во время вставки запуска"
+    "message": "Gemini заменил редактор сообщения во время вставки запуска"
   },
   "content_bootstrap_composer_unavailable": {
-    "message": "после выбора модели ChatGPT так и не показал доступный редактор сообщения"
+    "message": "после выбора модели Gemini так и не показал доступный редактор сообщения"
   },
   "content_bootstrap_fresh_chat_changed": {
     "message": "отмеченный новый чат изменился перед отправкой запуска; ничего не отправлено"
@@ -48,19 +48,19 @@
     "message": "Краткая передача контекста, перенесённая приложением — это не ваш текст"
   },
   "content_bootstrap_insert_refused": {
-    "message": "ChatGPT отклонил вставленный текст$1"
+    "message": "Gemini отклонил вставленный текст$1"
   },
   "content_bootstrap_missing_target": {
     "message": "предложено уже существующему чату без указания нужного чата"
   },
   "content_bootstrap_model_unavailable": {
-    "message": "Запрошенная модель или уровень рассуждений недоступны либо не удалось подтвердить их в ChatGPT"
+    "message": "Запрошенная модель или уровень рассуждений недоступны либо не удалось подтвердить их в Gemini"
   },
   "content_bootstrap_project_not_authorized": {
     "message": "команда не разрешила вход в Project; ничего не отправлено"
   },
   "content_bootstrap_project_open_failed": {
-    "message": "ChatGPT не смог открыть исходный Project по встроенной ссылке; ничего не отправлено"
+    "message": "Gemini не смог открыть исходный Project по встроенной ссылке; ничего не отправлено"
   },
   "content_bootstrap_project_source_changed": {
     "message": "запись Project больше не соответствует исходному диалогу; ничего не отправлено"
@@ -69,7 +69,7 @@
     "message": "в запуске продолжения нет корректного маркера продолжения"
   },
   "content_bootstrap_send_not_accepted": {
-    "message": "ChatGPT не принял отправку запуска"
+    "message": "Gemini не принял отправку запуска"
   },
   "content_bootstrap_target_changed": {
     "message": "чат, для которого предназначалось сообщение, изменился до отправки; ничего не отправлено"
@@ -81,7 +81,7 @@
     "message": "открытая для него страница показывала другой диалог"
   },
   "content_browser_disconnected": {
-    "message": "Подключение браузера в Chat On Steroids разорвано."
+    "message": "Подключение браузера в NCode разорвано."
   },
   "content_cancel": {
     "message": "Отмена"
@@ -90,16 +90,16 @@
     "message": "Чат заблокирован"
   },
   "content_chat_blocked_tip": {
-    "message": "Этот чат заблокирован в Chat On Steroids: вызовы инструментов отклоняются, а Цель, Цикл и автосжатие выключены. Чтобы разблокировать его, откройте вкладку Chat в приложении, наведите на этот чат в списке сессий и нажмите значок блокировки."
+    "message": "Этот чат заблокирован в NCode: вызовы инструментов отклоняются, а Цель, Цикл и автосжатие выключены. Чтобы разблокировать его, откройте вкладку Chat в приложении, наведите на этот чат в списке сессий и нажмите значок блокировки."
   },
   "content_chat_still_opening": {
     "message": "чат ещё открывается — повторите"
   },
   "content_chatgpt_message_box_not_ready": {
-    "message": "Поле сообщения ChatGPT не готово ($1). Дождитесь загрузки страницы и повторите."
+    "message": "Поле сообщения Gemini не готово ($1). Дождитесь загрузки страницы и повторите."
   },
   "content_chatgpt_tool": {
-    "message": "Инструмент ChatGPT"
+    "message": "Инструмент Gemini"
   },
   "content_clear": {
     "message": "Очистить"
@@ -120,7 +120,7 @@
     "message": "$1. Надёжная попытка не будет отправлена дважды."
   },
   "content_compact_attempt_owned": {
-    "message": "Надёжная попытка передачи контекста уже закреплена; сверяется отмеченное сообщение ChatGPT."
+    "message": "Надёжная попытка передачи контекста уже закреплена; сверяется отмеченное сообщение Gemini."
   },
   "content_compact_blocked_unavailable_hint": {
     "message": "Заблокированный чат не сжимается и не продолжается: новый чат остался бы без его инструментов. Сначала разблокируйте чат в приложении."
@@ -150,10 +150,10 @@
     "message": "Чат изменился, пока сжатие ожидало локальные инструменты."
   },
   "content_compact_chatgpt_writing": {
-    "message": "ChatGPT пишет передачу контекста"
+    "message": "Gemini пишет передачу контекста"
   },
   "content_compact_existing_draft": {
-    "message": "В ChatGPT уже есть черновик; очистите поле сообщения перед запросом передачи контекста."
+    "message": "В Gemini уже есть черновик; очистите поле сообщения перед запросом передачи контекста."
   },
   "content_compact_failed": {
     "message": "Сжатие не удалось"
@@ -171,10 +171,10 @@
     "message": "Ответ передачи контекста не завершился. Отмените сжатие, чтобы вернуться в этот чат."
   },
   "content_compact_handoff_problem": {
-    "message": "ChatGPT сообщил о проблеме при подготовке передачи контекста."
+    "message": "Gemini сообщил о проблеме при подготовке передачи контекста."
   },
   "content_compact_handoff_request_failed": {
-    "message": "Не удалось запросить у ChatGPT передачу контекста: $1"
+    "message": "Не удалось запросить у Gemini передачу контекста: $1"
   },
   "content_compact_handoff_stopped_detail": {
     "message": "Ответ передачи контекста остановлен. Отмените сжатие, чтобы вернуться в этот чат."
@@ -204,7 +204,7 @@
     "message": "Не удалось проверить, можно ли сжать этот чат."
   },
   "content_compact_results_unconfirmed": {
-    "message": "ChatGPT не подтвердил получение последних результатов инструментов. Сжатие не выполнено."
+    "message": "Gemini не подтвердил получение последних результатов инструментов. Сжатие не выполнено."
   },
   "content_compact_resume_cancelled": {
     "message": "Продолжение отменено"
@@ -213,7 +213,7 @@
     "message": "Сжать и продолжить сейчас"
   },
   "content_compact_send_ambiguous": {
-    "message": "Результат отправки неоднозначен. Повторной отправки не будет; отмените явно, если ChatGPT так и не принял запрос."
+    "message": "Результат отправки неоднозначен. Повторной отправки не будет; отмените явно, если Gemini так и не принял запрос."
   },
   "content_compact_send_not_ready": {
     "message": "Запрос передачи контекста не отправлен: кнопка Send или поле сообщения были не готовы. Повторите после загрузки страницы."
@@ -246,7 +246,7 @@
     "message": "Запись передачи контекста"
   },
   "content_compact_stop_failed": {
-    "message": "ChatGPT не остановил текущий ход. Сжатие не выполнено."
+    "message": "Gemini не остановил текущий ход. Сжатие не выполнено."
   },
   "content_compact_stopping": {
     "message": "Остановка…"
@@ -285,7 +285,7 @@
     "message": "Не удалось подтвердить обновление плагина"
   },
   "content_connector_schema_no_refresh": {
-    "message": "Схема плагина отличается, но в ChatGPT нет элемента Refresh. Пересоздайте или повторно опубликуйте этот плагин, чтобы загрузить текущую схему инструментов."
+    "message": "Схема плагина отличается, но в Gemini нет элемента Refresh. Пересоздайте или повторно опубликуйте этот плагин, чтобы загрузить текущую схему инструментов."
   },
   "content_connector_settings_unreadable": {
     "message": "Не удалось прочитать карточку настроек плагина на странице этого запроса"
@@ -300,7 +300,7 @@
     "message": "Передача вложения не завершена."
   },
   "content_delivery_attachment_upload_unconfirmed": {
-    "message": "Загрузка вложения не подтверждена. Перед повтором проверьте неотправленный черновик и ошибки файла в ChatGPT."
+    "message": "Загрузка вложения не подтверждена. Перед повтором проверьте неотправленный черновик и ошибки файла в Gemini."
   },
   "content_delivery_chat_changed": {
     "message": "Чат изменился до прямой доставки."
@@ -309,19 +309,19 @@
     "message": "Чат изменился или не остановился. Сообщение не отправлено."
   },
   "content_delivery_composer_changed": {
-    "message": "Редактор сообщения ChatGPT изменился перед отправкой"
+    "message": "Редактор сообщения Gemini изменился перед отправкой"
   },
   "content_delivery_composer_stuck": {
-    "message": "ChatGPT завершил ответ, но редактор сообщения всё ещё показывает Stop. Страница восстанавливается перед доставкой сообщения из очереди."
+    "message": "Gemini завершил ответ, но редактор сообщения всё ещё показывает Stop. Страница восстанавливается перед доставкой сообщения из очереди."
   },
   "content_delivery_draft_preserved": {
     "message": "Редактор сообщения изменился; черновик сохранён"
   },
   "content_delivery_editor_not_writable": {
-    "message": "Редактор ChatGPT не стал доступен для ввода до отправки."
+    "message": "Редактор Gemini не стал доступен для ввода до отправки."
   },
   "content_delivery_existing_draft": {
-    "message": "В ChatGPT уже есть неотправленный черновик. Отправьте или очистите его в Chrome перед повтором."
+    "message": "В Gemini уже есть неотправленный черновик. Отправьте или очистите его в Chrome перед повтором."
   },
   "content_delivery_model_unconfirmed": {
     "message": "Не удалось подтвердить выбранную модель или уровень рассуждений"
@@ -333,7 +333,7 @@
     "message": "Temporary Chat не подтверждён. Откройте вспомогательную вкладку и завершите вводную настройку Temporary Chat."
   },
   "content_delivery_text_not_accepted": {
-    "message": "ChatGPT не принял текст$1"
+    "message": "Gemini не принял текст$1"
   },
   "content_delivery_turn_changed": {
     "message": "Ход изменился до прямой доставки."
@@ -351,7 +351,7 @@
     "message": "Для этого чата ещё нет локально записанной сессии."
   },
   "content_error_turn_still_generating": {
-    "message": "Сначала дождитесь завершения этого хода ChatGPT."
+    "message": "Сначала дождитесь завершения этого хода Gemini."
   },
   "content_failed": {
     "message": "Сбой"
@@ -372,7 +372,7 @@
     "message": "$1 отвечает"
   },
   "content_goal_backend_chatgpt_helper": {
-    "message": "помощник ChatGPT"
+    "message": "помощник Gemini"
   },
   "content_goal_backend_custom_endpoint": {
     "message": "пользовательский эндпоинт"
@@ -414,7 +414,7 @@
     "message": "Режим Цели"
   },
   "content_goal_new_chat_draft_refused": {
-    "message": "ChatGPT не заменил черновик New Chat"
+    "message": "Gemini не заменил черновик New Chat"
   },
   "content_goal_no_api_key_unavailable": {
     "message": "Нет API-ключа — Цель и Цикл недоступны"
@@ -459,13 +459,13 @@
     "message": "не удалось сохранить Цель для этого чата"
   },
   "content_goal_send_failed": {
-    "message": "ChatGPT не отправил сообщение"
+    "message": "Gemini не отправил сообщение"
   },
   "content_goal_sending_answer_to": {
     "message": "Отправка ответа в $1"
   },
   "content_goal_sending_to_chatgpt": {
-    "message": "Отправка в ChatGPT"
+    "message": "Отправка в Gemini"
   },
   "content_goal_status_dismiss": {
     "message": "Закрыть статус Цели"
@@ -489,7 +489,7 @@
     "message": "Ожидание перед перезагрузкой для восстановления"
   },
   "content_goal_wait_resumed": {
-    "message": "ChatGPT возобновил работу · ожидание перед повтором"
+    "message": "Gemini возобновил работу · ожидание перед повтором"
   },
   "content_goal_wait_running_tools": {
     "message": "Ожидание работающих инструментов"
@@ -585,7 +585,7 @@
     "message": "Сохранение…"
   },
   "content_settings_aria": {
-    "message": "Настройки Chat On Steroids"
+    "message": "Настройки NCode"
   },
   "content_stage_handoff_attention": {
     "message": "Ответ передачи контекста требует внимания"
@@ -672,7 +672,7 @@
     "message": "Автоматический Continue остановил неизменившийся тихий ход."
   },
   "content_turn_chatgpt_interrupted": {
-    "message": "ChatGPT отметил ход как прерванный"
+    "message": "Gemini отметил ход как прерванный"
   },
   "content_turn_outcome": {
     "message": "Ход $1"
@@ -735,13 +735,13 @@
     "message": "Запись…"
   },
   "extension_action_title": {
-    "message": "Chat On Steroids"
+    "message": "NCode"
   },
   "extension_description": {
-    "message": "Подключает ChatGPT к Chat On Steroids и управляет вкладками браузера в фоне через DOM, скриншоты и инструменты разработчика."
+    "message": "Подключает Gemini к NCode и управляет вкладками браузера в фоне через DOM, скриншоты и инструменты разработчика."
   },
   "extension_name": {
-    "message": "Расширение браузера Chat On Steroids"
+    "message": "Расширение браузера NCode"
   },
   "popup_advanced": {
     "message": "Дополнительно"
@@ -770,8 +770,8 @@
   "popup_chat_id": {
     "message": "ID чата"
   },
-  "popup_chatgpt_tab": {
-    "message": "Вкладка ChatGPT"
+  "popup_gemini_tab": {
+    "message": "Вкладка Gemini"
   },
   "popup_confirmed": {
     "message": "подтверждено"
@@ -878,8 +878,8 @@
   "popup_no_record": {
     "message": "нет записи"
   },
-  "popup_overwrite_chatgpt": {
-    "message": "Перезаписывать ChatGPT"
+  "popup_overwrite_gemini": {
+    "message": "Перезаписывать Gemini"
   },
   "popup_owner_confirmed": {
     "message": "Владелец подтверждён"
@@ -900,7 +900,7 @@
     "message": "Приложение отклонило последнюю доставку ($1)."
   },
   "popup_pipeline_extension_blocked": {
-    "message": "Расширение не принимает наблюдения с этой вкладки ($1). Перезагрузите вкладку ChatGPT."
+    "message": "Расширение не принимает наблюдения с этой вкладки ($1). Перезагрузите вкладку Gemini."
   },
   "popup_pipeline_id_found_waiting_receipt": {
     "message": "ID найден в последнем ходе. Ожидание подтверждения получения приложением."
@@ -944,14 +944,14 @@
   "popup_request_id_found": {
     "message": "ID запроса найден"
   },
-  "popup_section_augment_chatgpt": {
-    "message": "Дополнять ChatGPT"
+  "popup_section_augment_gemini": {
+    "message": "Дополнять Gemini"
   },
   "popup_section_session_capture": {
     "message": "Запись сессии"
   },
   "popup_secure_storage_unavailable": {
-    "message": "Защищённое хранилище учётных данных недоступно. Откройте Chat On Steroids для инструкций по настройке."
+    "message": "Защищённое хранилище учётных данных недоступно. Откройте NCode для инструкций по настройке."
   },
   "popup_sent_to_app": {
     "message": "Отправлено в приложение"
@@ -1038,7 +1038,7 @@
     "message": "Повторить"
   },
   "popup_version_mismatch_help": {
-    "message": "Приложение v$1 (протокол $2); расширение v$3 (протокол $4). Откройте страницу Extensions браузера, включите Developer mode, затем Update / Reload для этого расширения. Если версии всё ещё не совпадают, используйте Open extension folder в Chat On Steroids и загрузите эту папку. Перезагрузите вкладки ChatGPT после завершения активной работы."
+    "message": "Приложение v$1 (протокол $2); расширение v$3 (протокол $4). Откройте страницу Extensions браузера, включите Developer mode, затем Update / Reload для этого расширения. Если версии всё ещё не совпадают, используйте Open extension folder в NCode и загрузите эту папку. Перезагрузите вкладки Gemini после завершения активной работы."
   },
   "popup_yes": {
     "message": "да"
@@ -1062,7 +1062,7 @@
     "message": "Ответ провайдера превысил допустимый размер. Выберите другую модель продолжения или запросите более короткие ответы."
   },
   "content_goal_error_no_api_key": {
-    "message": "Для провайдера продолжения не настроен API-ключ. Добавьте его в настройках или выберите ChatGPT как источник продолжения."
+    "message": "Для провайдера продолжения не настроен API-ключ. Добавьте его в настройках или выберите Gemini как источник продолжения."
   },
   "content_goal_error_auth_rejected": {
     "message": "Провайдер продолжения отклонил учётные данные API. Проверьте API-ключ и права доступа в настройках."
@@ -1077,7 +1077,7 @@
     "message": "Пользовательский адрес продолжения недействителен. Проверьте URL в настройках; используйте HTTPS или локальный HTTP-адрес."
   },
   "content_history_rate_limited": {
-    "message": "ChatGPT временно ограничил доступ к истории этого чата. Chat On Steroids приостанавливает автоматическое восстановление до окончания периода ожидания."
+    "message": "Gemini временно ограничил доступ к истории этого чата. NCode приостанавливает автоматическое восстановление до окончания периода ожидания."
   },
   "content_goal_error_rate_limited": {
     "message": "Провайдер продолжения ограничивает частоту запросов. Дождитесь указанного повторения или выберите другую модель продолжения."
@@ -1095,10 +1095,10 @@
     "message": "Запрос к помощнику отменён. Запустите его снова, когда захотите продолжить."
   },
   "content_goal_error_goal_browser_send_failed": {
-    "message": "Не удалось доставить промпт помощника в ChatGPT. Перед повтором откройте чат помощника и проверьте редактор или видимую ошибку."
+    "message": "Не удалось доставить промпт помощника в Gemini. Перед повтором откройте чат помощника и проверьте редактор или видимую ошибку."
   },
   "content_goal_error_goal_browser_send_unconfirmed": {
-    "message": "Приложение не смогло подтвердить, получил ли ChatGPT промпт помощника. Перед повтором проверьте чат помощника, чтобы не отправить запрос дважды."
+    "message": "Приложение не смогло подтвердить, получил ли Gemini промпт помощника. Перед повтором проверьте чат помощника, чтобы не отправить запрос дважды."
   },
   "content_goal_error_goal_owned_elsewhere": {
     "message": "Это продолжение обрабатывает другая вкладка браузера. Проверьте ход работы там."
@@ -1167,6 +1167,26 @@
     "message": "Не удалось. Начните вход заново из CoS."
   },
   "popup_app_not_running_help": {
-    "message": "Убедитесь, что Chat On Steroids открыт на этом компьютере. Расширение подключится само."
+    "message": "Убедитесь, что NCode открыт на этом компьютере. Расширение подключится само."
+  },
+  "popup_status_active": {
+    "message": "активен",
+    "description": "NCode recorder row value: the Gemini content script is active on this tab."
+  },
+  "popup_status_connected": {
+    "message": "подключено",
+    "description": "NCode reaching-the-app row value: the Gemini tab is connected to the local NCode bridge."
+  },
+  "popup_status_ready": {
+    "message": "готово",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_pipeline_waiting_gemini_recorder": {
+    "message": "Ожидаем отсчёта отчёта страницы страницы.",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_detail_gemini_observed": {
+    "message": "$1 запросов · $2 фрагментов",
+    "description": "NCode Gemini recorder evidence shown in the popup."
   }
 }

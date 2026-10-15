@@ -20,12 +20,12 @@ export const MAIN_TEXTS = [
   'Core connection lost',
   'Desktop connection lost',
   'Plugins connection lost',
-  'The tunnel disconnected unexpectedly. Open Chat On Steroids to check the connection.',
+  'The tunnel disconnected unexpectedly. Open NCode to check the connection.',
   'Astra is wrapping up',
   'Send an automatic Goal or write your next instruction.',
   'Send Automatic Goal',
   'Write Directly',
-  'The Chat On Steroids browser is still running',
+  'The NCode browser is still running',
   'Your chats keep going. Choose Show browser in the tray icon’s menu to bring it back.',
   'Your chats keep going. Choose Show browser in the menu bar icon’s menu to bring it back.'
 ] as const;

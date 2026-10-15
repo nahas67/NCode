@@ -160,7 +160,7 @@ export interface UiPrefs {
   playfulStatus?: boolean;
   /** Keep the chat at its end while it grows, here and on ChatGPT, until the reader scrolls up. On unless false. */
   followOutput?: boolean;
-  /** Add the Chat On Steroids Core mention to the user's own prompts sent from the app. On unless false. */
+  /** Add the NCode Core mention to the user's own prompts sent from the app. On unless false. */
   mentionCore?: boolean;
   /** The interface language the window last reported; the browser extension follows it. */
   language?: import('./ui-language.js').UiLanguage;
@@ -386,7 +386,7 @@ export interface ControlApiSettings {
 export interface Config {
   /**
    * Names this computer's connectors in ChatGPT, for one ChatGPT account used on several
-   * computers: "Windows" makes them "Chat On Steroids Core (Windows)" and so on. Empty keeps the
+   * computers: "Windows" makes them "NCode Core (Windows)" and so on. Empty keeps the
    * plain names. It belongs to the install, not to a setup profile.
    */
   connectorSuffix?: string;
@@ -699,7 +699,7 @@ export interface UpdateStatus {
 }
 
 /** Where an installation that cannot update itself gets the new version by hand. */
-export const RELEASES_PAGE = 'https://github.com/totec448-spec/chat-on-steroids/releases/latest';
+export const RELEASES_PAGE = 'https://github.com/totec448-spec/ncode/releases/latest';
 
 /**
  * Whether `candidate` is a later release than `current`, compared as three numbers.

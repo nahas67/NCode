@@ -237,11 +237,11 @@ describe('native window activation', () => {
 describe('Windows login startup', () => {
   it('writes only packaged Windows login settings and supports turning the same entry off', () => {
     const app = { isPackaged: true, setLoginItemSettings: vi.fn() };
-    applyLoginStartup(app, true, 'win32', 'C:/Program Files/Chat On Steroids/app.exe');
-    applyLoginStartup(app, false, 'win32', 'C:/Program Files/Chat On Steroids/app.exe');
+    applyLoginStartup(app, true, 'win32', 'C:/Program Files/NCode/app.exe');
+    applyLoginStartup(app, false, 'win32', 'C:/Program Files/NCode/app.exe');
     expect(app.setLoginItemSettings.mock.calls).toEqual([
-      [{ openAtLogin: true, path: 'C:/Program Files/Chat On Steroids/app.exe', args: ['--background'] }],
-      [{ openAtLogin: false, path: 'C:/Program Files/Chat On Steroids/app.exe', args: ['--background'] }]
+      [{ openAtLogin: true, path: 'C:/Program Files/NCode/app.exe', args: ['--background'] }],
+      [{ openAtLogin: false, path: 'C:/Program Files/NCode/app.exe', args: ['--background'] }]
     ]);
     for (const platform of ['darwin', 'linux'] as const) applyLoginStartup(app, true, platform);
     app.isPackaged = false;

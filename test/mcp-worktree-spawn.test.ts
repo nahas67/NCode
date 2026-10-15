@@ -232,7 +232,7 @@ describe('MCP worker spawn with automatic Git isolation', () => {
     await fs.writeFile(path.join(source, 'source.txt'), 'base\n');
     gitAt(source, 'add', 'source.txt');
     gitAt(source, 'commit', '-m', 'baseline');
-    const unsafeNativePath = path.join(approved, '.chat-on-steroids-worktrees');
+    const unsafeNativePath = path.join(approved, '.ncode-worktrees');
     await fs.writeFile(unsafeNativePath, 'personal file that blocks managed storage');
     await saveConfig({ ...getConfig(), roots: [{ name: 'approved', path: approved }] });
     setWorkspaceFor(`chat:${primeConversation}`, { real: source, virtual: '/approved/project' });

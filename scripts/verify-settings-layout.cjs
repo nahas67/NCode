@@ -58,7 +58,7 @@ app.whenReady().then(async () => {
       }
       for (const name of ['Core', 'Desktop', 'Plugins']) {
         const row = document.createElement('div'); row.className = 'connector';
-        row.innerHTML = '<div class="connector-head"><h4>' + name + '</h4></div><div class="field"><label>Name</label><div class="row-inline"><input type="text" readonly value="Chat On Steroids ' + name + '"><button class="btn">Copy</button></div></div>';
+        row.innerHTML = '<div class="connector-head"><h4>' + name + '</h4></div><div class="field"><label>Name</label><div class="row-inline"><input type="text" readonly value="NCode ' + name + '"><button class="btn">Copy</button></div></div>';
         document.getElementById('connectorCards').append(row);
       }
       const menu = document.getElementById('setupProfileMenu');

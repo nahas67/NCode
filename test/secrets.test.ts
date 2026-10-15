@@ -94,7 +94,7 @@ describe('secret store', () => {
       detail: expect.stringMatching(/hard-coded-key|fallback/i)
     });
     expect(safeStorage.isAsyncEncryptionAvailable).toHaveBeenCalledTimes(1);
-    expect(safeStorage.encryptStringAsync).toHaveBeenCalledWith('chat-on-steroids-safe-storage-probe');
+    expect(safeStorage.encryptStringAsync).toHaveBeenCalledWith('ncode-safe-storage-probe');
   });
 
   it('classifies only Linux v10 ciphertext as the insecure hard-coded-key provider', () => {
@@ -387,7 +387,7 @@ describe('secret store', () => {
     // not platform-specific availability probes.
     const reseals = vi.mocked(safeStorage.encryptStringAsync).mock.calls
       .map(([value]) => value)
-      .filter((value) => value !== 'chat-on-steroids-safe-storage-probe');
+      .filter((value) => value !== 'ncode-safe-storage-probe');
     expect(reseals).toHaveLength(1);
     expect(JSON.parse(reseals[0]!)).toEqual({
       bridgeToken: 'bridge-token-rotated',
@@ -414,7 +414,7 @@ describe('secret store', () => {
     vi.mocked(safeStorage.encryptStringAsync).mockImplementation(async (value) => {
       // Linux performs this non-secret provider probe before the actual reseal. The failure
       // under test is the current key becoming unavailable for the credential blob itself.
-      if (value === 'chat-on-steroids-safe-storage-probe') return Buffer.from(value, 'utf8');
+      if (value === 'ncode-safe-storage-probe') return Buffer.from(value, 'utf8');
       if (failNextSecretReseal) {
         failNextSecretReseal = false;
         throw new Error('new key temporarily unavailable');

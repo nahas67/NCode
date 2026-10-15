@@ -24,6 +24,7 @@ import { foldProgress, type SessionEvent } from '../src/shared/session.js';
 import type { ContinuationSnapshot } from '../src/main/session/continuation.js';
 import type { SwarmSnapshot } from '../src/main/agents.js';
 import type { Config } from '../src/shared/types.js';
+import { APP_ID } from '../src/shared/ncode-config.js';
 
 const recoveryBrowserWake = vi.hoisted(() => vi.fn(async (_url: string, _retry?: boolean, _background?: boolean,
   _authority?: { current(): boolean | Promise<boolean> }) => {}));
@@ -739,7 +740,7 @@ describe('who is allowed to talk to it', () => {
   it('identifies itself to an extension without any credential', async () => {
     const reply = await request('GET', '/hello', { auth: null });
     expect(reply.status).toBe(200);
-    expect(reply.body.app).toBe('chat-on-steroids');
+    expect(reply.body.app).toBe(APP_ID);
     // Against the constant, not a literal: what matters is that the handshake reports the
     // build's own version, and a hard-coded number here only ever fails on release day.
     expect(reply.body.version).toBe(APP_VERSION);
@@ -4263,7 +4264,7 @@ describe('delivering a bootstrap', () => {
           {
             kind: 'user_message',
             time: Date.now(),
-            text: 'Continue the previous Chat On Steroids session. Read the handoff below.',
+            text: 'Continue the previous NCode session. Read the handoff below.',
             messageId: 'boot-resume'
           }
         ]
@@ -8610,7 +8611,7 @@ describe('unattributed activity recovery', () => {
       {
         kind: 'user_message',
         time: Date.now(),
-        text: '[[CLF-RESUME:O8THi8gMTC6LvH9GLclDIQ]]\n\nContinuing a Chat On Steroids session that was compacted.',
+        text: '[[CLF-RESUME:O8THi8gMTC6LvH9GLclDIQ]]\n\nContinuing a NCode session that was compacted.',
         messageId: 'm-b-bootstrap'
       }
     ]);
@@ -16033,7 +16034,7 @@ describe('worker brief on a computer with its own connector names', () => {
     await saveConfig({ ...previous, connectorSuffix: 'Windows VM' });
     try {
       expect(workerBriefForTests('worker-1', 'Check the tests'))
-        .toContain('Report to prime through the agents tool of Chat On Steroids Core (Windows VM) — ');
+        .toContain('Report to prime through the agents tool of NCode Core (Windows VM) — ');
     } finally { await saveConfig(previous); }
   });
 });
@@ -16051,7 +16052,7 @@ describe('connector identity through the bridge', () => {
     const conversationId = 'a1a1a1a1-0000-4000-8000-00000000c1d1';
     await request('POST', '/events', { body: { conversationId, events: [{ kind: 'app_sightings', time: Date.now(), apps: [
       { requestId: 'req-renamed', appId: 'asdk_app_6ac261da79588191af4e6096fadeeee2', linkId: 'link_6ac262533e048191933934eaee5cd69f', appName: 'My tools' },
-      { requestId: 'not-ours', appId: 'asdk_app_foreign', linkId: null, appName: 'Chat On Steroids Core' }
+      { requestId: 'not-ours', appId: 'asdk_app_foreign', linkId: null, appName: 'NCode Core' }
     ] }] } });
     const status = (await request('GET', '/status')).body;
     expect(status.connectorApps.core).toEqual([{ appId: 'asdk_app_6ac261da79588191af4e6096fadeeee2', linkId: 'link_6ac262533e048191933934eaee5cd69f', name: 'My tools' }]);

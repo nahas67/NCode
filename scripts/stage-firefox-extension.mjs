@@ -22,7 +22,7 @@ export function firefoxManifest(source) {
   manifest.content_security_policy = { extension_pages: "script-src 'self'; object-src 'self'" };
   manifest.browser_specific_settings = {
     gecko: {
-      id: 'chat-on-steroids-companion@local',
+      id: 'ncode-companion@local',
       strict_min_version: '128.0',
       data_collection_permissions: {
         required: ['personalCommunications', 'websiteContent']

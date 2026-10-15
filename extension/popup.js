@@ -73,13 +73,66 @@ const ATTRIBUTION = {
 };
 
 /**
+ * The three stages for a Gemini tab, read from what this extension actually owns.
+ *
+ * A Gemini tab is recorded by `ncode-content.js` and the MAIN-world `gemini-recorder.js` beside
+ * it, and reaches the desktop over the companion relay socket. What the drawer says about it is
+ * therefore three facts and nothing more: the relay is carrying frames, the page recorder has
+ * reported, and the desktop has accepted the pairing. Each row reads exactly the one it can prove.
+ */
+function geminiPipeline(info, ready, status) {
+  const relay = info.relay === true;
+  const connected = Boolean(status && status.connected);
+  const page = info.page;
+  // `recorderInstalled` is the recorder announcing itself at all; `recorderReported` is it having
+  // seen an actual Gemini RPC envelope, which is the only message that can carry a request id.
+  const installed = Boolean(page && page.ncodeRecorder === true && page.recorderInstalled === true);
+  const reported = installed && page.recorderReported === true;
+  if (!relay) {
+    return {
+      read: ['running'],
+      sent: ['off'],
+      proc: ['off'],
+      why: ['', t('popup_status_waiting', 'waiting')]
+    };
+  }
+  if (!reported) {
+    return {
+      read: ['running'],
+      sent: ['off'],
+      proc: ['off'],
+      why: ['', t('popup_pipeline_waiting_gemini_recorder', 'Waiting for the page recorder to report.')]
+    };
+  }
+  if (!ready) {
+    // The recorder is attached and the relay is open, so nothing about *this tab* is broken: the
+    // app simply is not ready yet. That is a wait, not the ChatGPT "blocked" verdict, and calling a
+    // healthy Gemini tab "blocked" is what this drawer used to do.
+    return {
+      read: ['done'],
+      sent: ['running', connected ? '' : t('popup_state_app_not_reachable', 'App not reachable')],
+      proc: ['running'],
+      why: ['', connected
+        ? t('popup_pipeline_delivery_blocked', 'Delivery is blocked until the app is connected and protocol compatibility is confirmed.')
+        : t('popup_app_not_running_help', 'Make sure NCode is open on this computer. The extension connects on its own on port 45880.')]
+    };
+  }
+  return {
+    read: ['done'],
+    sent: ['done'],
+    proc: ['done'],
+    why: ['', t('popup_status_connected', 'connected')]
+  };
+}
+
+/**
  * The three stages, from evidence each layer produced independently.
  *
  * Global transport failures explain a blocked path. Success needs this chat's session
  * receipt and exact evidence projected from its newest native turn. Queue custody and
  * owner acknowledgement do not claim a matching MCP invocation has run.
  */
-function pipeline(info, ready) {
+function pipeline(info, ready, status) {
   const page = info && info.page;
   const sent = info && info.delivery;
   const pending = info ? info.pending : 0;
@@ -90,6 +143,12 @@ function pipeline(info, ready) {
   if (!info.recorder) {
     return { read: ['failed'], sent: ['off'], proc: ['off'], why: ['bad', t('popup_pipeline_no_recorder', 'No recorder in this tab. Reload the page.')] };
   }
+  // The Gemini recorder answers the same `clf-page-status` probe the ChatGPT one does, so it now
+  // arrives here as a `page` object instead of as the absence of one. It carries recorder evidence
+  // rather than a trace, so it gets its own reading of the same three rows rather than being sent
+  // down the trace path, where every row would describe counters that recorder does not have.
+  // `page === null` remains the same answer for a tab whose script has not answered yet.
+  if (!page || page.ncodeRecorder === true) return geminiPipeline(info, ready, status);
   if (read === 0) {
     return { read: ['running'], sent: ['off'], proc: ['off'], why: ['', t('popup_pipeline_waiting_first_message', 'Waiting for the first message.')] };
   }
@@ -114,7 +173,7 @@ function pipeline(info, ready) {
   // Refused by the extension itself, before anything could be queued for the app. `pending`
   // counts only what the service worker already owns, so a document it is rejecting outright
   // reported nothing pending and this drawer went on to say "Delivered" — which is what it
-  // said all through the 2026-08-21 blackout while the tab was reading ChatGPT perfectly and
+  // said all through the 2026-08-21 blackout while the tab was reading Gemini perfectly and
   // sending none of it. The page is the only layer that knows, so it is the layer that says so.
   if (page.blocked) {
     return {
@@ -125,7 +184,7 @@ function pipeline(info, ready) {
         'bad',
         t(
           'popup_pipeline_extension_blocked',
-          'The extension is not accepting this tab’s observations ($1). Reload the ChatGPT tab.',
+          'The extension is not accepting this tab’s observations ($1). Reload the Gemini tab.',
           page.blocked
         )
       ]
@@ -194,11 +253,36 @@ function pipeline(info, ready) {
   };
 }
 
-/** One row per request id: three dots, the tool, the id. Newest first. */
-function paintCalls(page) {
+/**
+ * One row per request id: three dots, the tool, the id. Newest first.
+ *
+ * A Gemini tab has no request ids. Its single row is the companion relay, drawn with the same
+ * three pips so the drawing is not a second concept: the first pip is the recorder attached here,
+ * the second the app bridge answering, the third the pairing the desktop accepted.
+ */
+function paintCalls(page, relay) {
   const box = $('calls');
   box.textContent = '';
   const rows = page && Array.isArray(page.trace) ? page.trace.slice(0, 5) : [];
+  if (relay) {
+    const line = document.createElement('div');
+    line.className = 'call';
+    const pips = document.createElement('span');
+    pips.className = 'pips';
+    for (const state of [relay.read ? 'on' : '', relay.sent ? 'on' : '', relay.confirmed ? 'on' : '']) {
+      const pip = document.createElement('span');
+      pip.className = `pip ${state}`;
+      pips.append(pip);
+    }
+    const tool = document.createElement('span');
+    tool.className = 'tool';
+    tool.textContent = t('popup_reaching_app', 'Reaching the app');
+    const id = document.createElement('span');
+    id.className = 'id';
+    id.textContent = '';
+    line.append(pips, tool, id);
+    box.append(line);
+  }
   for (const entry of rows) {
     const line = document.createElement('div');
     line.className = 'call';
@@ -274,13 +358,13 @@ function paintAlert(status, info) {
   const text = incompatible
     ? t(
       'popup_version_mismatch_help',
-      "App v$1 (protocol $2); extension v$3 (protocol $4). Open your browser's Extensions page, enable Developer mode, then Update / Reload this extension. If the mismatch remains, use Open extension folder in Chat On Steroids and load that folder. Reload ChatGPT tabs when their active work is finished.",
+      "App v$1 (protocol $2); extension v$3 (protocol $4). Open your browser's Extensions page, enable Developer mode, then Update / Reload this extension. If the mismatch remains, use Open extension folder in NCode and load that folder. Reload Gemini tabs when their active work is finished.",
       [status.appVersion || '?', status.appProtocol ?? '?', status.extensionVersion || '?', status.extensionProtocol ?? '?']
     )
     : pairError && pairError.message
       ? pairError.message
       : pairError && pairError.error === 'secure_storage_unavailable'
-        ? t('popup_secure_storage_unavailable', 'Secure credential storage is unavailable. Open Chat On Steroids for setup instructions.')
+        ? t('popup_secure_storage_unavailable', 'Secure credential storage is unavailable. Open NCode for setup instructions.')
     : error && Date.now() - error.at < 10 * 60 * 1000
       ? error.text
       : '';
@@ -309,6 +393,9 @@ function paintDetails(status, info) {
   const grid = $('grid');
   grid.textContent = '';
   const page = info && info.page;
+  // The Gemini recorder answers the probe with its own facts. Reading ChatGPT-only counters off it
+  // would print "undefined events · undefined calls", which is worse than saying nothing.
+  const gemini = Boolean(page && page.ncodeRecorder === true);
   const sent = info && info.delivery;
 
   detail(
@@ -323,7 +410,12 @@ function paintDetails(status, info) {
     status && status.compatible === false
   );
   detail(grid, t('popup_detail_chat_id', 'chat id'), (info && info.conversationId) || null);
-  detail(grid, t('popup_detail_app_session', 'app session'), (page && page.session) || null, Boolean(page && !page.session));
+  detail(
+    grid,
+    t('popup_detail_app_session', 'app session'),
+    gemini ? null : (page && page.session) || null,
+    Boolean(!gemini && page && !page.session)
+  );
   detail(
     grid,
     t('popup_detail_tab', 'tab'),
@@ -342,22 +434,36 @@ function paintDetails(status, info) {
   detail(
     grid,
     t('popup_detail_recorder', 'recorder'),
-    page
-      ? t('popup_detail_recorder_value', 'fiber v$1 · run $2', [page.recorderVersion, page.runId])
-      : t('popup_status_not_attached', 'not attached'),
-    !page
+    // Both recorders, one answer: a Gemini tab has no fiber run id, so its recorder reads as what
+    // its own page object says instead of as "not attached".
+    gemini
+      ? (page.recorderInstalled
+        ? t('popup_status_ok', 'ok')
+        : t('popup_status_waiting', 'waiting'))
+      : page
+        ? t('popup_detail_recorder_value', 'fiber v$1 · run $2', [page.recorderVersion, page.runId])
+        : info && info.recorder
+        ? (info.relay ? t('popup_status_ok', 'ok') : t('popup_status_waiting', 'waiting'))
+        : t('popup_status_not_attached', 'not attached'),
+    !(info && info.recorder)
   );
   detail(
     grid,
     t('popup_detail_turn', 'turn'),
-    page ? (page.generating
-      ? t('popup_detail_turn_live', '$1 · live', shorten(page.turnId, 8))
-      : t('popup_status_idle', 'idle')) : null
+    gemini
+      ? (page.generating ? t('popup_status_answering', 'answering') : t('popup_status_idle', 'idle'))
+      : page ? (page.generating
+        ? t('popup_detail_turn_live', '$1 · live', shorten(page.turnId, 8))
+        : t('popup_status_idle', 'idle')) : null
   );
   detail(
     grid,
     t('popup_detail_observed', 'observed'),
-    page ? t('popup_detail_observed_value', '$1 events · $2 calls', [page.events, page.calls]) : null
+    page
+      ? (gemini
+        ? t('popup_detail_gemini_observed', '$1 requests · $2 chunks', [page.requests || 0, page.chunks || 0])
+        : t('popup_detail_observed_value', '$1 events · $2 calls', [page.events, page.calls]))
+      : null
   );
   detail(
     grid,
@@ -378,8 +484,8 @@ function paintDetails(status, info) {
   detail(
     grid,
     t('popup_detail_page_sends', 'page sends'),
-    page ? t('popup_detail_page_sends_value', '$1 · $2 failed', [page.sends, page.failures]) : null,
-    Boolean(page && page.failures)
+    page && !gemini ? t('popup_detail_page_sends_value', '$1 · $2 failed', [page.sends, page.failures]) : null,
+    Boolean(page && !gemini && page.failures)
   );
 }
 
@@ -393,19 +499,32 @@ async function refresh() {
   const ready = paintHeader(status);
   const isChat = Boolean(info && info.isChat);
   const page = info && info.page;
+  // A Gemini tab carries no request-id trace: its one row is the relay itself, built from the
+  // same three facts the stages above were read from. `info` is null whenever the worker could
+  // not be asked, so this stays behind the same guard as every other row here.
+  const gemini = isChat && Boolean(page && page.ncodeRecorder === true);
+  const linked = isChat && (gemini || (page === null && info.recorder === true));
 
   row('tab', isChat ? 'ok' : 'off', isChat ? '' : t('popup_status_none_open', 'none open'));
   row(
     'rec',
     !isChat ? 'off' : info.recorder ? 'ok' : 'no',
-    !isChat ? '' : info.recorder ? (page.generating ? t('popup_status_answering', 'answering') : '') : t('popup_status_reload', 'reload')
+    !isChat ? ''
+      : !info.recorder ? t('popup_status_reload', 'reload')
+        : page && page.generating ? t('popup_status_answering', 'answering')
+          : t('popup_status_active', 'active')
   );
 
   const chatId = info && info.conversationId;
+  // "ready" is the recorder's own word here, and a truer one than "new chat": the recorder is
+  // attached and is waiting for Gemini to name the conversation it is already in.
+  const installed = Boolean(page && page.ncodeRecorder === true && page.recorderInstalled === true);
   idRow(
     'chat',
     !isChat ? 'off' : chatId ? 'ok' : 'wait',
-    !isChat ? '' : chatId ? shorten(chatId, 8) : t('popup_status_new_chat', 'new chat'),
+    !isChat ? '' : chatId ? shorten(chatId, 8) : installed
+      ? t('popup_status_ready', 'ready')
+      : t('popup_status_new_chat', 'new chat'),
     chatId
   );
 
@@ -417,28 +536,36 @@ async function refresh() {
     requestId
   );
 
-  const state = pipeline(info, ready);
+  const state = pipeline(info, ready, status);
   stage('read', ...state.read);
   stage('sent', ...state.sent);
   stage('proc', ...state.proc);
   $('why').textContent = state.why[1];
   $('why').className = `why ${state.why[0]}`;
-  paintCalls(page);
+  // One drawing for both readers: each pip is the stage it stands for, read from the stage itself
+  // rather than re-decided here.
+  paintCalls(page, linked
+    ? { read: state.read[0] === 'done', sent: state.sent[0] === 'done', confirmed: state.proc[0] === 'done' }
+    : null);
 
   const broken = state.why[0] === 'bad';
   const flowing = Array.isArray(page?.trace) && page.trace.some(call => call.app === 'request_id');
   row(
     'app',
-    !isChat ? 'off' : broken ? 'no' : flowing ? 'ok' : 'wait',
+    !isChat ? 'off' : broken ? 'no' : flowing || linked ? 'ok' : 'wait',
     !isChat
       ? ''
       : broken
         ? t('popup_status_blocked', 'blocked')
         : flowing
           ? t('popup_status_tool_matched', 'tool matched')
-          : state.proc[0] === 'done'
-            ? t('popup_status_id_confirmed', 'ID confirmed')
-            : t('popup_status_waiting', 'waiting')
+          : linked
+            ? state.proc[0] === 'done'
+              ? t('popup_status_connected', 'connected')
+              : t('popup_status_waiting', 'waiting')
+            : state.proc[0] === 'done'
+              ? t('popup_status_id_confirmed', 'ID confirmed')
+              : t('popup_status_waiting', 'waiting')
   );
   // Opens itself the first time something is actually wrong, so the panel that explains
   // the failure is already open when the popup is opened to look at one.
@@ -546,7 +673,7 @@ $('overwriteToggle').addEventListener('change', async () => {
   try {
     await chrome.storage.local.set({ [RENDER_STREAM_KEY]: overwriteEnabled });
     // The toggle is the action. Enabling it immediately pulls the latest app timeline into
-    // every known ChatGPT tab; there is deliberately no second "Overwrite now" button.
+    // every known Gemini tab; there is deliberately no second "Overwrite now" button.
     if (overwriteEnabled) await chrome.runtime.sendMessage({ type: 'overwriteNow' });
   } catch {
     overwriteEnabled = previous;

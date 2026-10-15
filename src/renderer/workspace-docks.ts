@@ -74,7 +74,7 @@ export function createWorkspaceDocks(host: HTMLElement) {
   resize.tabIndex = 0; resize.setAttribute('role', 'separator');
   resize.setAttribute('aria-orientation', 'horizontal');
   ui(resize, 'aria-label', () => t('Terminal height'));
-  const heightKey = 'chat-on-steroids.bottom-panel-height';
+  const heightKey = 'ncode.bottom-panel-height';
   const setHeight = (height: number, save = false): void => {
     const next = Math.round(Math.max(130, Math.min(window.innerHeight * .65, height)));
     app.style.setProperty('--terminal-height', `${next}px`);

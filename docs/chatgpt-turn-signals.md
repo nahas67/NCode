@@ -142,7 +142,7 @@ filter on it is load-bearing:
   ("Reasoning details opened", "Actions refreshed.", "Dictation is active and in use") against
   5 real transport failures.
 - **`node.closest(OWN_SURFACES)`** — this extension's own UI was recording
-  "Chat On Steroids Desktop is now connected" as a ChatGPT failure.
+  "NCode Desktop is now connected" as a ChatGPT failure.
 - **length between 2 and 500 characters.**
 - **identity is the node + turn, never the text** — the same banner failing twice is two failures.
   Keyed on text alone, "Message delivery timed out" on turn nine was indistinguishable from turn
@@ -198,7 +198,7 @@ same filters the extension does, so what it prints is what the app would record:
 `CLF_DOM.errors()` gives the same answer directly, but **it is not reachable from an ordinary
 ChatGPT DevTools console**: `chatgpt-dom.js` and `content.js` run in the extension's *isolated*
 world (only `fiber.js` is `world: "MAIN"`, per `extension/manifest.json`). To call it, switch the
-console's execution context from the page to the Chat On Steroids content script first; otherwise
+console's execution context from the page to the NCode content script first; otherwise
 use the standalone snippets above, which depend on nothing but the DOM.
 
 ### 4d. After the fact, from the app

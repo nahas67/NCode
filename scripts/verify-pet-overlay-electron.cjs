@@ -138,7 +138,7 @@ function attachOverlay(win) {
             `The idle overlay must be click-through: ${JSON.stringify(ignoredMouseCalls)}`);
           assert.equal(win.isFocusable(), true,
             'Windows Pets must remain focusable so explicit clicks survive hide/show.');
-          const hoverOwner = BrowserWindow.getAllWindows().find(candidate => candidate !== win && candidate.getTitle() === 'Chat On Steroids');
+          const hoverOwner = BrowserWindow.getAllWindows().find(candidate => candidate !== win && candidate.getTitle() === 'NCode');
           assert.ok(hoverOwner, 'The hover regression requires the visible owner behind Pets.');
           await hoverOwner.webContents.executeJavaScript(`(() => {
             clearInterval(window.__petBehindTimer);
@@ -298,7 +298,7 @@ function attachOverlay(win) {
         }
         const owners = BrowserWindow.getAllWindows().filter(candidate => candidate !== win);
         assert.ok(owners.length > 0, 'The desktop overlay needs an independently hosted owner window.');
-        const owner = owners.find(candidate => candidate.getTitle() === 'Chat On Steroids') ?? owners[0];
+        const owner = owners.find(candidate => candidate.getTitle() === 'NCode') ?? owners[0];
         const titlebar = await owner.webContents.executeJavaScript(`(() => {
           const bar = document.querySelector('.app-topbar');
           const rect = bar?.getBoundingClientRect();

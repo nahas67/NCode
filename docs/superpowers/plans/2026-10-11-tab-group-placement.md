@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** An opt-in setting puts every ChatGPT tab the app opens in the background into a collapsed "Chat On Steroids" tab group in the user's last-focused browser window, instead of the app's own minimized window.
+**Goal:** An opt-in setting puts every ChatGPT tab the app opens in the background into a collapsed "NCode" tab group in the user's last-focused browser window, instead of the app's own minimized window.
 
 **Architecture:**
 - The app owns the setting (`ui.backgroundPlacement`) and publishes it in `/status`.
@@ -20,7 +20,7 @@
 ## Global Constraints
 
 - **Default and off-mode behavior.** The default is `'window'`. With `'window'`, or with no `tabGroups` API, no `chrome.tabGroups.*` or `chrome.tabs.group` call is made and every existing test stays green unchanged.
-- **Group appearance.** The title is exactly `Chat On Steroids` (not translated: it is the product name), the color is `'grey'`, and `collapsed: true` is set only on a group the app just created.
+- **Group appearance.** The title is exactly `NCode` (not translated: it is the product name), the color is `'grey'`, and `collapsed: true` is set only on a group the app just created.
 - **The user's view is never changed.** In group mode a background tab is always created with `active: false`. The app never calls `chrome.windows.update` on a user window, never re-collapses an existing group, and never moves or ungroups a tab in group mode's reconcile.
 - **Stored state.**
   - Group ID: `chrome.storage.session` key `chatBackgroundGroup`, mirrored in `chrome.storage.local` key `chatBackgroundGroupMirror`.
@@ -297,7 +297,7 @@ In each of the 12 catalogs, after the `"Keep app-created ChatGPT tabs in the bac
 - `"A tab group in your browser window"`
 - the help sentence exactly as in the HTML.
 
-Translations (keep "Chat On Steroids" untranslated; follow each catalog's existing term for "Background chats"):
+Translations (keep "NCode" untranslated; follow each catalog's existing term for "Background chats"):
 
 | Locale | Background tabs open in | Their own minimized window | A tab group in your browser window |
 | --- | --- | --- | --- |
@@ -383,7 +383,7 @@ Screenshots of Settings → Browser in English, before (upstream/main build) and
       local, session: new FakeStorageArea(),
       fetch: vi.fn(async (input: string) => {
         const url = new URL(input);
-        if (url.pathname === '/hello') return response(200, { app: 'chat-on-steroids', paired: true });
+        if (url.pathname === '/hello') return response(200, { app: 'ncode', paired: true });
         if (url.pathname === '/status') return response(200, { ok: true, repairs: [], ...(sent === undefined ? {} : { backgroundPlacement: sent }) });
         return response(404, {});
       })
@@ -401,7 +401,7 @@ Screenshots of Settings → Browser in English, before (upstream/main build) and
       session: new FakeStorageArea({ chatBackgroundWindow: BACKGROUND }),
       fetch: vi.fn(async (input: string) => {
         const url = new URL(input);
-        if (url.pathname === '/hello') return response(200, { app: 'chat-on-steroids', paired: true });
+        if (url.pathname === '/hello') return response(200, { app: 'ncode', paired: true });
         if (url.pathname === '/status') return response(200, { ok: true, repairs: [], backgroundPlacement: 'group', follow: TARGET });
         return response(404, {});
       }),
@@ -514,7 +514,7 @@ git commit -m "feat(extension): keep the app's background placement; no follow i
 **Interfaces:**
 - Consumes: `backgroundPlacement`, `setBackgroundPlacement`, `groupsAvailable` (Task 3).
 - Produces:
-  - constants `BACKGROUND_GROUP_TITLE = 'Chat On Steroids'` and `BACKGROUND_GROUP_MIRROR = 'chatBackgroundGroupMirror'`;
+  - constants `BACKGROUND_GROUP_TITLE = 'NCode'` and `BACKGROUND_GROUP_MIRROR = 'chatBackgroundGroupMirror'`;
   - `async function rememberBackgroundGroup(id)` and `async function forgetBackgroundGroup()`;
   - `async function storedBackgroundGroup(): Promise<chrome.tabGroups.TabGroup | null>`;
   - `async function groupTargetWindow(): Promise<number | null>`;
@@ -617,7 +617,7 @@ function groupHarness(options: { tabs?: GTab[]; windows?: Win[]; lastFocused?: n
   return { ...api, tabs, windows, groups, session, local, create, group, groupGet, groupUpdate, groupQuery, query, get, move, update,
     windowCreate, windowUpdate, lastFocused, getAll };
 }
-const TITLE = 'Chat On Steroids';
+const TITLE = 'NCode';
 ```
 
 - [ ] **Step 2: Write the failing placement tests** (same file, below the harness):
@@ -733,7 +733,7 @@ Expected:
  * only trusted while the group still carries the app's title: group ids are per browser session,
  * onStartup drops the mirror, and a group the user renamed is theirs now.
  */
-const BACKGROUND_GROUP_TITLE = 'Chat On Steroids';
+const BACKGROUND_GROUP_TITLE = 'NCode';
 const BACKGROUND_GROUP_MIRROR = 'chatBackgroundGroupMirror';
 async function rememberBackgroundGroup(id) {
   await chrome.storage.session.set({ chatBackgroundGroup: id });
@@ -997,7 +997,7 @@ it('6.3 adopts a restored all-app titled group after a browser restart', async (
 
 it.each([
   ['holds a personal tab', [{ id: 1, windowId: 1, url: MAIN, groupId: 60 }, { id: 2, windowId: 1, url: 'https://example.com/', groupId: 60 }], TITLE],
-  ['carries another title', [{ id: 1, windowId: 1, url: MAIN, groupId: 60 }], 'Chat On Steroids (2)'],
+  ['carries another title', [{ id: 1, windowId: 1, url: MAIN, groupId: 60 }], 'NCode (2)'],
   ['is empty', [], TITLE]
 ])('6.4 never adopts a group that %s', async (_name, tabs, title) => {
   const app = groupHarness({ windows: [{ id: 1 }], groups: [{ id: 60, windowId: 1, title }], tabs: tabs as GTab[] });
@@ -1137,7 +1137,7 @@ git commit -m "feat(extension): re-find the app's tab group after reloads and re
     let done = false;
     const fetch = vi.fn(async (input: string) => {
       const url = new URL(input);
-      if (url.pathname === '/hello') return response(200, { app: 'chat-on-steroids', paired: true });
+      if (url.pathname === '/hello') return response(200, { app: 'ncode', paired: true });
       if (url.pathname === '/closed') return response(200, { ok: true });
       if (url.pathname === '/status') {
         if (token && url.searchParams.get('repaired') === token) done = true;
@@ -1206,7 +1206,7 @@ git commit -m "fix(extension): compaction never selects a tab in the user's wind
 - [ ] **Step 1: AGENTS.md.** After the Background chats row, add a row:
 
 ```markdown
-| Background placement | Window. | `ui.backgroundPlacement` `'window'` / `'group'`, published in `/status`. Group mode puts every background tab in one collapsed "Chat On Steroids" tab group in the last-focused normal window (never the background window, never incognito), then keeps using it; failures fall back to the minimized window. No follow and no compaction tab selection in the user's window. |
+| Background placement | Window. | `ui.backgroundPlacement` `'window'` / `'group'`, published in `/status`. Group mode puts every background tab in one collapsed "NCode" tab group in the last-focused normal window (never the background window, never incognito), then keeps using it; failures fall back to the minimized window. No follow and no compaction tab selection in the user's window. |
 ```
 
 Append to the follow paragraph: "With `backgroundPlacement: 'group'` the app sends no follow and the extension ignores one (#128)."
@@ -1258,7 +1258,7 @@ No product code changes unless a check fails. Each failure gets a RED test first
 
 The checks, on each platform:
 1. **Setting and first worker.** Set "A tab group in your browser window" and start one worker with an explicit harmless prompt ("Reply with the word grouped-1 and nothing else.").
-   - Expected: a collapsed grey "Chat On Steroids" group in the last-focused window;
+   - Expected: a collapsed grey "NCode" group in the last-focused window;
    - the user's active tab is unchanged (screenshot before and after);
    - the worker answers.
 2. **Goal and Compact & Resume.** Run a Goal end to end with a harmless goal, and a Compact & Resume on that chat, all in group mode.
@@ -1268,7 +1268,7 @@ The checks, on each platform:
    - Expected: the new tab joins, nothing re-collapses, and the active tab stays the one clicked.
 5. **Idle closing.** Wait until the chats are done and more than 5 minutes have passed.
    - Expected: the tabs close and the group disappears;
-   - Chrome's tab-groups menu (and the bookmarks bar "Tab groups" item) shows no saved "Chat On Steroids";
+   - Chrome's tab-groups menu (and the bookmarks bar "Tab groups" item) shows no saved "NCode";
    - screenshot.
 6. **Drag out, drag in.** Drag one app tab out of the group (it stays out, then closes by idle), and drag a personal tab in (the app never closes it).
 7. **Close the window mid-run.** Close the group's window during a run.

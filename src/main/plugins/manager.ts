@@ -638,7 +638,7 @@ export class PluginManager {
     row.status = 'connecting';
     row.error = undefined;
     this.changed();
-    const client = new Client({ name: 'Chat On Steroids Plugins', version: '1.0.0' });
+    const client = new Client({ name: 'NCode Plugins', version: '1.0.0' });
     let transport: StdioClientTransport | undefined;
     let oauth: PluginOAuth | undefined;
     const retire = () => {

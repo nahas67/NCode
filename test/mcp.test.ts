@@ -932,7 +932,7 @@ describe('surface boundaries', () => {
     const refusal = JSON.stringify(reply.body.result?.content);
     expect(refusal).toContain('could not tell which chat this save_image call came from');
     // It names the Core that answered, so a call sent to another computer's Core says so (#1097).
-    expect(refusal).toContain('Chat On Steroids Core could not tell');
+    expect(refusal).toContain('NCode Core could not tell');
     expect(refusal).toContain('If the chat belongs to another computer');
   });
 
@@ -1005,8 +1005,8 @@ describe('surface boundaries', () => {
 
   it('describes both surfaces well enough for a user to set them up and a model to find them', () => {
     for (const surface of SURFACE_LIST) {
-      expect(surface.serverName, surface.id).toMatch(/^chat-on-steroids-/);
-      expect(surface.connectorName, surface.id).toContain('Chat On Steroids');
+      expect(surface.serverName, surface.id).toMatch(/^ncode-/);
+      expect(surface.connectorName, surface.id).toContain('NCode');
       expect(surface.cardSummary.length, surface.id).toBeGreaterThan(20);
       // The description is the only thing the model has before discovery, so it has to
       // carry real vocabulary rather than a label.
@@ -1043,7 +1043,7 @@ describe('2025-era clients', () => {
       clientInfo: { name: 'test-client', version: '1.0.0' }
     });
     expect(reply.status).toBe(200);
-    expect(reply.body.result.serverInfo.name).toBe('chat-on-steroids-core');
+    expect(reply.body.result.serverInfo.name).toBe('ncode-core');
     expect(reply.body.result.protocolVersion).toBeTruthy();
   });
 

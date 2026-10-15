@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: package-native-sources
-          path: release/Chat-On-Steroids-Native-Sources.tar.gz
+          path: release/NCode-Native-Sources.tar.gz
           if-no-files-found: error
           retention-days: 30
 
@@ -110,8 +110,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          dmg="$PWD/release/Chat-On-Steroids-macOS-${{ matrix.arch }}.dmg"
-          zip="$PWD/release/Chat-On-Steroids-macOS-${{ matrix.arch }}.zip"
+          dmg="$PWD/release/NCode-macOS-${{ matrix.arch }}.dmg"
+          zip="$PWD/release/NCode-macOS-${{ matrix.arch }}.zip"
           test -f "$dmg"
           test -f "$zip"
           hdiutil verify "$dmg"
@@ -143,18 +143,18 @@ jobs:
           }
           trap cleanup EXIT
           hdiutil attach -readonly -nobrowse -mountpoint "$mount_dir" "$dmg" >/dev/null
-          test -d "$mount_dir/Chat On Steroids.app"
+          test -d "$mount_dir/NCode.app"
           test -L "$mount_dir/Applications"
           test "$(readlink "$mount_dir/Applications")" = /Applications
-          test -x "$mount_dir/Chat On Steroids.app/Contents/MacOS/Chat On Steroids"
-          test -f "$mount_dir/Chat On Steroids.app/Contents/Info.plist"
-          node scripts/smoke-macos-bundle.mjs '${{ matrix.arch }}' "$mount_dir/Chat On Steroids.app"
+          test -x "$mount_dir/NCode.app/Contents/MacOS/NCode"
+          test -f "$mount_dir/NCode.app/Contents/Info.plist"
+          node scripts/smoke-macos-bundle.mjs '${{ matrix.arch }}' "$mount_dir/NCode.app"
           # ditto is the macOS-native ZIP extractor and preserves executable modes/metadata.
           ditto -x -k "$zip" "$zip_dir"
-          test -d "$zip_dir/Chat On Steroids.app"
-          test -x "$zip_dir/Chat On Steroids.app/Contents/MacOS/Chat On Steroids"
-          test -f "$zip_dir/Chat On Steroids.app/Contents/Info.plist"
-          node scripts/smoke-macos-bundle.mjs '${{ matrix.arch }}' "$zip_dir/Chat On Steroids.app"
+          test -d "$zip_dir/NCode.app"
+          test -x "$zip_dir/NCode.app/Contents/MacOS/NCode"
+          test -f "$zip_dir/NCode.app/Contents/Info.plist"
+          node scripts/smoke-macos-bundle.mjs '${{ matrix.arch }}' "$zip_dir/NCode.app"
 
       - name: Launch packaged macOS app normally
         if: matrix.platform == 'darwin'
@@ -165,11 +165,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          deb="$PWD/release/Chat-On-Steroids-Linux-${{ matrix.arch }}.deb"
+          deb="$PWD/release/NCode-Linux-${{ matrix.arch }}.deb"
           test -f "$deb"
           echo "Generated control metadata:"
           dpkg-deb --field "$deb" Package Version Architecture Depends
-          test "$(dpkg-deb --field "$deb" Package)" = chat-on-steroids
+          test "$(dpkg-deb --field "$deb" Package)" = ncode
           test "$(dpkg-deb --field "$deb" Version)" = "$(node -p "require('./package.json').version")"
           expected_deb_arch=arm64
           if [ '${{ matrix.arch }}' = x64 ]; then expected_deb_arch=amd64; fi
@@ -180,20 +180,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends "$deb"
           sudo apt-get install -y --no-install-recommends xvfb xauth
-          dpkg-query -W -f='${Status}\n' chat-on-steroids | grep -Fxq 'install ok installed'
-          desktop=/usr/share/applications/com.chatonsteroids.app.desktop
+          dpkg-query -W -f='${Status}\n' ncode | grep -Fxq 'install ok installed'
+          desktop=/usr/share/applications/com.ncode.app.desktop
           test -f "$desktop"
-          grep -Fxq 'Name=Chat On Steroids' "$desktop"
-          grep -Fxq 'Icon=chat-on-steroids' "$desktop"
-          grep -Fxq 'StartupWMClass=com.chatonsteroids.app' "$desktop"
+          grep -Fxq 'Name=NCode' "$desktop"
+          grep -Fxq 'Icon=ncode' "$desktop"
+          grep -Fxq 'StartupWMClass=com.ncode.app' "$desktop"
           # electron-builder's DEB postinstall registers /usr/bin through update-alternatives.
           # Prove package integration is present, then anchor the full runtime smoke at the
           # package-owned resolved binary rather than assuming an /opt product-directory spelling.
-          test -L /usr/bin/chat-on-steroids
-          ELECTRON_RUN_AS_NODE=1 /usr/bin/chat-on-steroids -e "if(process.platform!=='linux'||process.arch!=='${{ matrix.arch }}')process.exit(9); console.log('deb-runtime-ok')" | grep -Fxq 'deb-runtime-ok'
-          installed_executable="$(readlink -f /usr/bin/chat-on-steroids)"
+          test -L /usr/bin/ncode
+          ELECTRON_RUN_AS_NODE=1 /usr/bin/ncode -e "if(process.platform!=='linux'||process.arch!=='${{ matrix.arch }}')process.exit(9); console.log('deb-runtime-ok')" | grep -Fxq 'deb-runtime-ok'
+          installed_executable="$(readlink -f /usr/bin/ncode)"
           test -x "$installed_executable"
-          dpkg-query -S "$installed_executable" | grep -Eq '^chat-on-steroids:'
+          dpkg-query -S "$installed_executable" | grep -Eq '^ncode:'
           node scripts/smoke-packaged-runtime.mjs --platform linux --arch '${{ matrix.arch }}' --root "$(dirname "$installed_executable")"
 
       - name: Launch installed DEB normally under Xvfb
@@ -229,7 +229,7 @@ jobs:
           XDG_CACHE_HOME="$deb_smoke_root/cache" \
           XDG_DATA_HOME="$deb_smoke_root/data" \
           XDG_STATE_HOME="$deb_smoke_root/state" \
-          CLF_DEBUG=1 timeout --signal=TERM --kill-after=5s 12s xvfb-run -a /usr/bin/chat-on-steroids >deb-gui.log 2>&1
+          CLF_DEBUG=1 timeout --signal=TERM --kill-after=5s 12s xvfb-run -a /usr/bin/ncode >deb-gui.log 2>&1
           status=$?
           set -e
           cat deb-gui.log
@@ -250,7 +250,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          appimage="$PWD/release/Chat-On-Steroids-Linux-${{ matrix.arch }}.AppImage"
+          appimage="$PWD/release/NCode-Linux-${{ matrix.arch }}.AppImage"
           test -x "$appimage"
           # Exercise the actual static-runtime artifact through Chromium/Electron startup and
           # require renderer-state proof rather than accepting a process that merely hangs.
@@ -335,11 +335,11 @@ jobs:
           set -euo pipefail
           # Same stamp as the packaged app, so a ZIP-loaded extension reports its build (#568).
           node scripts/write-extension-stamp.mjs
-          (cd extension && zip -qr ../release/Chat-On-Steroids-Extension.zip . -x '*.map')
-          zip -q release/Chat-On-Steroids-Extension.zip LICENSE
+          (cd extension && zip -qr ../release/NCode-Extension.zip . -x '*.map')
+          zip -q release/NCode-Extension.zip LICENSE
           node -e "const m=require('./extension/manifest.json'),p=require('./package.json');if(m.version!==p.version)throw new Error('Extension '+m.version+' does not match app '+p.version)"
           for required in manifest.json build-stamp.txt background.js chatgpt-dom.js content.js fiber.js overlay.css popup.html popup.css popup.js icons/icon16.png icons/icon32.png icons/icon48.png icons/icon128.png LICENSE; do
-            unzip -Z1 release/Chat-On-Steroids-Extension.zip | grep -Fxq "$required" || { echo "Extension zip missing $required" >&2; exit 1; }
+            unzip -Z1 release/NCode-Extension.zip | grep -Fxq "$required" || { echo "Extension zip missing $required" >&2; exit 1; }
           done
 
       - name: Create SHA-256 checksums
@@ -358,9 +358,9 @@ jobs:
         with:
           # Artifact names reject `/`, so direct candidate runs from feature/foo refs must not
           # fail after all six package jobs. A run id is filesystem-safe and caller-stable.
-          name: chat-on-steroids-candidate-${{ github.run_id }}
+          name: ncode-candidate-${{ github.run_id }}
           path: |
-            release/Chat-On-Steroids-*
+            release/NCode-*
             release/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30

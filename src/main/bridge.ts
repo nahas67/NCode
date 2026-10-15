@@ -32,25 +32,23 @@ import { sessionFinishHeld, releaseSessionFinish, getSessionFinishDraft, session
 import { observeUsage } from './session/usage.js';
 import { pendingBrowserInputs, claimBrowserInput, acknowledgeBrowserInput, bindBrowserInputProject, failBrowserInput, completeBrowserDecision, listInputs, fileSilenceInput, fileRecoveryInput, advanceRecoveryInput, hasQueuedAfterTurnInput, inputBeforeGoal, pendingQueuedPickups, recordQueuedPickupAttemptNow, syncQueuedPickupRecoveryNow, deferSilenceInput, revokeSilenceInputs, endRecoveryInput, retryUnclaimedInput, failInputsForDeletedConversation } from './session/input.js';
 /**
- * The local bridge between the Chrome extension and this app.
+ * This module owns the paired loopback server the legacy ChatGPT companion extension called:
+ * a second loopback service, separate from the MCP endpoint, because the two have opposite
+ * requirements — the MCP endpoint refuses any browser origin on purpose, while this one
+ * exists to be called by a browser extension. It binds 127.0.0.1 only, leaves /hello and /pair
+ * unauthenticated, requires the bearer token from /pair in constant time on every other
+ * route, demands a chrome-extension:// Origin, and caps and rate-limits every body.
  *
- * A second loopback server, separate from the MCP endpoint, because the two have
- * opposite requirements: the MCP endpoint refuses any browser origin on purpose,
- * while this one exists to be called by a browser extension.
+ * It binds 8765-8769 (see `shared/browser-bridge.ts`) and must stay off 45880. `ncode-bridge.ts`
+ * owns 127.0.0.1:45880 at startup for the Gemini companion, and the extension declares exactly
+ * that one host permission. A refactor briefly pointed this module's port list at `BRIDGE_PORT`,
+ * putting both listeners on one socket; the NCode bridge binds synchronously, this one reaches
+ * `listen()` through a microtask, and it lost every time. If you change a port here, confirm the
+ * two never overlap.
  *
- * What keeps it safe:
- *   · 127.0.0.1 only, never 0.0.0.0
- *   · the only unauthenticated routes are /hello (a fixed identifying string) and
- *     /pair, which issues the token to a caller on 127.0.0.1 — see the route for what
- *     that deliberately does and does not buy
- *   · every other route needs the bearer token issued by /pair, compared in
- *     constant time, and stored encrypted rather than in config.json
- *   · the Origin must be a chrome-extension:// origin, so a web page cannot drive it
- *   · bodies are capped and requests are rate limited
- *
- * It accepts ChatGPT observations and returns summaries/queued commands. Direct browser
- * RPCs only hand out kernel-admitted commands to the paired extension; a page cannot
- * submit an action, read a local file, run a process or change a permission here.
+ * The non-listener exports are what most callers want and are unchanged: `bridgeStatus`,
+ * `onBridgeChange`, `shutdownBridge`, `sessionControlsFor`, `sessionActivityExpiresAt`,
+ * `goalWorkerChat`, `unattributedRepairEta`, `imageExportCapable` and `browserWakeConnected`.
  */
 
 import { randomBytes, timingSafeEqual } from 'node:crypto';
@@ -63,6 +61,7 @@ import { blockedChatIds, isChatBlocked, chatBlockedAt } from './session/blocked-
 export { CHAT_ACTIVE_MS, CHAT_SILENCE_MS } from '../shared/session.js';
 import { effectiveCapabilities, getConfig, updateConfig } from './config.js';
 import { BROWSER_BRIDGE_AUTO_PORTS } from '../shared/browser-bridge.js';
+import { APP_ID } from '../shared/ncode-config.js';
 import { bridgePortSelection } from './bridge-ports.js';
 import type { Config } from '../shared/types.js';
 import type { PluginSurface } from '../shared/plugin-refresh.js';
@@ -2222,7 +2221,9 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse): Prom
       res,
       200,
       {
-        app: 'chat-on-steroids',
+        // The identity the companion checks before it sends anything. Owned by ncode-config so
+        // the socket path, the client id and this string cannot drift apart.
+        app: APP_ID,
         version: APP_VERSION,
         bridge: BRIDGE_PROTOCOL,
         // Unknown, not incompatible, for a caller that states no protocol (curl in a bug report).
@@ -4553,7 +4554,7 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse): Prom
       } else if (workingDirectory) {
         // Revivals carry the prime's latest user-authored message, without repeating Core or
         // source AGENTS. Reassert the same checkout after a restart or worker reuse.
-        described.text += `\n\n(Chat On Steroids worker working directory: ${workingDirectory}. Keep worker task changes in this allocated Git worktree; the source project only supplies instructions.)`;
+        described.text += `\n\n(NCode worker working directory: ${workingDirectory}. Keep worker task changes in this allocated Git worktree; the source project only supplies instructions.)`;
       }
     }
     if (!commands.includes(command) || command.owner !== client) return json(res, 409, { error: 'command_taken' }, origin);
@@ -5251,7 +5252,6 @@ let staleSweepInFlight: Promise<boolean> | null = null;
 let bridgeLifecycleEpoch = 0;
 let bridgeDesiredRunning = false;
 let bridgeLifecycleQueue: Promise<void> = Promise.resolve();
-let bridgeStartRequest: Promise<number | null> | null = null;
 let bridgeStopRequest: Promise<void> | null = null;
 /**
  * Final app shutdown is terminal; ordinary settings-driven stop/start is not.
@@ -5293,6 +5293,33 @@ function enqueueBridgeLifecycle<T>(operation: () => Promise<T>): Promise<T> {
   return run;
 }
 
+let bridgeStartRequest: Promise<number | null> | null = null;
+
+/**
+ * Whether this process may bind the legacy ChatGPT companion listener (8765-8769, with the
+ * 18765/38765 fallback bands).
+ *
+ * It may not, by default, inside the shipping app. Nothing shipped can reach it:
+ * `extension/manifest.json` grants `host_permissions` for `http://127.0.0.1:45880/*` only, and
+ * `extension/background.js` scans `[BRIDGE_PORT]` alone. NCode drives Gemini over
+ * `ncode-bridge.ts` on BRIDGE_PORT. Binding 8765 also collides with the separate Chat On
+ * Steroids app this machine runs.
+ *
+ * The test is `process.versions.electron`, which only the real Electron main process defines, so
+ * the decision keys off what this process actually is rather than off the test runner. That keeps
+ * `test/bridge.test.ts` (681 tests) and `test/bridge-port-lifecycle.test.ts`, which drive
+ * `startBridge()` directly, exercising the listener exactly as they always have.
+ *
+ * `NCODE_LEGACY_BRIDGE_LISTENER=1` forces it on and `=0` forces it off, for anyone who needs
+ * the old listener in either direction.
+ */
+export function legacyBridgeListenerEnabled(): boolean {
+  const override = process.env.NCODE_LEGACY_BRIDGE_LISTENER;
+  if (override === '1') return true;
+  if (override === '0') return false;
+  return !process.versions.electron;
+}
+
 export function startBridge(): Promise<number | null> {
   if (bridgeShutdownRequested) return Promise.resolve(null);
   if (bridgeDesiredRunning) {
@@ -5325,17 +5352,34 @@ async function closeCancelledBridgeStart(instance: http.Server, actual: number |
   return null;
 }
 
+/**
+ * The bridge request handler with no readiness guard.
+ *
+ * NCode serves the extension from a single listener on BRIDGE_PORT and delegates the routes this
+ * module owns, so the extension reaches the whole bridge protocol while this module never binds a
+ * second port. A caller mounting this on its own server is the thing deciding readiness, so the
+ * `bridge_recovering` guard that protects the standalone listener below does not apply: it checks
+ * `server === instance` and `bridgeDesiredRunning`, and both are false whenever the standalone
+ * listener is not running, which would turn every delegated route into a 503.
+ */
+export function bridgeRequestListener(): (req: http.IncomingMessage, res: http.ServerResponse) => void {
+  return (req, res) => {
+    handle(req, res).catch((err: Error) => {
+      logWarn(`bridge request failed: ${err.message}`);
+      if (!res.headersSent) json(res, 500, { error: 'internal' }, originOf(req).origin);
+    });
+  };
+}
+
 /** A prepared listener has a real socket, but cannot serve application requests until published. */
 function createBridgeListener(): http.Server {
+  const serve = bridgeRequestListener();
   const instance = http.createServer((req, res) => {
     if (server !== instance || bridgeRecovering || !bridgeDesiredRunning) {
       json(res, 503, { error: 'bridge_recovering', retryable: true }, originOf(req).origin);
       return;
     }
-    handle(req, res).catch((err: Error) => {
-      logWarn(`bridge request failed: ${err.message}`);
-      if (!res.headersSent) json(res, 500, { error: 'internal' }, originOf(req).origin);
-    });
+    serve(req, res);
   });
   instance.headersTimeout = 15_000;
   instance.requestTimeout = 30_000;
@@ -5382,7 +5426,10 @@ function attachBridgeWake(instance: http.Server): void {
     }, changed);
 }
 
-/** Called inside the serialized config transaction, with its validated latest proposal. */
+/**
+ * The saved choice has to be honoured: `settings:save` and the config schema both read it, and
+ * an explicit edit against a `CLF_BRIDGE_PORTS` override must still be refused.
+ */
 export function publishBridgePortChange(next: Config, previous: Config, persist: () => Promise<Config>): Promise<Config> {
   if ((next.ui.browserBridgePort ?? 'auto') === (previous.ui.browserBridgePort ?? 'auto')) return persist();
   const selection = bridgePortSelection(next.ui.browserBridgePort);
@@ -5662,7 +5709,12 @@ export async function stopBridge(): Promise<void> {
   }
 }
 
-/** Final app teardown: stop the bridge and permanently reject later starts in this process. */
+/**
+ * Final app teardown: stop the bridge and permanently reject later starts in this process.
+ *
+ * Still the 40 s shutdown drain's responsibility — `stopBridge()` also clears the command
+ * deadlines, the sweep timers and the swarm listeners this module started.
+ */
 export function shutdownBridge(): Promise<void> {
   bridgeShutdownRequested = true;
   return stopBridge();
@@ -10314,7 +10366,7 @@ function bootstrapText(spec: CommandSpec, summary: string): string {
     // think before it starts.
     return (
       `${spec.task}\n\n` +
-      `(Chat On Steroids: you are ${spec.agent}, a worker. Report to prime through the agents tool${ownCoreHint()} — ` +
+      `(NCode: you are ${spec.agent}, a worker. Report to prime through the agents tool${ownCoreHint()} — ` +
       'action=message to="prime" as you go, action=finish once at the end. Workers cannot reach each other. ' +
       'The prime assigns your task; its later messages may update the task and assigned files, including a read-only audit becoming an edit task. ' +
       'Follow that latest assignment within the user’s permissions and standing constraints. ' +

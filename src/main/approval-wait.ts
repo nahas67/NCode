@@ -2,7 +2,7 @@
  * Chats whose ChatGPT page shows ChatGPT's own tool approval card.
  *
  * Found by the VM stress test on 2026-10-06: a Loop ran ten clean turns, then ChatGPT asked
- * "Allow ChatGPT to use Chat On Steroids Core?" before an `echo` and flagged it as suspicious.
+ * "Allow ChatGPT to use NCode Core?" before an `echo` and flagged it as suspicious.
  * Only a person can answer that card. No call reached the app, silence recovery found nothing it
  * could repair, and the chat stood still with nobody told.
  *

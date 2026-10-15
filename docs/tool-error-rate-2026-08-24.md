@@ -2,7 +2,7 @@
 
 ## Scope
 
-This is the evidence and implementation record for the three newest durable Chat On Steroids
+This is the evidence and implementation record for the three newest durable NCode
 sessions at 14:03 CEST on 24 August 2026. The sessions were still active, so these numbers are a
 timestamped snapshot rather than a timeless product benchmark.
 

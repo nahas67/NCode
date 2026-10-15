@@ -20,7 +20,7 @@ language family, then the first one installed.
 If the status line reports a microphone problem, check Windows' microphone privacy
 setting for desktop apps and the selected recording device.
 
-**Where audio goes.** Chat On Steroids never saves audio and never sends it anywhere
+**Where audio goes.** NCode never saves audio and never sends it anywhere
 itself; it only receives recognized text and status through its own internal channel.
 With Online speech recognition on, Windows sends your speech to Microsoft to recognize
 it, as it does for Windows voice typing. The offline fallback keeps audio on the

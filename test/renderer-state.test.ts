@@ -608,7 +608,7 @@ it('commits a project summary click before an immediate state repaint replaces i
   expect(group().open).toBe(true);
 });
 
-it("copies a chat's ChatGPT link from its row menu (#1107)", async () => {
+it("no longer offers a chat's ChatGPT link from its row menu (#1107)", async () => {
   const session = {
     id: 'linked-session', title: 'Linked chat', conversationId: 'linked-chat-0001', chatIds: ['linked-chat-0001'],
     startedAt: 1, updatedAt: 2, endedAt: null, events: 0, userMessages: 0, toolCalls: 0,
@@ -625,13 +625,12 @@ it("copies a chat's ChatGPT link from its row menu (#1107)", async () => {
   const doc = mounted.window.document;
   const row = () => doc.querySelector<HTMLElement>(`[data-id="${session.id}"]`)!;
   await vi.waitFor(() => expect(row()).not.toBeNull());
-  const item = rowMenuItem(row(), 'copy-link')!;
-  expect(item.textContent).toContain('Copy link');
-  // It sits right after Open in browser.
-  expect(item.previousElementSibling?.getAttribute('data-row-action')).toBe('open');
-  item.click();
-  await vi.waitFor(() => expect(writeClipboard).toHaveBeenCalledWith('https://chatgpt.com/c/linked-chat-0001'));
-  await vi.waitFor(() => expect(doc.querySelector('.toast')?.textContent).toBe('Link copied'));
+  rowMenuItem(row(), 'rename');
+  // Chats now live in Gemini, so a chatgpt.com/c/<id> link is dead weight that can only
+  // hand the user a broken page. It must not reappear on the row menu.
+  expect(rowMenuItem(row(), 'copy-link')).toBeNull();
+  expect(doc.querySelector('.row-menu [data-row-action="copy-link"]')).toBeNull();
+  expect(writeClipboard).not.toHaveBeenCalled();
 });
 
 it('keeps strict chat allowlisting separate from Block and exposes explicit Trust on session rows', async () => {
@@ -730,7 +729,7 @@ it('offers a chat\'s actions in one menu, by kind of row, and opens it with a ri
   expect(row(chat.id).querySelectorAll('.sess-actions button').length).toBe(1);
   const actions = (): Array<string | undefined> => [...doc.querySelectorAll<HTMLElement>('.row-menu .row-menu-item')].map(item => item.dataset.rowAction);
   rowMenuItem(row(chat.id), 'rename');
-  expect(actions()).toEqual(['pin', 'rename', 'open', 'copy-link', 'block', 'remove']);
+  expect(actions()).toEqual(['pin', 'rename', 'open', 'block', 'remove']);
   expect(doc.querySelector('.row-menu [data-row-action="remove"]')!.classList.contains('is-danger')).toBe(true);
   closeRowMenus(doc);
   // A row that is not a chat offers only what applies to it.
@@ -1022,7 +1021,6 @@ it.each(['wizConnect', 'connectionPopoverToggle'])(
     const doc = mounted.window.document;
     const tunnel = doc.getElementById('tunnelId') as HTMLInputElement;
     const key = doc.getElementById('apiKey') as HTMLInputElement;
-    expect((doc.getElementById('wizConnect') as HTMLButtonElement).disabled).toBe(true);
     tunnel.value = `tunnel_${'b'.repeat(32)}`;
     tunnel.dispatchEvent(new mounted.window.Event('input'));
     key.value = 'sk-valid-setup-draft';
@@ -1077,15 +1075,19 @@ it('keeps global connection controls in a compact sidebar popover', async () => 
   trigger.click(); trigger.click();
   expect(popover.hidden).toBe(false);
   expect(popover.querySelector('details')).toBeNull();
-  expect(doc.getElementById('connectionPopoverConnector')!.textContent).toMatch(/Reached/i);
-  expect(doc.getElementById('connectionPopoverBrowser')!.textContent).toBe('Connected');
-  expect(doc.getElementById('connectionPopoverBrowser')!.parentElement!.title).toMatch(/Seen/i);
-  expect(doc.getElementById('connectionPopoverBrowser')!.classList.contains('sr-only')).toBe(true);
-  expect(doc.getElementById('connectionPopoverBrowser')!.parentElement!.dataset.tone).toBe('ok');
+  // The card's three rows are NCode's own components, not the ChatGPT connector/browser pair.
+  // Each is written by ncode.ts from its own fact, so with no record published they all read
+  // "Not connected" and carry no data-tone: an unanswered component is not a failed one.
+  for (const id of ['connectionPopoverLocalBridge', 'connectionPopoverExtension', 'connectionPopoverGeminiTab']) {
+    const label = doc.getElementById(id)!;
+    expect(label).not.toBeNull();
+    expect(label.textContent).toBe('Not connected');
+    expect(label.parentElement!.hasAttribute('data-tone')).toBe(false);
+  }
+  expect(popover.textContent).not.toContain('Reached');
   expect(doc.getElementById('connectionPopoverVerified')).toBeNull();
-  expect(doc.getElementById('connectionPopoverTitle')!.title).toMatch(/verified/i);
+  expect(popover.textContent).not.toContain('verified');
   expect(doc.getElementById('connectionPipeline')).toBeNull();
-  expect(doc.getElementById('connectionPopoverExtension')).toBeNull();
   expect((doc.getElementById('connectionPopoverToggle') as HTMLButtonElement).textContent).toBe('Disconnect');
 
   doc.body.dispatchEvent(new mounted.window.MouseEvent('click', { bubbles: true }));
@@ -1095,14 +1097,19 @@ it('keeps global connection controls in a compact sidebar popover', async () => 
 it('keeps a quick Disconnecting on screen long enough to read, then shows the real state', async () => {
   const mounted = await mountChat({ hasApiKey: true });
   const doc = mounted.window.document;
-  const title = () => doc.getElementById('connectionPopoverTitle')!.textContent;
+  const capsule = () => doc.getElementById('sidebarConnectionLabel')!.textContent;
+  const popoverHead = () => doc.querySelector('.connection-popover-head')!.textContent?.trim();
   mounted.push({ ...mounted.state, status: { ...mounted.state.status, state: 'connected' } });
   mounted.push({ ...mounted.state, status: { ...mounted.state.status, state: 'disconnecting' } });
-  expect(title()).toBe('Disconnecting');
-  // Over in a blink: the window still says Disconnecting for a moment.
+  expect(capsule()).toBe('Disconnecting…');
+  // The popover header is not this control. It is ncode.ts's, and it answers the NCode component
+  // record, so no ChatGPT connection state — Disconnecting included — may reach it.
+  expect(popoverHead()).not.toBe('Disconnecting');
+  expect(popoverHead()).toBe('Not connected');
+  // Over in a blink: the capsule still says Disconnecting for a moment.
   mounted.push({ ...mounted.state, status: { ...mounted.state.status, state: 'disconnected' } });
-  expect(title()).toBe('Disconnecting');
-  await vi.waitFor(() => expect(title()).toBe('Not connected'), { timeout: 2500 });
+  expect(capsule()).toBe('Disconnecting…');
+  await vi.waitFor(() => expect(capsule()).toBe('Connect'), { timeout: 2500 });
   expect(doc.getElementById('sidebarConnectionLabel')!.textContent).toBe('Connect');
 });
 
@@ -1154,7 +1161,14 @@ it('shows connection status once and keeps diagnostics out of the desktop popove
     ['disconnected', 'Not connected', 'Connect', false, 'Connect']
   ] as const) {
     mounted.push({ ...mounted.state, status: { ...mounted.state.status, state } });
-    expect(popover.querySelector('.connection-popover-head')!.textContent?.trim()).toBe(title);
+    const head = popover.querySelector('.connection-popover-head')!.textContent?.trim();
+    // The popover header is ncode.ts's alone. It reads the NCode component record, and this harness
+    // publishes none, so it stays 'Not connected' for every ChatGPT connection state — including
+    // `tunnel-unavailable`, whose "Tunnel unavailable" must never reach it. `title` keeps the legacy
+    // word so the loop still proves that word cannot come back.
+    expect(head).toBe('Not connected');
+    expect(head).not.toBe('Tunnel unavailable');
+    expect(popover.textContent).not.toContain('Tunnel unavailable');
     expect(button.textContent).toBe(action);
     expect(button.disabled).toBe(disabled);
     expect(popover.hidden).toBe(false);
@@ -1164,8 +1178,11 @@ it('shows connection status once and keeps diagnostics out of the desktop popove
     if (capsule) expect(label.textContent).toBe(capsule);
     // The details offer an action only when the capsule does not already show it.
     expect((button.parentElement as HTMLElement).hidden).toBe(state === 'disconnected' || state === 'disconnecting');
-    // A state change is announced once, politely.
-    expect(doc.getElementById('connectionAnnounce')!.textContent).toBe(title);
+    // A state change is announced once, politely. `#connectionAnnounce` is a live region beside the
+    // popover, not inside it, and it keeps its own owner: it announces the ChatGPT connection state
+    // the capsule acts on. Criterion 5 governs the popover header, which the assertions above cover.
+    const announced = doc.getElementById('connectionAnnounce')!.textContent;
+    expect(announced).toBe(title);
   }
 
   const { setLanguage } = await import('../src/renderer/i18n.js');
@@ -1773,7 +1790,7 @@ it('asks what ChatGPT can do in Setup, and read-only keeps it open with the reas
 
   // An unpublished Desktop card leads to the same step, not to Settings.
   const noDesktop = structuredClone(mounted.state);
-  noDesktop.status.surfaces = [{ id: 'desktop', connectorName: 'Chat On Steroids Desktop', state: 'off', available: false, optional: true,
+  noDesktop.status.surfaces = [{ id: 'desktop', connectorName: 'NCode Desktop', state: 'off', available: false, optional: true,
     detail: 'Turn on a Desktop permission.', cardSummary: 'Browser and desktop apps.', tools: [], lastRequestAt: null, lastToolCallAt: null }];
   mounted.push(noDesktop);
   [...doc.querySelectorAll<HTMLButtonElement>('#connectorCards .btn')].find(button => button.textContent === 'Change access')!.click();
@@ -2005,7 +2022,7 @@ it("shows ChatGPT's own screens and words in the app's language, and the Platfor
   setLanguage('en');
 });
 
-it('judges Setup from the saved settings on the first paint, and numbers its steps as the rail does', async () => {
+it('judges Setup from the saved settings on the first paint, and gates Connect only on the shared folder', async () => {
   // A finished setup: tunnel saved and key stored. The first paint read the tunnel field before it
   // was filled from the settings, so Setup looked unfinished and Connect was disabled until the
   // next state update.
@@ -2015,19 +2032,25 @@ it('judges Setup from the saved settings on the first paint, and numbers its ste
   expect(doc.getElementById('setupBadge')!.hidden).toBe(true);
   expect((doc.getElementById('wizConnect') as HTMLButtonElement).disabled).toBe(false);
 
-  // The hints name the step by its place in the rail: Tunnel is 4 and API key 5 since Access joined.
-  const rail = [...doc.querySelectorAll<HTMLElement>('.setup-rail [data-rail-step]')].map(button => button.dataset.railStep);
-  expect(rail.indexOf('tunnel') + 1).toBe(4);
+  // A tunnel and an API key are no longer admission gates. ChatGPT's tunnel only ever served the
+  // ChatGPT companion, and this install dials Gemini on 45880 instead, so Setup must not keep
+  // Connect disabled or explain a missing tunnel/key over a finished folder.
   const noTunnel = structuredClone(mounted.state);
   noTunnel.config.tunnel.tunnelId = '';
   mounted.push(noTunnel);
-  (doc.getElementById('tunnelId') as HTMLInputElement).value = '';
-  mounted.push(structuredClone(noTunnel));
-  expect((doc.getElementById('wizConnect') as HTMLButtonElement).title).toBe('Create a tunnel and paste its ID — step 4.');
+  expect((doc.getElementById('wizConnect') as HTMLButtonElement).disabled).toBe(false);
   const noKey = structuredClone(mounted.state);
   noKey.hasApiKey = false;
   mounted.push(noKey);
-  expect((doc.getElementById('wizConnect') as HTMLButtonElement).title).toBe('Add a restricted API key — step 5.');
+  expect((doc.getElementById('wizConnect') as HTMLButtonElement).disabled).toBe(false);
+  expect((doc.getElementById('wizConnect') as HTMLButtonElement).title).not.toContain('tunnel');
+
+  // The folder is the one thing that still holds a chat back, so it is the one thing that must
+  // still be reported.
+  const noFolder = structuredClone(mounted.state);
+  noFolder.config.roots = [];
+  mounted.push(noFolder);
+  expect((doc.getElementById('wizConnect') as HTMLButtonElement).title).toMatch(/folder/i);
 });
 
 it("names ChatGPT's sign-in button by the label ChatGPT shows in the app's language", async () => {
@@ -2413,7 +2436,7 @@ it('says nothing about being current until the check has actually answered', asy
   // Green, both versions, and the same sentence as the one notification this window shows.
   expect(line.hidden).toBe(false);
   expect(line.className).toBe('upline is-ok');
-  expect(line.textContent).toBe('Up to date! Chat On Steroids 2.0.2 · extension 2.0.2');
+  expect(line.textContent).toBe('Up to date! NCode 2.0.2 · extension 2.0.2');
   expect(doc.querySelector('.toast')!.textContent).toBe(line.textContent);
   // Nothing to act on, so the header bar stays out of the way.
   expect(doc.getElementById('updateNotice')!.hidden).toBe(true);
@@ -2422,7 +2445,7 @@ it('says nothing about being current until the check has actually answered', asy
   doc.querySelector('.toast')!.remove();
   mounted.push(structuredClone(checked) as any);
   expect(doc.querySelector('.toast')).toBeNull();
-  expect(line.textContent).toBe('Up to date! Chat On Steroids 2.0.2 · extension 2.0.2');
+  expect(line.textContent).toBe('Up to date! NCode 2.0.2 · extension 2.0.2');
 });
 
 /**

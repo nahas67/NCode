@@ -46,7 +46,7 @@ const fixture = demo => `
     localUrl: 'http://127.0.0.1:8765/mcp/' + id, publicUrl: null, tools, state: 'live', detail: '', lastRequestAt: Date.now() - 4000, lastToolCallAt: Date.now() - 4000 });
   const state = { config, hasApiKey: true, hasGoalKey: false, resolvedBinary: null,
     status: { state: 'connected', detail: '', publicUrl: null, localUrl: 'http://127.0.0.1:8765', handshakeAt: Date.now() - 60000, lastRequestAt: Date.now() - 4000, lastToolCallAt: Date.now() - 4000, health: null,
-      surfaces: [surface('core', 'Chat On Steroids Core', ['read', 'apply_patch', 'exec_command'])] },
+      surfaces: [surface('core', 'NCode Core', ['read', 'apply_patch', 'exec_command'])] },
     bridge: { running: true, paired: true, present: true, port: 8765, lastSeenAt: Date.now(), extensionVersion: '2.1.36',
       externalExtension: { present: true, version: '2.1.36', lastSeenAt: Date.now(), signedIn: true } },
     update: { current: '2.1.36', latest: null, stage: 'idle', error: null, checkedAt: null } };

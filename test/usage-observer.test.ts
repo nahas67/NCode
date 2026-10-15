@@ -269,7 +269,7 @@ describe('MAIN-world usage projection', () => {
       message: { id: 'tool-result-1', author, recipient: 'all',
         content: { content_type: 'text', text: 'ok /asdk_app_notfromtext/link_nope/exec_command' },
         metadata: { request_id, invoked_resource: { resource_uri: '/asdk_app_6ac261da/link_6ac26253/exec_command',
-          app_name: 'Chat On Steroids Core', publish_status: 'draft' }, ...overrides } },
+          app_name: 'NCode Core', publish_status: 'draft' }, ...overrides } },
       conversation_id
     });
     const frames = (value: unknown) => [
@@ -282,7 +282,7 @@ describe('MAIN-world usage projection', () => {
       const h = harness();
       await h.feedSse(frames(result()), { method: 'POST' }, 'https://chatgpt.com/backend-api/f/conversation');
       expect(sightings(h.posts)).toEqual([{ type: 'cos-app-sighting', conversationId: conversation_id, sightings: [
-        { requestId: request_id, appId: 'asdk_app_6ac261da', linkId: 'link_6ac26253', appName: 'Chat On Steroids Core' }
+        { requestId: request_id, appId: 'asdk_app_6ac261da', linkId: 'link_6ac26253', appName: 'NCode Core' }
       ] }]);
     });
 
@@ -752,34 +752,34 @@ describe('Core app identity for mentions (#861)', () => {
   const settle = async () => { for (let i = 0; i < 5; i++) await new Promise(resolve => setTimeout(resolve, 0)); };
   it('reports the one Core app from the page\'s own system hints and repeats it on request', async () => {
     const h = harness();
-    await h.feed({ system_hints: [hint('plugin:asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', 'Chat On Steroids Core'),
-      hint('connector:asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', 'Chat On Steroids Core'),
-      hint('plugin:asdk_app_6aa5b67a02148191b8053d85e5731dd3', 'Chat On Steroids Desktop'), hint('agent', 'Agent')] }, url);
+    await h.feed({ system_hints: [hint('plugin:asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', 'NCode Core'),
+      hint('connector:asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', 'NCode Core'),
+      hint('plugin:asdk_app_6aa5b67a02148191b8053d85e5731dd3', 'NCode Desktop'), hint('agent', 'Agent')] }, url);
     await settle();
-    const expected = { type: 'cos-core-mention', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'Chat On Steroids Core',
-      candidates: [{ name: 'Chat On Steroids Core', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019' }], pluginList: false };
+    const expected = { type: 'cos-core-mention', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'NCode Core',
+      candidates: [{ name: 'NCode Core', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019' }], pluginList: false };
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([expected]);
     h.request();
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([expected, expected]);
   });
   it('reports no mention for two different Core apps', async () => {
     const h = harness();
-    await h.feed({ system_hints: [hint('plugin:asdk_app_aaaa1111', 'Chat On Steroids Core'), hint('plugin:asdk_app_bbbb2222', 'Chat On Steroids Core')] }, url);
+    await h.feed({ system_hints: [hint('plugin:asdk_app_aaaa1111', 'NCode Core'), hint('plugin:asdk_app_bbbb2222', 'NCode Core')] }, url);
     await settle();
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([{ type: 'cos-core-mention', path: null, name: null,
-      candidates: [{ name: 'Chat On Steroids Core', path: null }], pluginList: false }]);
+      candidates: [{ name: 'NCode Core', path: null }], pluginList: false }]);
   });
   it('keeps the Core app when another hint list without it answers later', async () => {
     // Measured live: the page asks for basic, custom_agents and plugins lists in parallel, and only
     // the plugins list names Core. A later basic answer reset the mention, so the first prompt the
     // app sent went out without it.
     const h = harness();
-    await h.feed({ system_hints: [hint('plugin:asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', 'Chat On Steroids Core')] }, 'https://chatgpt.com/backend-api/system_hints?exclude_logo=true&mode=plugins');
+    await h.feed({ system_hints: [hint('plugin:asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', 'NCode Core')] }, 'https://chatgpt.com/backend-api/system_hints?exclude_logo=true&mode=plugins');
     await settle();
-    await h.feed({ system_hints: [hint('agent', 'Agent'), hint('plugin:asdk_app_6aa5b67a02148191b8053d85e5731dd3', 'Chat On Steroids Desktop')] }, 'https://chatgpt.com/backend-api/system_hints?exclude_logo=true&mode=basic');
+    await h.feed({ system_hints: [hint('agent', 'Agent'), hint('plugin:asdk_app_6aa5b67a02148191b8053d85e5731dd3', 'NCode Desktop')] }, 'https://chatgpt.com/backend-api/system_hints?exclude_logo=true&mode=basic');
     await settle();
-    const expected = { type: 'cos-core-mention', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'Chat On Steroids Core',
-      candidates: [{ name: 'Chat On Steroids Core', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019' }], pluginList: true };
+    const expected = { type: 'cos-core-mention', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019', name: 'NCode Core',
+      candidates: [{ name: 'NCode Core', path: 'app://asdk_app_6aa5b6651c3c81919f03cb5dc38bf019' }], pluginList: true };
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([expected]);
     h.request();
     expect(h.posts.filter(row => row.type === 'cos-core-mention').at(-1)).toEqual(expected);
@@ -788,15 +788,15 @@ describe('Core app identity for mentions (#861)', () => {
     // One ChatGPT account on two computers: the page lists both Cores, and this world cannot know
     // which is this install's. The content script picks by the name the app reports.
     const h = harness();
-    await h.feed({ system_hints: [hint('plugin:asdk_app_mac1111', 'Chat On Steroids Core'),
-      hint('plugin:asdk_app_win2222', 'Chat On Steroids Core (Windows)'),
-      hint('plugin:asdk_app_back3333', 'Chat On Steroids Core Backup'),
-      hint('plugin:asdk_app_bad4444', 'Chat On Steroids Core (Win/VM)')] }, url);
+    await h.feed({ system_hints: [hint('plugin:asdk_app_mac1111', 'NCode Core'),
+      hint('plugin:asdk_app_win2222', 'NCode Core (Windows)'),
+      hint('plugin:asdk_app_back3333', 'NCode Core Backup'),
+      hint('plugin:asdk_app_bad4444', 'NCode Core (Win/VM)')] }, url);
     await settle();
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([{ type: 'cos-core-mention',
-      path: 'app://asdk_app_mac1111', name: 'Chat On Steroids Core',
-      candidates: [{ name: 'Chat On Steroids Core', path: 'app://asdk_app_mac1111' },
-        { name: 'Chat On Steroids Core (Windows)', path: 'app://asdk_app_win2222' }], pluginList: false }]);
+      path: 'app://asdk_app_mac1111', name: 'NCode Core',
+      candidates: [{ name: 'NCode Core', path: 'app://asdk_app_mac1111' },
+        { name: 'NCode Core (Windows)', path: 'app://asdk_app_win2222' }], pluginList: false }]);
   });
   it('reports the plugins list even without any Core, and only that list', async () => {
     // Core deleted in ChatGPT: the plugins list (mode=plugins) answers without it, which takes the
@@ -805,7 +805,7 @@ describe('Core app identity for mentions (#861)', () => {
     await h.feed({ system_hints: [hint('agent', 'Agent')] }, 'https://chatgpt.com/backend-api/system_hints?exclude_logo=true&mode=basic');
     await settle();
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([]);
-    await h.feed({ system_hints: [hint('plugin:asdk_app_6aa5b67a02148191b8053d85e5731dd3', 'Chat On Steroids Desktop')] },
+    await h.feed({ system_hints: [hint('plugin:asdk_app_6aa5b67a02148191b8053d85e5731dd3', 'NCode Desktop')] },
       'https://chatgpt.com/backend-api/system_hints?exclude_logo=true&mode=plugins');
     await settle();
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([
@@ -813,7 +813,7 @@ describe('Core app identity for mentions (#861)', () => {
   });
   it('ignores a system hint list from another origin', async () => {
     const h = harness();
-    await h.feed({ system_hints: [hint('plugin:asdk_app_aaaa1111', 'Chat On Steroids Core')] }, 'https://evil.example/backend-api/system_hints');
+    await h.feed({ system_hints: [hint('plugin:asdk_app_aaaa1111', 'NCode Core')] }, 'https://evil.example/backend-api/system_hints');
     await settle();
     expect(h.posts.filter(row => row.type === 'cos-core-mention')).toEqual([]);
   });

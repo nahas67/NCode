@@ -12,6 +12,7 @@ import { initSidebarResize } from './sidebar-resize.js';
 import { initViewMenu } from './view-menu.js';
 import { initPlugins, applyPluginsState } from './plugins.js';
 import { initBrowserPreferences } from './browser-preferences.js';
+import { initNCode, ncodeLegacyBridgeActive } from './ncode.js';
 import { initSetupGuide } from './setup-guide.js';
 import { initAppearance } from './appearance.js';
 import { initKeychainNotice } from './keychain-notice.js';
@@ -642,7 +643,7 @@ function paintDesktopAccess(next: AppState): void {
   if (box.hidden) return;
 
   ui($('desktopAccessTitle'), 'textContent', () => t("Desktop access needs attention"));
-  ui($('desktopAccessDetail'), 'textContent', () => t("{0}. These are live verdicts from the native backend executing inside Chat On Steroids. ", [missing.join(' · ')]) +
+  ui($('desktopAccessDetail'), 'textContent', () => t("{0}. These are live verdicts from the native backend executing inside NCode. ", [missing.join(' · ')]) +
     t("Grant the missing macOS permission, then fully quit and reopen the app."));
   $<HTMLButtonElement>('openDesktopScreen').hidden =
     !needsScreen || access.screen === 'granted';
@@ -855,7 +856,7 @@ function setupStepNumber(step: string): number {
 
 function missingStep(
   next: AppState,
-  values: SetupConnectionValues = { tunnelId: next.config.tunnel.tunnelId, hasApiKey: next.hasApiKey }
+  _values: SetupConnectionValues = { tunnelId: next.config.tunnel.tunnelId, hasApiKey: next.hasApiKey }
 ): { step: string; text: string } | null {
   const { config } = next;
   // This is the same capability rule as the main-process admission gate. Desktop and
@@ -863,19 +864,6 @@ function missingStep(
   // by an effective file/patch/command capability on Core.
   if (config.roots.length === 0 && requiresApprovedFilesystemRoot(config)) {
     return { step: 'folder', text: t("Choose a folder to share — step {0}.", [setupStepNumber('folder')]) };
-  }
-  if (config.tunnel.kind === 'openai') {
-    if (!TUNNEL_ID_PATTERN.test(values.tunnelId)) {
-      return { step: 'tunnel', text: t("Create a tunnel and paste its ID — step {0}.", [setupStepNumber('tunnel')]) };
-    }
-    if (!(next.secureStorage?.available ?? true) && !values.hasApiKey) {
-      return { step: 'key', text: next.secureStorage?.detail ?? t("Secure credential storage is unavailable.") };
-    }
-    if (!values.hasApiKey) {
-      return { step: 'key', text: t("Add a restricted API key — step {0}.", [setupStepNumber('key')]) };
-    }
-  } else if (!next.resolvedBinary && config.tunnel.kind === 'cloudflared') {
-    return { step: 'connect', text: t("cloudflared was not found on this computer.") };
   }
   return null;
 }
@@ -1189,12 +1177,12 @@ function updateSummary({ bridge, update, config, status }: AppState): { text: st
       update.stage === 'checking'
         ? t("Checking for the latest update…")
         : update.stage === 'ready'
-        ? t("Chat On Steroids {0} is downloaded and ready. Install it now, or it installs the next time you quit.", [update.latest])
+        ? t("NCode {0} is downloaded and ready. Install it now, or it installs the next time you quit.", [update.latest])
         : update.stage === 'downloading'
-          ? t("Chat On Steroids {0} is downloading. Keep working; you can install it when it lands.", [update.latest])
+          ? t("NCode {0} is downloading. Keep working; you can install it when it lands.", [update.latest])
           : update.stage === 'failed'
-            ? t("Chat On Steroids {0} could not be downloaded: {1}.", [update.latest, update.error ?? t("the download stopped")])
-            : t("Chat On Steroids {0} is out. This installation has to be updated by hand.", [update.latest])
+            ? t("NCode {0} could not be downloaded: {1}.", [update.latest, update.error ?? t("the download stopped")])
+            : t("NCode {0} is out. This installation has to be updated by hand.", [update.latest])
     );
     if (update.stage === 'failed') tone = 'bad';
   } else if (update.stage === 'failed') {
@@ -1204,7 +1192,7 @@ function updateSummary({ bridge, update, config, status }: AppState): { text: st
     lines.push(t("Checking for a newer version…"));
   } else if (!stale && !missing) {
     const extension = bridge.present && bridge.extensionVersion ? t(" · extension {0}", [bridge.extensionVersion]) : '';
-    lines.push(t("Up to date! Chat On Steroids {0}{1}", [update.current, extension]));
+    lines.push(t("Up to date! NCode {0}{1}", [update.current, extension]));
     tone = 'ok';
   }
   if (stale) {
@@ -1397,7 +1385,11 @@ function apply(next: AppState): void {
   const offline = status.state === 'offline';
   const disconnecting = status.state === 'disconnecting';
   const busy = disconnecting || status.state === 'starting-server' || status.state === 'connecting-tunnel';
-  const failed = status.state === 'auth-failed' || status.state === 'tunnel-unavailable';
+  // With the legacy bridge switched off there is no tunnel or legacy session to fail, so its
+  // verdict is not this app's state. Painting it red told the user something was broken when the
+  // only thing that happened was that a listener nobody can reach is intentionally not running.
+  const failed = status.state === 'auth-failed'
+    || (ncodeLegacyBridgeActive() && status.state === 'tunnel-unavailable');
   const running = isRunning(status.state);
   // The tunnel field is filled before Setup is judged: what is missing reads the fields, so that
   // drafts count, and on the first paint an unfilled field made a finished setup look unfinished.
@@ -1495,9 +1487,9 @@ function apply(next: AppState): void {
     ui($('connectionAnnounce'), 'textContent', () => t(STATUS_TEXT[status.state]));
   }
   previousConnectionState = status.state;
-  const connectionPopover = $('connectionPopover');
-  connectionPopover.className = `connection-popover scroll${capsuleTone ? ` ${capsuleTone}` : ''}`;
-  ui($('connectionPopoverTitle'), 'textContent', () => t(STATUS_TEXT[status.state]));
+  // The popover's class name, header text and all three rows belong to renderer/ncode.ts, which
+  // paints them from NCode's connection record. This module used to write the head from the MCP
+  // connection state, which put a ChatGPT tunnel verdict at the top of a product with no tunnel.
 
   const id = config.tunnel.tunnelId;
   ui($('headerSub'), 'textContent', () => config.tunnel.kind === 'openai'
@@ -2022,16 +2014,18 @@ function facts(next: AppState): HTMLElement[] {
 }
 
 /**
- * Repaints only what ages: the two numbers and status tooltips. Runs every second so
- * "verified 8s ago" keeps counting between reports instead of freezing.
+ * Repaints only what ages: the two numbers and the sidebar capsule's tooltips. Runs every second
+ * so "verified 8s ago" keeps counting between reports instead of freezing.
+ *
+ * The connection popover is not repainted here. Its three rows are NCode's own components, and
+ * renderer/ncode.ts repaints them from the connection record main pushes — a once-a-second timer
+ * here would be a second reader of a fact it does not own, painting a legacy ChatGPT bridge flag.
  */
 function paintClock(): void {
   if (!state) return;
-  const { bridge } = state;
   const status = shownStatus(state.status);
   const running = isRunning(status.state);
   const connected = status.state === 'connected';
-  const disconnecting = status.state === 'disconnecting';
 
   const handshake = $('bigHandshake');
   handshake.textContent = shortAgo(status.handshakeAt);
@@ -2040,26 +2034,6 @@ function paintClock(): void {
   const request = $('bigRequest');
   request.textContent = shortAgo(status.lastRequestAt);
   request.className = status.lastRequestAt === null ? 'is-cold' : '';
-
-  const core = status.surfaces.find((surface) => surface.id === 'core');
-  ui($('connectionPopoverConnector'), 'textContent', () => disconnecting ? t('Disconnecting…') : !running
-    ? t("Not connected")
-    : core?.lastRequestAt
-      ? t("Reached")
-      : connected
-        ? t("waiting")
-        : t(STATUS_TEXT[status.state]));
-  ui($('connectionPopoverBrowser'), 'textContent', () => bridge.present
-    ? t("Connected")
-    : bridge.paired ? t("Paired · not active") : t("Not connected"));
-
-  const connectorRow = $('connectionPopoverConnector').parentElement!;
-  const browserRow = $('connectionPopoverBrowser').parentElement!;
-  connectorRow.dataset.tone = connected ? 'ok' : disconnecting ? 'closing' : status.state === 'starting-server' || status.state === 'connecting-tunnel' ? 'wait' : 'bad';
-  browserRow.dataset.tone = bridge.present ? 'ok' : bridge.paired ? 'wait' : 'bad';
-  ui(connectorRow, 'title', () => core?.lastRequestAt ? t("Reached {0}", [ago(core.lastRequestAt)]) : $('connectionPopoverConnector').textContent ?? '');
-  ui(browserRow, 'title', () => bridge.lastSeenAt ? t("Seen {0}", [ago(bridge.lastSeenAt)]) : $('connectionPopoverBrowser').textContent ?? '');
-  ui($('connectionPopoverTitle'), 'title', () => disconnecting ? t('Closing connection…') : status.handshakeAt !== null ? t("verified {0}", [ago(status.handshakeAt)]) : t("no handshake yet"));
 
   const triggerText = status.handshakeAt !== null && running
     ? `${t(STATUS_TEXT[status.state])} · ${t("verified {0}", [ago(status.handshakeAt)])}`
@@ -2496,7 +2470,7 @@ $('updateGet').addEventListener('click', () => void run(api.downloadUpdate()));
  * click looking like a crash. Both buttons are the same action; either can be the one pressed.
  */
 function installUpdate(): void {
-  toast(t("Installing the update. Chat On Steroids closes and starts again as the new version."));
+  toast(t("Installing the update. NCode closes and starts again as the new version."));
   void run(api.installUpdate());
 }
 
@@ -2665,6 +2639,10 @@ initPets(api, pet);
 openSkillsLibrary = initSkillsLibrary(api);
 initBrowserPreferences();
 initChat({ save: () => save(), state: () => state });
+// The Gemini extension's socket state is its own fact: it does not wait for `refresh()` and
+// never touches the send path, so a failed read costs one status row and nothing else.
+const disposeNCode = initNCode();
+window.addEventListener('beforeunload', disposeNCode, { once: true });
 
 void (async () => {
   await refresh();

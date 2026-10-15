@@ -33,7 +33,7 @@ const server=http.createServer(async(req,res)=>{
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   const body=chunks.length?JSON.parse(Buffer.concat(chunks).toString()):{};
   const reply=(status,value)=>{res.writeHead(status,{'content-type':'application/json'});res.end(JSON.stringify(value));};
-  if(route==='/hello')return reply(200,{app:'chat-on-steroids',bridge:protocol,version:manifest.version,compatible:true});
+  if(route==='/hello')return reply(200,{app:'ncode',bridge:protocol,version:manifest.version,compatible:true});
   if(route==='/pair')return reply(200,{token});
   if(route.startsWith('/fixture')){res.writeHead(200,{'content-type':'text/html'});res.end('<title>Production entry fixture</title><h1>Existing tab from actual background worker</h1><button>Fixture action</button>');return;}
   if(req.headers.authorization!==`Bearer ${token}`)return reply(401,{error:'fixture_auth_required'});

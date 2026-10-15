@@ -78,7 +78,7 @@ export function resumeBootstrapText(summary: string, token = ''): string {
   const identity = destinationContinuationMarker(token);
   return (
     (identity ? `${identity}\n\n` : '') +
-    'Continuing a Chat On Steroids session that was compacted. This is the brief the previous chat wrote about ' +
+    'Continuing a NCode session that was compacted. This is the brief the previous chat wrote about ' +
     'its own work; carry on from it rather than starting again.\n\n' +
     summary
   );

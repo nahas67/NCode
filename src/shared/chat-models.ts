@@ -6,15 +6,47 @@ export function isAstraModel(model: string | null | undefined, effort?: Reasonin
     (/^(?:gpt-?)?6(?:\.0)?$/.test(normalized) && effort === 'pro');
 }
 export type ChatModelOption = { id: string; label: string; efforts: ReasoningEffort[]; aliases?: string[] };
+
 /**
- * The ChatGPT model Goal and Loop decisions run on unless Settings chose another: the GPT-6 family.
- * With the default High effort that is its thinking lane (`gpt-6-thinking`), the lane a decision
- * wants; the family id lets Settings show it as the one "GPT-6" the picker lists (#1217). An account
- * without it falls back to ChatGPT's current selection (goal.ts).
+ * The tiers Gemini Web itself offers, used only until a live Gemini tab reports its own
+ * `<bard-mode-switcher>` through `MODELS_SYNC`. The host learns what an account really has from
+ * that report; these are the shipped floor, so the picker is never empty and never names a
+ * generation the product does not drive. The effort ladders match `deriveEfforts()` in
+ * ncode-bridge.ts, so a synced model with no ladder of its own lands on the same shape.
+ *
+ * `aliases` carry the four `x-goog-ext-525001261-jspb` model-mode ids Gemini Web's mode switcher
+ * itself uses. A scrape that reports one of those bare 16-hex ids resolves to its tier's label
+ * instead of surfacing a meaningless row, and `resolveChatModel` matches aliases as exactly as it
+ * matches ids — which also keeps this a four-row picker rather than eight.
+ *
+ * The id→tier pairing is positional and therefore the one unverified thing here: nothing in this
+ * tree records which mode id is which. Resolvability does not depend on it, only the label a
+ * given id resolves to. One id belongs to exactly one tier on purpose — `resolveChatModel` refuses
+ * an id two entries both claim, which would make the hex id resolve to nothing.
  */
-export const DEFAULT_HELPER_CHAT_MODEL = 'gpt-6';
-/** Shipped defaults before this one; a config still holding exactly one adopts the current one (config.ts). */
-export const SUPERSEDED_HELPER_CHAT_MODELS: readonly string[] = ['gpt-5.6-sol', 'gpt-6-thinking'];
+export const DEFAULT_GEMINI_MODELS: readonly ChatModelOption[] = [
+  { id: 'gemini-3-fast', label: 'Fast', efforts: ['none'], aliases: ['fbb127bbb056c959'] },
+  { id: 'gemini-3-thinking', label: 'Thinking', efforts: ['none', 'low', 'medium', 'high'], aliases: ['5bf011840784117a'] },
+  { id: 'gemini-3-1-pro', label: 'Pro', efforts: ['none', 'low', 'medium', 'high'], aliases: ['9d8ca3786ebdfbea'] },
+  { id: 'gemini-3-deep-think', label: 'Deep Think', efforts: ['none'], aliases: ['e6fa609c3fa255c0'] }
+];
+
+export const DEFAULT_GEMINI_CHAT_MODEL = 'gemini-3-1-pro';
+
+/**
+ * The model Goal and Loop decisions run on unless Settings chose another.
+ *
+ * NCode's decisions are produced by Gemini Web, not by a ChatGPT connector, so the shipped
+ * helper is a Gemini tier. An account that offers no Thinking lane falls back to Gemini's own
+ * current selection (goal.ts).
+ */
+export const DEFAULT_HELPER_CHAT_MODEL = 'gemini-3-thinking';
+/**
+ * Exactly the shipped defaults from earlier builds; a config still holding one adopts the current
+ * one (config.ts). The ChatGPT ids are here because they are what this file used to name, so an
+ * install that never chose a helper migrates instead of persisting a model no Gemini tab can run.
+ */
+export const SUPERSEDED_HELPER_CHAT_MODELS: readonly string[] = ['gpt-5.6-sol', 'gpt-6-thinking', 'gpt-6'];
 /** Pro silence policy follows the selected provider identity, including the older generation. */
 export function isProModel(model: string | null | undefined, effort?: ReasoningEffort): boolean {
   const normalized = (model ?? '').trim().toLowerCase().replace(/\s+/g, '-');
@@ -70,6 +102,13 @@ export type ChatModelCatalog = {
   requestedAt: number | null;
   observedAt: number | null;
   models: ChatModelOption[];
+  /**
+   * The model the Gemini page reports as its own current selection, when it has said so.
+   *
+   * The page is the authority on which tier it is running; the picker's preference follows it
+   * instead of guessing from labels. Absent until a tab reports, and never send authority on its own.
+   */
+  activeModel?: string | null;
   /** Request progress is not an account observation and never grants Send permission. */
   waiting?: string;
   error?: string;

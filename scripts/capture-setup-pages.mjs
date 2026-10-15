@@ -27,8 +27,8 @@ if (!cdp || !out || !privateWords.length) {
 fs.mkdirSync(out, { recursive: true });
 const LANGS = { en: 'en-US', de: 'de-DE', es: 'es-ES', fr: 'fr-FR', ja: 'ja-JP', ko: 'ko-KR', 'pt-BR': 'pt-BR', 'pt-PT': 'pt-PT',
   ru: 'ru-RU', tr: 'tr-TR', vi: 'vi-VN', 'zh-CN': 'zh-CN', 'zh-TW': 'zh-TW' };
-const PLACEHOLDER = { tunnelId: 'tunnel_0123456789abcdef', tunnelName: 'Chat On Steroids', org: 'org-0123456789', user: 'user-0123456789',
-  workspace: 'Your ChatGPT workspace', core: 'Chat On Steroids Core',
+const PLACEHOLDER = { tunnelId: 'tunnel_0123456789abcdef', tunnelName: 'NCode', org: 'org-0123456789', user: 'user-0123456789',
+  workspace: 'Your ChatGPT workspace', core: 'NCode Core',
   coreDescription: 'Read and edit code and text files on this computer, and run commands in a real terminal.' };
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const manifestPath = path.join(out, 'manifest.json');
@@ -149,7 +149,7 @@ const SCENES = {
     find('button', e => text(e) === 'Create tunnel').click(); await sleep(2000);
     const dialog = document.querySelector('[role=dialog]'); if (!dialog) throw new Error('dialog did not open');
     const name = dialog.querySelector('input'); const description = dialog.querySelector('textarea');
-    setValue(name, 'Chat On Steroids'); setValue(description, 'Core connector for Chat On Steroids'); await sleep(500);
+    setValue(name, 'NCode'); setValue(description, 'Core connector for NCode'); await sleep(500);
     __cos.replaceText(dialog, /org-[A-Za-z0-9]+/g, ${JSON.stringify(PLACEHOLDER.org)});
     const field = label => [...dialog.querySelectorAll('label')].find(l => text(l).startsWith(label)).parentElement.querySelector('[role=button]');
     const workspace = field('ChatGPT workspaces');
@@ -183,7 +183,7 @@ const SCENES = {
     const { find, sleep, rect, text, setValue } = __cos;
     find('button, a', e => /Create new secret key/.test(text(e))).click(); await sleep(2000);
     const dialog = document.querySelector('[role=dialog]'); if (!dialog) throw new Error('dialog did not open');
-    setValue(dialog.querySelector('input'), 'Chat On Steroids');
+    setValue(dialog.querySelector('input'), 'NCode');
     const restricted = find('button[role=radio]', e => text(e) === 'Restricted', dialog); restricted.click(); await sleep(800);
     const project = [...dialog.querySelectorAll('label')].find(l => text(l) === 'Project').parentElement.querySelector('[role=button]');
     const box = rect(dialog), segmented = rect(restricted.parentElement);

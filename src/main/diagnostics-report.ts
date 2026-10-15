@@ -125,7 +125,7 @@ export function renderDiagnosticsReport(sources: DiagnosticsReportSources): stri
         : value;
   const ended = sources.sessions.filter(session => session.endedAt !== null).length;
   const header = [
-    '# Chat On Steroids diagnostics report',
+    '# NCode diagnostics report',
     '',
     `Created ${new Date(sources.now).toISOString()}.`,
     'This file is meant for a bug report. It contains versions, settings (on/off values, numbers and option names),',
@@ -194,7 +194,7 @@ export async function saveDiagnosticsReport(text: string, owner: BrowserWindow |
   const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
   const options = {
     title: 'Save diagnostics report',
-    defaultPath: path.join(app.getPath('downloads'), `chat-on-steroids-diagnostics-${stamp}.txt`),
+    defaultPath: path.join(app.getPath('downloads'), `ncode-diagnostics-${stamp}.txt`),
     filters: [{ name: 'Text', extensions: ['txt'] }]
   };
   const result = owner ? await dialog.showSaveDialog(owner, options) : await dialog.showSaveDialog(options);

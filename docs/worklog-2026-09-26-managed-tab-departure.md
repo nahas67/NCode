@@ -3,7 +3,7 @@
 ## Evidence and decision
 
 Adapted Maximapple's #446 at 1f461e6d03c2d5ea23fe056d0ccc6805f51d8807:
-https://github.com/totec448-spec/chat-on-steroids/pull/446
+https://github.com/totec448-spec/ncode/pull/446
 
 Co-authored-by: Maxim <5410641+Maximapple@users.noreply.github.com>
 
@@ -91,7 +91,7 @@ Internal Windows x64 packaging produced a new installer; packaged-runtime smoke
 passed for resources and native dependencies. Packaged background.js matches the
 reviewed Internal source. The production main bundle is unchanged, as expected.
 
-- Installer: Chat-On-Steroids-Internal-20260926-managed-close-x64.exe
+- Installer: NCode-Internal-20260926-managed-close-x64.exe
 - Size: 173390604 bytes
 - SHA-256: 80BB0A7F0F5F56533118786CA3BC8B18FBBA6E5387D182BC385D8DFEB201B6AE
 - app.asar: 0F41D0F35B0D61940C1E2F1FCE8705A87B1D5287A67B5DFE025B24C79C4963B3

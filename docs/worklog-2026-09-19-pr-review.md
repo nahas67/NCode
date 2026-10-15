@@ -15,14 +15,14 @@ PR metadata, commits, comments, reviews and complete diffs are retained there to
 
 | PR | Last reviewed head | Decision |
 | --- | --- | --- |
-| [#298](https://github.com/totec448-spec/chat-on-steroids/pull/298) | `955ddb7b547d85ae5d1543d5ea0de409a4ae45b9` | Adapt only retirement of an obsolete automatic Continue wait after proven session departure. |
-| [#299](https://github.com/totec448-spec/chat-on-steroids/pull/299) | `38a18dd66017c53d9adf8af45c9459928c17aba9` | Repair the wait caption at its consumer; preserve historical failure counts. |
-| [#300](https://github.com/totec448-spec/chat-on-steroids/pull/300) | `d22ed91adbeabde840666df40701eee7531c5ea0` | Already integrated in the current local HEAD; no duplicate integration. |
-| [#302](https://github.com/totec448-spec/chat-on-steroids/pull/302) | `f2a83df8668b42c59250b4704bcfd1f171c3b7e0` | Leave out the closed divergent fork comparison. |
-| [#303](https://github.com/totec448-spec/chat-on-steroids/pull/303) | `f2a83df8668b42c59250b4704bcfd1f171c3b7e0` | Same divergent fork; the author explicitly said not to merge this upstream comparison. |
-| [#305](https://github.com/totec448-spec/chat-on-steroids/pull/305) | `84f212e1f9cacf8d109a82b1f3329d823a70eb2f` | Adapt claim-based expiry diagnostics on both paths and one absolute three-minute wake attempt. |
-| [#308](https://github.com/totec448-spec/chat-on-steroids/pull/308) | `ed7bb2525de980f7033298a0e8b6e14cb29df791` | Adapt the Windows target-thread focus preparation, extending exception cleanup. |
-| [#309](https://github.com/totec448-spec/chat-on-steroids/pull/309) | `2493f100a83cd0693fe7df37b8f861836c7bf76d` | Hold the broader macOS input-proof changes for a separate revision and native validation. |
+| [#298](https://github.com/totec448-spec/ncode/pull/298) | `955ddb7b547d85ae5d1543d5ea0de409a4ae45b9` | Adapt only retirement of an obsolete automatic Continue wait after proven session departure. |
+| [#299](https://github.com/totec448-spec/ncode/pull/299) | `38a18dd66017c53d9adf8af45c9459928c17aba9` | Repair the wait caption at its consumer; preserve historical failure counts. |
+| [#300](https://github.com/totec448-spec/ncode/pull/300) | `d22ed91adbeabde840666df40701eee7531c5ea0` | Already integrated in the current local HEAD; no duplicate integration. |
+| [#302](https://github.com/totec448-spec/ncode/pull/302) | `f2a83df8668b42c59250b4704bcfd1f171c3b7e0` | Leave out the closed divergent fork comparison. |
+| [#303](https://github.com/totec448-spec/ncode/pull/303) | `f2a83df8668b42c59250b4704bcfd1f171c3b7e0` | Same divergent fork; the author explicitly said not to merge this upstream comparison. |
+| [#305](https://github.com/totec448-spec/ncode/pull/305) | `84f212e1f9cacf8d109a82b1f3329d823a70eb2f` | Adapt claim-based expiry diagnostics on both paths and one absolute three-minute wake attempt. |
+| [#308](https://github.com/totec448-spec/ncode/pull/308) | `ed7bb2525de980f7033298a0e8b6e14cb29df791` | Adapt the Windows target-thread focus preparation, extending exception cleanup. |
+| [#309](https://github.com/totec448-spec/ncode/pull/309) | `2493f100a83cd0693fe7df37b8f861836c7bf76d` | Hold the broader macOS input-proof changes for a separate revision and native validation. |
 
 ## Incorporated changes
 

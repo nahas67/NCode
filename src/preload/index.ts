@@ -5,6 +5,7 @@ import type { GoalModel } from '../shared/goal-reasoning.js';
 import type { TaskProgress } from '../shared/task-progress.js';
 import type { BrowserPreferences } from '../shared/browser-preferences.js';
 import type { SessionControlsView } from '../main/bridge.js';
+import type { NCodeConnectionState } from '../main/ncode-bridge.js';
 import type { InputAttachment } from '../shared/input.js';
 import type { UsageOverview } from '../shared/usage.js';
 import type { InputArgs, InputEntry } from '../main/session/input.js';
@@ -414,6 +415,32 @@ const api = {
     const wrapped = (_event: unknown, state: SwarmState): void => listener(state);
     ipcRenderer.on('swarm:changed', wrapped);
     return () => ipcRenderer.removeListener('swarm:changed', wrapped);
+  },
+  ncodeStartGoal: (goal: string, prompt?: string) => call<boolean>('ncode:startGoal', { goal, prompt }),
+  ncodeSwitchModel: (modelId: string) => call<boolean>('ncode:switchModel', { modelId }),
+  // `ncode:status` spells its answer out inline: `connected` is `extension` under the older name
+  // the send gate uses, and the rest of the record is the three components the popover paints.
+  ncodeGetStatus: () => call<{ connected: boolean; bridge: boolean; extension: boolean; geminiTab: boolean; paired: boolean; modelsSynced: boolean; activeModel: string | null; geminiTabs: number; plan: any[]; checkpoint: any; finish: string | null }>('ncode:status'),
+  ncodeRequestCheckpoint: () => call<boolean>('ncode:requestCheckpoint'),
+  onNCodePlan: (listener: (plan: any[]) => void): (() => void) => {
+    const wrapped = (_event: unknown, plan: any[]): void => listener(plan);
+    ipcRenderer.on('ncode:plan', wrapped);
+    return () => ipcRenderer.removeListener('ncode:plan', wrapped);
+  },
+  onNCodeCheckpoint: (listener: (checkpoint: any) => void): (() => void) => {
+    const wrapped = (_event: unknown, checkpoint: any): void => listener(checkpoint);
+    ipcRenderer.on('ncode:checkpoint', wrapped);
+    return () => ipcRenderer.removeListener('ncode:checkpoint', wrapped);
+  },
+  onNCodeFinish: (listener: (summary: string) => void): (() => void) => {
+    const wrapped = (_event: unknown, summary: string): void => listener(summary);
+    ipcRenderer.on('ncode:finish', wrapped);
+    return () => ipcRenderer.removeListener('ncode:finish', wrapped);
+  },
+  onNCodeConnection: (listener: (state: NCodeConnectionState) => void): (() => void) => {
+    const wrapped = (_event: unknown, state: NCodeConnectionState): void => listener(state);
+    ipcRenderer.on('ncode:connection', wrapped);
+    return () => ipcRenderer.removeListener('ncode:connection', wrapped);
   }
 };
 

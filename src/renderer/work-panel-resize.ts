@@ -1,6 +1,6 @@
 import { t, ui } from './i18n.js';
 
-const STORAGE_KEY = 'chat-on-steroids.work-panel-width';
+const STORAGE_KEY = 'ncode.work-panel-width';
 const MIN_WIDTH = 280;
 const MIN_MAIN_WIDTH = 360;
 

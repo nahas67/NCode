@@ -2,7 +2,7 @@
 
 The **Plugins** page in the app's sidebar manages external MCP integrations. Core and Desktop keep their existing
 connectors, permissions and tool registration. Plugins uses a third, separately tokenized
-endpoint and the shared **Chat On Steroids Plugins** connector.
+endpoint and the shared **NCode Plugins** connector.
 
 The [responsible-use notice](../README.md#responsible-use-and-provider-rules) applies to plugins too. Each external service retains its own terms, permissions and usage limits. Installing or enabling a plugin does not authorize routing a provider-blocked action through it or bypassing an account restriction.
 
@@ -12,7 +12,7 @@ The [responsible-use notice](../README.md#responsible-use-and-provider-rules) ap
    With OpenAI Secure Tunnels, create a separate Plugins tunnel, enter its ID in
    the dialog, and choose **Save & connect**. The existing API key and tunnel executable are reused.
    Cloudflare/manual transports publish the Plugins endpoint at its separate path.
-2. Create the **Chat On Steroids Plugins** connector in ChatGPT under **Plugins → Add → Add custom MCP server**,
+2. Create the **NCode Plugins** connector in ChatGPT under **Plugins → Add → Add custom MCP server**,
    using the displayed name and description and the Plugins tunnel (or MCP URL). Keep the CoS connection running.
 3. On the app's **Plugins** page, click **+**. Choose a reviewed catalog recipe or a custom server. Review
    installation instructions and supply credentials in the secure fields.
@@ -20,7 +20,7 @@ The [responsible-use notice](../README.md#responsible-use-and-provider-rules) ap
    requires its addon to answer a read-only scene probe. Local readiness does not prove
    that ChatGPT has enrolled the connector or refreshed its tools.
 5. A persistent reminder and **Open ChatGPT plugins** action stay visible above the installed list.
-   Successful installation, configuration and tool-policy changes also display a reminder to refresh the **Chat On Steroids Plugins** connector in ChatGPT. Refresh the connector in ChatGPT after changing enabled tools, or enable CoS's existing
+   Successful installation, configuration and tool-policy changes also display a reminder to refresh the **NCode Plugins** connector in ChatGPT. Refresh the connector in ChatGPT after changing enabled tools, or enable CoS's existing
    automatic connector refresh. Existing conversations can retain cached declarations;
    disabled tools refuse stale calls immediately.
 

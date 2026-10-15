@@ -6,7 +6,7 @@
     "message": "die App hat nicht geantwortet"
   },
   "content_app_not_running": {
-    "message": "Chat On Steroids läuft auf diesem PC nicht."
+    "message": "NCode läuft auf diesem PC nicht."
   },
   "content_auto_compaction": {
     "message": "Automatisches Komprimieren"
@@ -36,10 +36,10 @@
     "message": "das Eingabefeld hat sich vor dem Senden des Starttexts geändert; der Entwurf blieb erhalten"
   },
   "content_bootstrap_composer_replaced": {
-    "message": "ChatGPT hat das Eingabefeld beim Einfügen des Starttexts ersetzt"
+    "message": "Gemini hat das Eingabefeld beim Einfügen des Starttexts ersetzt"
   },
   "content_bootstrap_composer_unavailable": {
-    "message": "ChatGPT hat nach der Modellauswahl kein nutzbares Eingabefeld mehr angezeigt"
+    "message": "Gemini hat nach der Modellauswahl kein nutzbares Eingabefeld mehr angezeigt"
   },
   "content_bootstrap_fresh_chat_changed": {
     "message": "der markierte neue Chat hat sich vor dem Senden des Starttexts geändert; es wurde nichts gesendet"
@@ -48,19 +48,19 @@
     "message": "Die Übergabe-Zusammenfassung, die diese App übernommen hat – nicht von dir getippt"
   },
   "content_bootstrap_insert_refused": {
-    "message": "ChatGPT hat den eingefügten Text abgelehnt$1"
+    "message": "Gemini hat den eingefügten Text abgelehnt$1"
   },
   "content_bootstrap_missing_target": {
     "message": "er wurde einem bereits bestehenden Chat angeboten und nennt keinen"
   },
   "content_bootstrap_model_unavailable": {
-    "message": "Das gewünschte Modell oder die Denkstufe ist in ChatGPT nicht verfügbar oder konnte nicht bestätigt werden"
+    "message": "Das gewünschte Modell oder die Denkstufe ist in Gemini nicht verfügbar oder konnte nicht bestätigt werden"
   },
   "content_bootstrap_project_not_authorized": {
     "message": "der Befehl hat das Öffnen des Projekts nicht erlaubt; es wurde nichts gesendet"
   },
   "content_bootstrap_project_open_failed": {
-    "message": "ChatGPT konnte das Quellprojekt nicht über seinen eigenen Link öffnen; es wurde nichts gesendet"
+    "message": "Gemini konnte das Quellprojekt nicht über seinen eigenen Link öffnen; es wurde nichts gesendet"
   },
   "content_bootstrap_project_source_changed": {
     "message": "das Projekt passt nicht mehr zur Quellunterhaltung; es wurde nichts gesendet"
@@ -69,7 +69,7 @@
     "message": "der Starttext zum Fortsetzen hatte keine gültige Fortsetzungsmarke"
   },
   "content_bootstrap_send_not_accepted": {
-    "message": "ChatGPT hat das Senden des Starttexts nicht angenommen"
+    "message": "Gemini hat das Senden des Starttexts nicht angenommen"
   },
   "content_bootstrap_target_changed": {
     "message": "der Chat, für den diese Nachricht gedacht war, hat sich vor dem Senden geändert; es wurde nichts gesendet"
@@ -81,7 +81,7 @@
     "message": "die dafür geöffnete Seite zeigte eine andere Unterhaltung"
   },
   "content_browser_disconnected": {
-    "message": "Die Browserverbindung in Chat On Steroids ist getrennt."
+    "message": "Die Browserverbindung in NCode ist getrennt."
   },
   "content_cancel": {
     "message": "Abbrechen"
@@ -90,16 +90,16 @@
     "message": "Chat blockiert"
   },
   "content_chat_blocked_tip": {
-    "message": "Dieser Chat ist in der App Chat On Steroids blockiert: Seine Tool-Aufrufe werden abgelehnt, und Goal, Loop und automatisches Komprimieren sind aus. Zum Freigeben öffnest du in der App den Tab „Chat“, zeigst in der Sitzungsliste auf diesen Chat und klickst auf sein Blockiersymbol."
+    "message": "Dieser Chat ist in der App NCode blockiert: Seine Tool-Aufrufe werden abgelehnt, und Goal, Loop und automatisches Komprimieren sind aus. Zum Freigeben öffnest du in der App den Tab „Chat“, zeigst in der Sitzungsliste auf diesen Chat und klickst auf sein Blockiersymbol."
   },
   "content_chat_still_opening": {
     "message": "dieser Chat wird noch geöffnet – versuch es gleich noch einmal"
   },
   "content_chatgpt_message_box_not_ready": {
-    "message": "Das Nachrichtenfeld von ChatGPT ist nicht bereit ($1). Warte, bis die Seite geladen ist, und versuch es erneut."
+    "message": "Das Nachrichtenfeld von Gemini ist nicht bereit ($1). Warte, bis die Seite geladen ist, und versuch es erneut."
   },
   "content_chatgpt_tool": {
-    "message": "ChatGPT-Tool"
+    "message": "Gemini-Tool"
   },
   "content_clear": {
     "message": "Leeren"
@@ -120,7 +120,7 @@
     "message": "$1. Der gespeicherte Versuch wird nicht zweimal gesendet."
   },
   "content_compact_attempt_owned": {
-    "message": "Der gespeicherte Übergabeversuch läuft bereits; die markierte Nachricht in ChatGPT wird abgeglichen."
+    "message": "Der gespeicherte Übergabeversuch läuft bereits; die markierte Nachricht in Gemini wird abgeglichen."
   },
   "content_compact_blocked_unavailable_hint": {
     "message": "Ein blockierter Chat wird nie komprimiert oder fortgesetzt: Der Ersatz-Chat liefe ohne seine Tools. Gib ihn zuerst in der App frei."
@@ -150,10 +150,10 @@
     "message": "Dieser Chat hat sich geändert, während das Komprimieren auf lokale Tools gewartet hat."
   },
   "content_compact_chatgpt_writing": {
-    "message": "ChatGPT schreibt die Übergabe"
+    "message": "Gemini schreibt die Übergabe"
   },
   "content_compact_existing_draft": {
-    "message": "In ChatGPT steht schon ein Entwurf; leere das Nachrichtenfeld, bevor du die Übergabe anforderst."
+    "message": "In Gemini steht schon ein Entwurf; leere das Nachrichtenfeld, bevor du die Übergabe anforderst."
   },
   "content_compact_failed": {
     "message": "Komprimieren fehlgeschlagen"
@@ -171,10 +171,10 @@
     "message": "Die Übergabe-Antwort wurde nicht fertig. Brich das Komprimieren ab, um zu diesem Chat zurückzukehren."
   },
   "content_compact_handoff_problem": {
-    "message": "ChatGPT hat beim Vorbereiten der Übergabe ein Problem gemeldet."
+    "message": "Gemini hat beim Vorbereiten der Übergabe ein Problem gemeldet."
   },
   "content_compact_handoff_request_failed": {
-    "message": "ChatGPT konnte nicht um eine Übergabe gebeten werden: $1"
+    "message": "Gemini konnte nicht um eine Übergabe gebeten werden: $1"
   },
   "content_compact_handoff_stopped_detail": {
     "message": "Die Übergabe-Antwort wurde gestoppt. Brich das Komprimieren ab, um zu diesem Chat zurückzukehren."
@@ -204,7 +204,7 @@
     "message": "Es ließ sich nicht prüfen, ob dieser Chat komprimiert werden darf."
   },
   "content_compact_results_unconfirmed": {
-    "message": "ChatGPT hat den Empfang der letzten Tool-Ergebnisse nicht bestätigt. Es wurde nichts komprimiert."
+    "message": "Gemini hat den Empfang der letzten Tool-Ergebnisse nicht bestätigt. Es wurde nichts komprimiert."
   },
   "content_compact_resume_cancelled": {
     "message": "Fortsetzen abgebrochen"
@@ -213,7 +213,7 @@
     "message": "Jetzt komprimieren & fortsetzen"
   },
   "content_compact_send_ambiguous": {
-    "message": "Das Ergebnis des Sendens war unklar. Nichts wird doppelt gesendet; brich ausdrücklich ab, falls ChatGPT es nie angenommen hat."
+    "message": "Das Ergebnis des Sendens war unklar. Nichts wird doppelt gesendet; brich ausdrücklich ab, falls Gemini es nie angenommen hat."
   },
   "content_compact_send_not_ready": {
     "message": "Die Übergabe-Anfrage wurde nicht gesendet, weil die Senden-Schaltfläche oder das Nachrichtenfeld nicht bereit war. Versuch es erneut, wenn die Seite bereit ist."
@@ -246,7 +246,7 @@
     "message": "Übergabe schreiben"
   },
   "content_compact_stop_failed": {
-    "message": "ChatGPT hat den laufenden Durchlauf nicht gestoppt. Es wurde nichts komprimiert."
+    "message": "Gemini hat den laufenden Durchlauf nicht gestoppt. Es wurde nichts komprimiert."
   },
   "content_compact_stopping": {
     "message": "Wird gestoppt …"
@@ -285,7 +285,7 @@
     "message": "Die Plugin-Aktualisierung ließ sich nicht prüfen"
   },
   "content_connector_schema_no_refresh": {
-    "message": "Das Plugin-Schema weicht ab, aber ChatGPT bietet keine Schaltfläche zum Aktualisieren. Erstelle oder veröffentliche dieses Plugin neu, um das aktuelle Tool-Schema zu laden."
+    "message": "Das Plugin-Schema weicht ab, aber Gemini bietet keine Schaltfläche zum Aktualisieren. Erstelle oder veröffentliche dieses Plugin neu, um das aktuelle Tool-Schema zu laden."
   },
   "content_connector_settings_unreadable": {
     "message": "Die Plugin-Einstellungen ließen sich auf der Seite dieser Anfrage nicht lesen"
@@ -300,7 +300,7 @@
     "message": "Die Übertragung des Anhangs war unvollständig."
   },
   "content_delivery_attachment_upload_unconfirmed": {
-    "message": "Das Hochladen des Anhangs wurde nicht bestätigt. Prüfe den ungesendeten Entwurf und mögliche Dateifehler in ChatGPT, bevor du es erneut versuchst."
+    "message": "Das Hochladen des Anhangs wurde nicht bestätigt. Prüfe den ungesendeten Entwurf und mögliche Dateifehler in Gemini, bevor du es erneut versuchst."
   },
   "content_delivery_chat_changed": {
     "message": "Der Chat hat sich vor der direkten Zustellung geändert."
@@ -309,19 +309,19 @@
     "message": "Der Chat hat sich geändert oder nicht gestoppt. Die Nachricht wurde nicht gesendet."
   },
   "content_delivery_composer_changed": {
-    "message": "Das Eingabefeld von ChatGPT hat sich vor dem Senden geändert"
+    "message": "Das Eingabefeld von Gemini hat sich vor dem Senden geändert"
   },
   "content_delivery_composer_stuck": {
-    "message": "ChatGPT hat die Antwort beendet, aber das Eingabefeld hängt noch auf „Stopp“. Die Seite wird wiederhergestellt, bevor die wartende Nachricht zugestellt wird."
+    "message": "Gemini hat die Antwort beendet, aber das Eingabefeld hängt noch auf „Stopp“. Die Seite wird wiederhergestellt, bevor die wartende Nachricht zugestellt wird."
   },
   "content_delivery_draft_preserved": {
     "message": "Das Eingabefeld hat sich geändert; dein Entwurf blieb erhalten"
   },
   "content_delivery_editor_not_writable": {
-    "message": "Das Eingabefeld von ChatGPT wurde vor dem Senden nicht beschreibbar."
+    "message": "Das Eingabefeld von Gemini wurde vor dem Senden nicht beschreibbar."
   },
   "content_delivery_existing_draft": {
-    "message": "In ChatGPT steht bereits ein ungesendeter Entwurf. Sende oder leere ihn in Chrome, bevor du es erneut versuchst."
+    "message": "In Gemini steht bereits ein ungesendeter Entwurf. Sende oder leere ihn in Chrome, bevor du es erneut versuchst."
   },
   "content_delivery_model_unconfirmed": {
     "message": "Das gewünschte Modell oder die Denkstufe ließ sich nicht bestätigen"
@@ -333,7 +333,7 @@
     "message": "Der temporäre Chat wurde nicht bestätigt. Öffne den Helfer-Tab und schließ dort die Einführung zum temporären Chat ab."
   },
   "content_delivery_text_not_accepted": {
-    "message": "ChatGPT hat den Text nicht angenommen$1"
+    "message": "Gemini hat den Text nicht angenommen$1"
   },
   "content_delivery_turn_changed": {
     "message": "Der Durchlauf hat sich vor der direkten Zustellung geändert."
@@ -351,7 +351,7 @@
     "message": "Für diesen Chat gibt es noch keine aufgezeichnete lokale Sitzung."
   },
   "content_error_turn_still_generating": {
-    "message": "Warte zuerst, bis dieser ChatGPT-Durchlauf fertig ist."
+    "message": "Warte zuerst, bis dieser Gemini-Durchlauf fertig ist."
   },
   "content_failed": {
     "message": "Fehlgeschlagen"
@@ -372,7 +372,7 @@
     "message": "$1 antwortet"
   },
   "content_goal_backend_chatgpt_helper": {
-    "message": "ChatGPT-Helfer"
+    "message": "Gemini-Helfer"
   },
   "content_goal_backend_custom_endpoint": {
     "message": "eigener Endpunkt"
@@ -414,7 +414,7 @@
     "message": "Goal-Modus"
   },
   "content_goal_new_chat_draft_refused": {
-    "message": "ChatGPT hat den Entwurf im neuen Chat nicht ersetzt"
+    "message": "Gemini hat den Entwurf im neuen Chat nicht ersetzt"
   },
   "content_goal_no_api_key_unavailable": {
     "message": "Kein API-Schlüssel – Goal und Loop nicht verfügbar"
@@ -459,13 +459,13 @@
     "message": "das Goal konnte nicht in diesem Chat gespeichert werden"
   },
   "content_goal_send_failed": {
-    "message": "ChatGPT hat die Nachricht nicht gesendet"
+    "message": "Gemini hat die Nachricht nicht gesendet"
   },
   "content_goal_sending_answer_to": {
     "message": "Die Antwort wird an $1 gesendet"
   },
   "content_goal_sending_to_chatgpt": {
-    "message": "Wird an ChatGPT gesendet"
+    "message": "Wird an Gemini gesendet"
   },
   "content_goal_status_dismiss": {
     "message": "Goal-Status schließen"
@@ -489,7 +489,7 @@
     "message": "Warte vor dem Neuladen zur Wiederherstellung"
   },
   "content_goal_wait_resumed": {
-    "message": "ChatGPT arbeitet wieder · Warte vor neuem Versuch"
+    "message": "Gemini arbeitet wieder · Warte vor neuem Versuch"
   },
   "content_goal_wait_running_tools": {
     "message": "Warte auf laufende Tools"
@@ -585,7 +585,7 @@
     "message": "Wird gespeichert …"
   },
   "content_settings_aria": {
-    "message": "Einstellungen von Chat On Steroids"
+    "message": "Einstellungen von NCode"
   },
   "content_stage_handoff_attention": {
     "message": "Die Übergabe-Antwort braucht deine Aufmerksamkeit"
@@ -672,7 +672,7 @@
     "message": "Automatisches Weiter hat einen unveränderten stillen Durchlauf gestoppt."
   },
   "content_turn_chatgpt_interrupted": {
-    "message": "ChatGPT hat den Durchlauf als unterbrochen markiert"
+    "message": "Gemini hat den Durchlauf als unterbrochen markiert"
   },
   "content_turn_outcome": {
     "message": "Durchlauf $1"
@@ -735,13 +735,13 @@
     "message": "Schreibt …"
   },
   "extension_action_title": {
-    "message": "Chat On Steroids"
+    "message": "NCode"
   },
   "extension_description": {
-    "message": "Verbindet ChatGPT mit Chat On Steroids und steuert Browser-Tabs im Hintergrund über DOM, Screenshots und Entwicklertools."
+    "message": "Verbindet Gemini mit NCode und steuert Browser-Tabs im Hintergrund über DOM, Screenshots und Entwicklertools."
   },
   "extension_name": {
-    "message": "Chat On Steroids Browser-Erweiterung"
+    "message": "NCode Browser-Erweiterung"
   },
   "popup_advanced": {
     "message": "Erweitert"
@@ -770,8 +770,8 @@
   "popup_chat_id": {
     "message": "Chat-ID"
   },
-  "popup_chatgpt_tab": {
-    "message": "ChatGPT-Tab"
+  "popup_gemini_tab": {
+    "message": "Gemini-Tab"
   },
   "popup_confirmed": {
     "message": "bestätigt"
@@ -878,8 +878,8 @@
   "popup_no_record": {
     "message": "kein Eintrag"
   },
-  "popup_overwrite_chatgpt": {
-    "message": "ChatGPT überschreiben"
+  "popup_overwrite_gemini": {
+    "message": "Gemini überschreiben"
   },
   "popup_owner_confirmed": {
     "message": "Zuständigkeit bestätigt"
@@ -900,7 +900,7 @@
     "message": "Die App hat die letzte Zustellung abgelehnt ($1)."
   },
   "popup_pipeline_extension_blocked": {
-    "message": "Die Erweiterung nimmt die Beobachtungen dieses Tabs nicht an ($1). Lade den ChatGPT-Tab neu."
+    "message": "Die Erweiterung nimmt die Beobachtungen dieses Tabs nicht an ($1). Lade den Gemini-Tab neu."
   },
   "popup_pipeline_id_found_waiting_receipt": {
     "message": "ID im letzten Durchlauf gefunden. Warte auf die Empfangsbestätigung der App."
@@ -944,14 +944,14 @@
   "popup_request_id_found": {
     "message": "Request-ID gefunden"
   },
-  "popup_section_augment_chatgpt": {
-    "message": "ChatGPT erweitern"
+  "popup_section_augment_gemini": {
+    "message": "Gemini erweitern"
   },
   "popup_section_session_capture": {
     "message": "Sitzungsaufzeichnung"
   },
   "popup_secure_storage_unavailable": {
-    "message": "Sicherer Speicher für Zugangsdaten ist nicht verfügbar. Öffne Chat On Steroids für eine Anleitung."
+    "message": "Sicherer Speicher für Zugangsdaten ist nicht verfügbar. Öffne NCode für eine Anleitung."
   },
   "popup_sent_to_app": {
     "message": "An die App gesendet"
@@ -1038,13 +1038,13 @@
     "message": "Erneut versuchen"
   },
   "popup_version_mismatch_help": {
-    "message": "App v$1 (Protokoll $2); Erweiterung v$3 (Protokoll $4). Öffne die Erweiterungsseite deines Browsers, aktiviere den Entwicklermodus und klicke bei dieser Erweiterung auf „Aktualisieren“ bzw. „Neu laden“. Bleibt der Unterschied bestehen, nutze in Chat On Steroids „Erweiterungsordner öffnen“ und lade diesen Ordner. Lade ChatGPT-Tabs neu, sobald ihre laufende Arbeit fertig ist."
+    "message": "App v$1 (Protokoll $2); Erweiterung v$3 (Protokoll $4). Öffne die Erweiterungsseite deines Browsers, aktiviere den Entwicklermodus und klicke bei dieser Erweiterung auf „Aktualisieren“ bzw. „Neu laden“. Bleibt der Unterschied bestehen, nutze in NCode „Erweiterungsordner öffnen“ und lade diesen Ordner. Lade Gemini-Tabs neu, sobald ihre laufende Arbeit fertig ist."
   },
   "popup_yes": {
     "message": "ja"
   },
   "content_goal_error_loop_mcp_call_missing": {
-    "message": "In der letzten Antwort wurde kein MCP-Tool-Aufruf aufgezeichnet. ChatGPT stellt möglicherweise eine Frage, oder die Verbindung zu den Tools wurde unterbrochen. Beantworte die Frage oder prüfe den Tunnel, falls die Tools nicht mehr funktionieren. Die automatische Fortsetzung ist pausiert; Loop bleibt aktiv."
+    "message": "In der letzten Antwort wurde kein MCP-Tool-Aufruf aufgezeichnet. Gemini stellt möglicherweise eine Frage, oder die Verbindung zu den Tools wurde unterbrochen. Beantworte die Frage oder prüfe den Tunnel, falls die Tools nicht mehr funktionieren. Die automatische Fortsetzung ist pausiert; Loop bleibt aktiv."
   },
   "content_goal_error_goal_reply_not_pending": {
     "message": "Für diese Antwort gibt es keine ausstehende Fortsetzung. Sie wurde vielleicht schon erledigt oder durch neuere Arbeit ersetzt. Prüfe die letzte Chat-Aktivität, bevor du es erneut versuchst."
@@ -1062,7 +1062,7 @@
     "message": "Die Antwort des Anbieters hat das Größenlimit überschritten. Wähle ein anderes Modell für die Fortsetzung oder verlange kürzere Antworten."
   },
   "content_goal_error_no_api_key": {
-    "message": "Für den Anbieter der Fortsetzung ist kein API-Schlüssel eingerichtet. Füge in den Einstellungen einen hinzu oder wähle ChatGPT als Quelle für die Fortsetzung."
+    "message": "Für den Anbieter der Fortsetzung ist kein API-Schlüssel eingerichtet. Füge in den Einstellungen einen hinzu oder wähle Gemini als Quelle für die Fortsetzung."
   },
   "content_goal_error_auth_rejected": {
     "message": "Der Anbieter der Fortsetzung hat die API-Zugangsdaten abgelehnt. Prüfe den API-Schlüssel und die Zugriffsrechte in den Einstellungen."
@@ -1077,7 +1077,7 @@
     "message": "Der eigene Endpunkt für die Fortsetzung ist ungültig. Prüfe die URL in den Einstellungen; nutze HTTPS oder einen lokalen HTTP-Endpunkt."
   },
   "content_history_rate_limited": {
-    "message": "ChatGPT hat den Zugriff auf diesen Chatverlauf vorübergehend begrenzt. Chat On Steroids pausiert die automatische Wiederherstellung bis zum Ablauf der Wartezeit."
+    "message": "Gemini hat den Zugriff auf diesen Chatverlauf vorübergehend begrenzt. NCode pausiert die automatische Wiederherstellung bis zum Ablauf der Wartezeit."
   },
   "content_goal_error_rate_limited": {
     "message": "Der Anbieter der Fortsetzung drosselt die Anfragen. Warte auf den angezeigten neuen Versuch oder wähle ein anderes Modell für die Fortsetzung."
@@ -1095,10 +1095,10 @@
     "message": "Die Anfrage an den Helfer wurde abgebrochen. Starte sie erneut, wenn du weitermachen willst."
   },
   "content_goal_error_goal_browser_send_failed": {
-    "message": "Der Prompt an den Helfer konnte ChatGPT nicht zugestellt werden. Öffne den Helfer-Chat und prüfe das Eingabefeld oder den angezeigten Fehler, bevor du es erneut versuchst."
+    "message": "Der Prompt an den Helfer konnte Gemini nicht zugestellt werden. Öffne den Helfer-Chat und prüfe das Eingabefeld oder den angezeigten Fehler, bevor du es erneut versuchst."
   },
   "content_goal_error_goal_browser_send_unconfirmed": {
-    "message": "Die App konnte nicht bestätigen, ob ChatGPT den Prompt des Helfers erhalten hat. Prüfe den Helfer-Chat, bevor du es erneut versuchst, damit nichts doppelt gesendet wird."
+    "message": "Die App konnte nicht bestätigen, ob Gemini den Prompt des Helfers erhalten hat. Prüfe den Helfer-Chat, bevor du es erneut versuchst, damit nichts doppelt gesendet wird."
   },
   "content_goal_error_goal_owned_elsewhere": {
     "message": "Ein anderer Browser-Tab kümmert sich um diese Fortsetzung. Den Fortschritt siehst du in diesem Tab."
@@ -1167,6 +1167,26 @@
     "message": "Fehlgeschlagen. Anmeldung in CoS neu starten."
   },
   "popup_app_not_running_help": {
-    "message": "Stelle sicher, dass Chat On Steroids auf diesem Computer geöffnet ist. Die Browser-Erweiterung verbindet sich dann von selbst."
+    "message": "Stelle sicher, dass NCode auf diesem Computer geöffnet ist. Die Browser-Erweiterung verbindet sich dann von selbst."
+  },
+  "popup_status_active": {
+    "message": "aktiv",
+    "description": "NCode recorder row value: the Gemini content script is active on this tab."
+  },
+  "popup_status_connected": {
+    "message": "verbunden",
+    "description": "NCode reaching-the-app row value: the Gemini tab is connected to the local NCode bridge."
+  },
+  "popup_status_ready": {
+    "message": "bereit",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_pipeline_waiting_gemini_recorder": {
+    "message": "Warte darauf, dass der Recorder der Seite etwas meldet.",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_detail_gemini_observed": {
+    "message": "$1 Anfragen · $2 Fragmente",
+    "description": "NCode Gemini recorder evidence shown in the popup."
   }
 }

@@ -5,10 +5,10 @@ left intact. This is a source integration; no commit, remote merge, release or i
 
 | PR | Reviewed head | Decision |
 | --- | --- | --- |
-| [#331](https://github.com/totec448-spec/chat-on-steroids/pull/331), cXSHoz | `76de25ca99f392746a4512ef0dd91ea6da6201eb` | Incorporate the one-line catalog translation in `dom.run()`. |
-| [#324](https://github.com/totec448-spec/chat-on-steroids/pull/324), Maximapple | `bfee178667e51728d5374ff19f174231e3cf42bd` | Adapt the shutdown fix with one shared teardown and explicit late-handle retirement. |
-| [#325](https://github.com/totec448-spec/chat-on-steroids/pull/325), Maximapple | `e88a210ecbf98dd379f2f9c915b94748ef8adbaa` | Do not incorporate the immediate exit/kill chain. |
-| [#309](https://github.com/totec448-spec/chat-on-steroids/pull/309), Masatoshi Shisaka | `1fa5383b71a1dc39f32c6ba74750a0e2cd2e2f0e` | Incorporate only the contradictory AX window-ID guard. |
+| [#331](https://github.com/totec448-spec/ncode/pull/331), cXSHoz | `76de25ca99f392746a4512ef0dd91ea6da6201eb` | Incorporate the one-line catalog translation in `dom.run()`. |
+| [#324](https://github.com/totec448-spec/ncode/pull/324), Maximapple | `bfee178667e51728d5374ff19f174231e3cf42bd` | Adapt the shutdown fix with one shared teardown and explicit late-handle retirement. |
+| [#325](https://github.com/totec448-spec/ncode/pull/325), Maximapple | `e88a210ecbf98dd379f2f9c915b94748ef8adbaa` | Do not incorporate the immediate exit/kill chain. |
+| [#309](https://github.com/totec448-spec/ncode/pull/309), Masatoshi Shisaka | `1fa5383b71a1dc39f32c6ba74750a0e2cd2e2f0e` | Incorporate only the contradictory AX window-ID guard. |
 
 ## Integration decisions
 

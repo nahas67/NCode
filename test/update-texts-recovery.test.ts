@@ -22,7 +22,7 @@ const keys = [
   "Could not confirm the plugin's current tool definitions in ChatGPT.",
   "Choose Update all to check the installed plugin's tool definitions.",
   "In ChatGPT's plugin settings, refresh or recreate this plugin, then choose Update all to recheck.",
-  "Finish active work and fully quit Chat On Steroids. Replace the app in /Applications, then open the updated app from there.",
+  "Finish active work and fully quit NCode. Replace the app in /Applications, then open the updated app from there.",
   "Choose Review setup to check macOS permissions, then fully quit and reopen the app.",
   "Choose Update all to check for updates and update the app.",
   "Could not verify the saved plugin against the current tool definitions.",

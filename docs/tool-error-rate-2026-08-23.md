@@ -1,7 +1,7 @@
 # Tool error-rate audit — 2026-08-23
 
 This is the frozen evidence and implementation record for the 2026-08-23 review of recent
-Chat On Steroids tool calls. It exists separately from `TOOL_CALL_ISSUES.md` so later cleanup of
+NCode tool calls. It exists separately from `TOOL_CALL_ISSUES.md` so later cleanup of
 that working issue file cannot erase the denominator, the projection correction, or the exact
 reason each fix was accepted.
 

@@ -4,7 +4,7 @@
 
 Base: upstream main `797bea64f0c0304f65632faa73334ea477b5c45b`.
 Adapt only the native send-listener lifetime correction proposed by @Gokuencinar in
-[#392](https://github.com/totec448-spec/chat-on-steroids/pull/392), previously exercised
+[#392](https://github.com/totec448-spec/ncode/pull/392), previously exercised
 in the fork. Do not import that PR's other changes or the fork's cumulative commits.
 Commit attribution: `Co-authored-by: Gokuencinar <Gokuencinar@users.noreply.github.com>`.
 

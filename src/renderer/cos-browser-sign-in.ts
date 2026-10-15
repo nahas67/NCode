@@ -83,7 +83,7 @@ function paint(state: SignInState): void {
   $('lead').hidden = done;
   paintOptions(state);
   $('empty').hidden = waiting || state.browsers.length > 0;
-  $('empty').textContent = t('Install Chrome, Edge or Brave with the Chat On Steroids extension, then try again.');
+  $('empty').textContent = t('Install Chrome, Edge or Brave with the NCode extension, then try again.');
 
   $('notice').hidden = state.notice === null;
   $('notice').textContent = state.notice === 'launch_failed'

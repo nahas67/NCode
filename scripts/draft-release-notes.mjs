@@ -34,7 +34,7 @@ export function draftReleaseNotes({ since, prs }) {
 async function github(path, token) {
   const response = await fetch(`${API}${path}`, { headers: {
     Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'chat-on-steroids-release-notes' } });
+    'User-Agent': 'ncode-release-notes' } });
   if (!response.ok) throw new Error(`GitHub ${path} failed with HTTP ${response.status}`);
   return response.json();
 }

@@ -5,7 +5,7 @@ The catalog ships original, code-drawn SVG illustrations in `src/renderer/plugin
 `unity.svg`, and `custom.svg`. The earlier `time.svg`, `thinking.svg`, `git.svg` and
 `filesystem.svg` remain for existing installations whose recipes left Explore.
 
-Copyright (c) 2026 Chat On Steroids contributors. These assets use the repository's MIT
+Copyright (c) 2026 NCode contributors. These assets use the repository's MIT
 license, including its permission and warranty notice in `LICENSE`. No external logo
 assets were copied. The icons illustrate the integration's subject (3D, connected
 memory, browser automation, web retrieval, and connectivity), and are not official

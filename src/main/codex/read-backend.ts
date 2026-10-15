@@ -1,7 +1,7 @@
 /**
  * `read`'s filesystem backend, rebuilt on Codex's primitives.
  *
- * Codex exposes no model-visible `read`, so this tool stays a Chat On Steroids convenience:
+ * Codex exposes no model-visible `read`, so this tool stays a NCode convenience:
  * the schema, the section headers and the line numbering are unchanged. What changed is
  * everything underneath. Where the old implementation opened files itself, this module reaches the
  * disk only through `filesystem.ts` -- `getMetadata`, `readDirectory`, `readFileStream`, `walk` --

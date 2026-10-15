@@ -30,7 +30,7 @@ export const sizeNote = lines => `${SIZE_MARK}
 Thanks for the PR! It changes about ${lines} lines outside tests, translations and docs. Large PRs take much longer to review, so if this covers more than one topic, splitting it up usually gets it merged faster. If it is one topic that simply needs the space, ignore this note.`;
 
 export const WELCOME = `${WELCOME_MARK}
-Thanks for your first pull request, and welcome! 👋 The short version of [CONTRIBUTING.md](https://github.com/totec448-spec/chat-on-steroids/blob/main/CONTRIBUTING.md):
+Thanks for your first pull request, and welcome! 👋 The short version of [CONTRIBUTING.md](https://github.com/totec448-spec/ncode/blob/main/CONTRIBUTING.md):
 1. Explain why and what in the description (no separate issue needed), and keep one topic per PR.
 2. Add a test that fails without your change; the "Fail-first test" check confirms it.
 3. For interface changes, add before and after screenshots.
@@ -56,7 +56,7 @@ export function triage({ pr, files, comments }) {
 
 async function github(path, token, init = {}) {
   const response = await fetch(`${API}${path}`, { ...init, headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'chat-on-steroids-pr-triage', ...(init.headers ?? {}) } });
+    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ncode-pr-triage', ...(init.headers ?? {}) } });
   if (!response.ok) throw new Error(`GitHub ${path} failed with HTTP ${response.status}`);
   return response.json();
 }

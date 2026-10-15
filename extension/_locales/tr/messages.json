@@ -6,7 +6,7 @@
     "message": "uygulama yanıt vermedi"
   },
   "content_app_not_running": {
-    "message": "Chat On Steroids bu bilgisayarda çalışmıyor."
+    "message": "NCode bu bilgisayarda çalışmıyor."
   },
   "content_auto_compaction": {
     "message": "Otomatik sıkıştırma"
@@ -36,10 +36,10 @@
     "message": "başlangıç mesajı gönderilmeden önce mesaj alanı değişti; taslak korundu"
   },
   "content_bootstrap_composer_replaced": {
-    "message": "ChatGPT, başlangıç metni eklenirken mesaj alanını değiştirdi"
+    "message": "Gemini, başlangıç metni eklenirken mesaj alanını değiştirdi"
   },
   "content_bootstrap_composer_unavailable": {
-    "message": "Model seçiminden sonra ChatGPT kullanılabilir bir ileti alanını yeniden göstermedi"
+    "message": "Model seçiminden sonra Gemini kullanılabilir bir ileti alanını yeniden göstermedi"
   },
   "content_bootstrap_fresh_chat_changed": {
     "message": "işaretlenen yeni sohbet başlangıç mesajı gönderilmeden önce değişti; hiçbir şey gönderilmedi"
@@ -48,19 +48,19 @@
     "message": "Bu uygulamanın devraldığı devir özeti — sizin yazdığınız bir şey değil"
   },
   "content_bootstrap_insert_refused": {
-    "message": "ChatGPT eklenen metni kabul etmedi$1"
+    "message": "Gemini eklenen metni kabul etmedi$1"
   },
   "content_bootstrap_missing_target": {
     "message": "mevcut bir sohbete sunuldu ve hedef sohbet belirtilmedi"
   },
   "content_bootstrap_model_unavailable": {
-    "message": "İstenen model veya akıl yürütme kullanılamıyor ya da ChatGPT içinde doğrulanamadı"
+    "message": "İstenen model veya akıl yürütme kullanılamıyor ya da Gemini içinde doğrulanamadı"
   },
   "content_bootstrap_project_not_authorized": {
     "message": "komut Proje erişimine izin vermedi; hiçbir şey gönderilmedi"
   },
   "content_bootstrap_project_open_failed": {
-    "message": "ChatGPT kaynak Projeyi kendi bağlantısından açamadı; hiçbir şey gönderilmedi"
+    "message": "Gemini kaynak Projeyi kendi bağlantısından açamadı; hiçbir şey gönderilmedi"
   },
   "content_bootstrap_project_source_changed": {
     "message": "Proje girişi artık kaynak sohbetle eşleşmiyor; hiçbir şey gönderilmedi"
@@ -69,7 +69,7 @@
     "message": "sürdürme başlangıcında geçerli bir devam işareti yoktu"
   },
   "content_bootstrap_send_not_accepted": {
-    "message": "ChatGPT başlangıç mesajının gönderimini kabul etmedi"
+    "message": "Gemini başlangıç mesajının gönderimini kabul etmedi"
   },
   "content_bootstrap_target_changed": {
     "message": "bu mesajın gönderileceği sohbet, gönderilmeden önce değişti; hiçbir şey gönderilmedi"
@@ -81,7 +81,7 @@
     "message": "bunun için açılan sayfa farklı bir sohbet gösteriyordu"
   },
   "content_browser_disconnected": {
-    "message": "Tarayıcı bağlantısı Chat On Steroids'ta kesik."
+    "message": "Tarayıcı bağlantısı NCode'ta kesik."
   },
   "content_cancel": {
     "message": "İptal"
@@ -90,16 +90,16 @@
     "message": "Sohbet engellendi"
   },
   "content_chat_blocked_tip": {
-    "message": "Bu sohbet Chat On Steroids uygulamasında engellenmiş: araç çağrıları reddedilir; Hedef, Döngü ve otomatik sıkıştırma kapalıdır. Engeli kaldırmak için uygulamanın Sohbet sekmesini açın, oturum listesindeki bu sohbetin üzerine gelin ve engelleme simgesine basın."
+    "message": "Bu sohbet NCode uygulamasında engellenmiş: araç çağrıları reddedilir; Hedef, Döngü ve otomatik sıkıştırma kapalıdır. Engeli kaldırmak için uygulamanın Sohbet sekmesini açın, oturum listesindeki bu sohbetin üzerine gelin ve engelleme simgesine basın."
   },
   "content_chat_still_opening": {
     "message": "bu sohbet hâlâ açılıyor — yeniden deneyin"
   },
   "content_chatgpt_message_box_not_ready": {
-    "message": "ChatGPT mesaj alanı hazır değil ($1). Sayfanın yüklenmesini bekleyip yeniden deneyin."
+    "message": "Gemini mesaj alanı hazır değil ($1). Sayfanın yüklenmesini bekleyip yeniden deneyin."
   },
   "content_chatgpt_tool": {
-    "message": "ChatGPT aracı"
+    "message": "Gemini aracı"
   },
   "content_clear": {
     "message": "Temizle"
@@ -120,7 +120,7 @@
     "message": "$1. Kalıcı deneme iki kez gönderilmeyecek."
   },
   "content_compact_attempt_owned": {
-    "message": "Kalıcı devir özeti denemesi zaten başka bir işlem tarafından yürütülüyor; ChatGPT’de işaretlenen mesaj eşitleniyor."
+    "message": "Kalıcı devir özeti denemesi zaten başka bir işlem tarafından yürütülüyor; Gemini’de işaretlenen mesaj eşitleniyor."
   },
   "content_compact_blocked_unavailable_hint": {
     "message": "Engellenmiş bir sohbet asla sıkıştırılmaz veya sürdürülmez: yerine açılan sohbet araçları olmadan çalışır. Önce uygulamadan engeli kaldırın."
@@ -150,10 +150,10 @@
     "message": "Sıkıştırma yerel araçları beklerken bu sohbet değişti."
   },
   "content_compact_chatgpt_writing": {
-    "message": "ChatGPT devir özetini yazıyor"
+    "message": "Gemini devir özetini yazıyor"
   },
   "content_compact_existing_draft": {
-    "message": "ChatGPT’de zaten bir taslak var; devir özeti istemeden önce mesaj alanını temizleyin."
+    "message": "Gemini’de zaten bir taslak var; devir özeti istemeden önce mesaj alanını temizleyin."
   },
   "content_compact_failed": {
     "message": "Sıkıştırma başarısız"
@@ -171,10 +171,10 @@
     "message": "Devir özeti yanıtı tamamlanmadı. Bu sohbete dönmek için sıkıştırmayı iptal edin."
   },
   "content_compact_handoff_problem": {
-    "message": "ChatGPT devir özetini hazırlarken bir sorun bildirdi."
+    "message": "Gemini devir özetini hazırlarken bir sorun bildirdi."
   },
   "content_compact_handoff_request_failed": {
-    "message": "ChatGPT'den devir özeti istenemedi: $1"
+    "message": "Gemini'den devir özeti istenemedi: $1"
   },
   "content_compact_handoff_stopped_detail": {
     "message": "Devir özeti yanıtı durduruldu. Bu sohbete dönmek için sıkıştırmayı iptal edin."
@@ -204,7 +204,7 @@
     "message": "Bu sohbetin sıkıştırılmasına izin verilip verilmediği doğrulanamadı."
   },
   "content_compact_results_unconfirmed": {
-    "message": "ChatGPT en son araç sonuçlarını aldığını doğrulamadı. Hiçbir şey sıkıştırılmadı."
+    "message": "Gemini en son araç sonuçlarını aldığını doğrulamadı. Hiçbir şey sıkıştırılmadı."
   },
   "content_compact_resume_cancelled": {
     "message": "Sürdürme iptal edildi"
@@ -213,7 +213,7 @@
     "message": "Şimdi sıkıştır ve sürdür"
   },
   "content_compact_send_ambiguous": {
-    "message": "Gönderim sonucu belirsizdi. Hiçbir şey iki kez gönderilmeyecek; ChatGPT kabul etmediyse işlemi açıkça iptal edin."
+    "message": "Gönderim sonucu belirsizdi. Hiçbir şey iki kez gönderilmeyecek; Gemini kabul etmediyse işlemi açıkça iptal edin."
   },
   "content_compact_send_not_ready": {
     "message": "Gönder düğmesi veya mesaj alanı hazır olmadığı için devir özeti isteği gönderilmedi. Sayfa hazır olduğunda yeniden deneyin."
@@ -246,7 +246,7 @@
     "message": "Devir özeti yazılıyor"
   },
   "content_compact_stop_failed": {
-    "message": "ChatGPT geçerli turu durdurmadı. Hiçbir şey sıkıştırılmadı."
+    "message": "Gemini geçerli turu durdurmadı. Hiçbir şey sıkıştırılmadı."
   },
   "content_compact_stopping": {
     "message": "Durduruluyor…"
@@ -285,7 +285,7 @@
     "message": "Eklentinin yenilendiği doğrulanamadı"
   },
   "content_connector_schema_no_refresh": {
-    "message": "Eklenti şeması farklı, ancak ChatGPT Yenile denetimini göstermiyor. Güncel araç şemasını yüklemek için bu eklentiyi yeniden oluşturun veya yayımlayın."
+    "message": "Eklenti şeması farklı, ancak Gemini Yenile denetimini göstermiyor. Güncel araç şemasını yüklemek için bu eklentiyi yeniden oluşturun veya yayımlayın."
   },
   "content_connector_settings_unreadable": {
     "message": "Bu isteğe ait sayfadaki eklenti ayar kartı okunamadı"
@@ -300,7 +300,7 @@
     "message": "Ek aktarımı tamamlanmadı."
   },
   "content_delivery_attachment_upload_unconfirmed": {
-    "message": "Ek yüklemesi doğrulanmadı. Yeniden denemeden önce ChatGPT’deki gönderilmemiş taslağı ve varsa dosya hatasını kontrol edin."
+    "message": "Ek yüklemesi doğrulanmadı. Yeniden denemeden önce Gemini’deki gönderilmemiş taslağı ve varsa dosya hatasını kontrol edin."
   },
   "content_delivery_chat_changed": {
     "message": "Doğrudan iletimden önce sohbet değişti."
@@ -309,19 +309,19 @@
     "message": "Sohbet değişti veya durmadı. Mesaj gönderilmedi."
   },
   "content_delivery_composer_changed": {
-    "message": "Göndermeden önce ChatGPT mesaj alanı değişti"
+    "message": "Göndermeden önce Gemini mesaj alanı değişti"
   },
   "content_delivery_composer_stuck": {
-    "message": "ChatGPT yanıtını tamamladı ancak mesaj alanı hâlâ Durdur durumunda. Sıradaki mesaj iletilmeden önce bu sayfa kurtarılıyor."
+    "message": "Gemini yanıtını tamamladı ancak mesaj alanı hâlâ Durdur durumunda. Sıradaki mesaj iletilmeden önce bu sayfa kurtarılıyor."
   },
   "content_delivery_draft_preserved": {
     "message": "Mesaj alanı değişti; taslağınız korundu"
   },
   "content_delivery_editor_not_writable": {
-    "message": "Göndermeden önce ChatGPT düzenleyicisi yazılabilir duruma gelmedi."
+    "message": "Göndermeden önce Gemini düzenleyicisi yazılabilir duruma gelmedi."
   },
   "content_delivery_existing_draft": {
-    "message": "ChatGPT’de zaten gönderilmemiş bir taslak var. Yeniden denemeden önce bu taslağı Chrome’da gönderin veya temizleyin."
+    "message": "Gemini’de zaten gönderilmemiş bir taslak var. Yeniden denemeden önce bu taslağı Chrome’da gönderin veya temizleyin."
   },
   "content_delivery_model_unconfirmed": {
     "message": "İstenen model veya akıl yürütme düzeyi doğrulanamadı"
@@ -333,7 +333,7 @@
     "message": "Geçici Sohbet doğrulanmadı. Yardımcı sekmesini açın ve Geçici Sohbet tanıtımını tamamlayın."
   },
   "content_delivery_text_not_accepted": {
-    "message": "ChatGPT metni kabul etmedi$1"
+    "message": "Gemini metni kabul etmedi$1"
   },
   "content_delivery_turn_changed": {
     "message": "Doğrudan iletimden önce tur değişti."
@@ -351,7 +351,7 @@
     "message": "Bu sohbet için henüz kayıtlı bir yerel oturum yok."
   },
   "content_error_turn_still_generating": {
-    "message": "Önce bu ChatGPT turunun tamamlanmasını bekleyin."
+    "message": "Önce bu Gemini turunun tamamlanmasını bekleyin."
   },
   "content_failed": {
     "message": "Başarısız"
@@ -372,7 +372,7 @@
     "message": "$1 yanıtlıyor"
   },
   "content_goal_backend_chatgpt_helper": {
-    "message": "ChatGPT yardımcısı"
+    "message": "Gemini yardımcısı"
   },
   "content_goal_backend_custom_endpoint": {
     "message": "özel uç nokta"
@@ -414,7 +414,7 @@
     "message": "Hedef modu"
   },
   "content_goal_new_chat_draft_refused": {
-    "message": "ChatGPT Yeni Sohbet taslağını değiştirmeyi kabul etmedi"
+    "message": "Gemini Yeni Sohbet taslağını değiştirmeyi kabul etmedi"
   },
   "content_goal_no_api_key_unavailable": {
     "message": "API anahtarı yok — Hedef ve Döngü kullanılamıyor"
@@ -459,13 +459,13 @@
     "message": "hedef bu sohbete kaydedilemedi"
   },
   "content_goal_send_failed": {
-    "message": "ChatGPT mesajı göndermedi"
+    "message": "Gemini mesajı göndermedi"
   },
   "content_goal_sending_answer_to": {
     "message": "Yanıt $1 tarafına gönderiliyor"
   },
   "content_goal_sending_to_chatgpt": {
-    "message": "ChatGPT'ye gönderiliyor"
+    "message": "Gemini'ye gönderiliyor"
   },
   "content_goal_status_dismiss": {
     "message": "Hedef durumunu kapat"
@@ -489,7 +489,7 @@
     "message": "Kurtarma için yeniden yüklemeden önce bekleniyor"
   },
   "content_goal_wait_resumed": {
-    "message": "ChatGPT çalışmaya devam etti · tekrar denemeden önce bekleniyor"
+    "message": "Gemini çalışmaya devam etti · tekrar denemeden önce bekleniyor"
   },
   "content_goal_wait_running_tools": {
     "message": "Çalışan araçlar bekleniyor"
@@ -585,7 +585,7 @@
     "message": "Kaydediliyor…"
   },
   "content_settings_aria": {
-    "message": "Chat On Steroids ayarları"
+    "message": "NCode ayarları"
   },
   "content_stage_handoff_attention": {
     "message": "Devir özeti yanıtı ilgilenmenizi gerektiriyor"
@@ -672,7 +672,7 @@
     "message": "Otomatik Devam, değişmeden sessiz kalan bir turu durdurdu."
   },
   "content_turn_chatgpt_interrupted": {
-    "message": "ChatGPT turu kesintiye uğramış olarak işaretledi"
+    "message": "Gemini turu kesintiye uğramış olarak işaretledi"
   },
   "content_turn_outcome": {
     "message": "Tur $1"
@@ -735,13 +735,13 @@
     "message": "Yazılıyor…"
   },
   "extension_action_title": {
-    "message": "Chat On Steroids"
+    "message": "NCode"
   },
   "extension_description": {
-    "message": "ChatGPT'yi Chat On Steroids'a bağlar ve tarayıcı sekmelerini DOM, ekran görüntüleri ve geliştirici araçlarıyla arka planda denetler."
+    "message": "Gemini'yi NCode'a bağlar ve tarayıcı sekmelerini DOM, ekran görüntüleri ve geliştirici araçlarıyla arka planda denetler."
   },
   "extension_name": {
-    "message": "Chat On Steroids tarayıcı uzantısı"
+    "message": "NCode tarayıcı uzantısı"
   },
   "popup_advanced": {
     "message": "Gelişmiş"
@@ -770,8 +770,8 @@
   "popup_chat_id": {
     "message": "Sohbet kimliği"
   },
-  "popup_chatgpt_tab": {
-    "message": "ChatGPT sekmesi"
+  "popup_gemini_tab": {
+    "message": "Gemini sekmesi"
   },
   "popup_confirmed": {
     "message": "doğrulandı"
@@ -878,8 +878,8 @@
   "popup_no_record": {
     "message": "kayıt yok"
   },
-  "popup_overwrite_chatgpt": {
-    "message": "ChatGPT görünümünü değiştir"
+  "popup_overwrite_gemini": {
+    "message": "Gemini görünümünü değiştir"
   },
   "popup_owner_confirmed": {
     "message": "Sahibi doğrulandı"
@@ -900,7 +900,7 @@
     "message": "Uygulama son iletimi reddetti ($1)."
   },
   "popup_pipeline_extension_blocked": {
-    "message": "Uzantı bu sekmenin gözlemlerini kabul etmiyor ($1). ChatGPT sekmesini yeniden yükleyin."
+    "message": "Uzantı bu sekmenin gözlemlerini kabul etmiyor ($1). Gemini sekmesini yeniden yükleyin."
   },
   "popup_pipeline_id_found_waiting_receipt": {
     "message": "Son turda kimlik bulundu. Uygulamanın alındı onayı bekleniyor."
@@ -944,14 +944,14 @@
   "popup_request_id_found": {
     "message": "İstek kimliği bulundu"
   },
-  "popup_section_augment_chatgpt": {
-    "message": "ChatGPT görünümünü genişlet"
+  "popup_section_augment_gemini": {
+    "message": "Gemini görünümünü genişlet"
   },
   "popup_section_session_capture": {
     "message": "Oturum kaydı"
   },
   "popup_secure_storage_unavailable": {
-    "message": "Güvenli kimlik bilgisi depolama kullanılamıyor. Kurulum talimatları için Chat On Steroids'u açın."
+    "message": "Güvenli kimlik bilgisi depolama kullanılamıyor. Kurulum talimatları için NCode'u açın."
   },
   "popup_sent_to_app": {
     "message": "Uygulamaya gönderildi"
@@ -1038,13 +1038,13 @@
     "message": "Yeniden dene"
   },
   "popup_version_mismatch_help": {
-    "message": "Uygulama v$1 (protokol $2); uzantı v$3 (protokol $4). Tarayıcınızın Uzantılar sayfasını açın, Geliştirici modunu etkinleştirin ve bu uzantıyı Güncelle / Yeniden yükle ile yenileyin. Uyumsuzluk sürerse Chat On Steroids'ta Uzantı klasörünü aç seçeneğini kullanın ve o klasörü yükleyin. Etkin çalışmaları bittiğinde ChatGPT sekmelerini yeniden yükleyin."
+    "message": "Uygulama v$1 (protokol $2); uzantı v$3 (protokol $4). Tarayıcınızın Uzantılar sayfasını açın, Geliştirici modunu etkinleştirin ve bu uzantıyı Güncelle / Yeniden yükle ile yenileyin. Uyumsuzluk sürerse NCode'ta Uzantı klasörünü aç seçeneğini kullanın ve o klasörü yükleyin. Etkin çalışmaları bittiğinde Gemini sekmelerini yeniden yükleyin."
   },
   "popup_yes": {
     "message": "evet"
   },
   "content_goal_error_loop_mcp_call_missing": {
-    "message": "Son yanıtta MCP araç çağrısı kaydedilmedi. ChatGPT size bir soru soruyor olabilir veya araç bağlantısı kesilmiş olabilir. Soruyu yanıtlayın ya da araçlar çalışmayı durdurduysa tüneli kontrol edin. Otomatik devam duraklatıldı; Döngü etkin kalır."
+    "message": "Son yanıtta MCP araç çağrısı kaydedilmedi. Gemini size bir soru soruyor olabilir veya araç bağlantısı kesilmiş olabilir. Soruyu yanıtlayın ya da araçlar çalışmayı durdurduysa tüneli kontrol edin. Otomatik devam duraklatıldı; Döngü etkin kalır."
   },
   "content_goal_error_goal_reply_not_pending": {
     "message": "Bu yanıt için bekleyen bir devam yok. Zaten işlenmiş veya daha yeni bir çalışma tarafından değiştirilmiş olabilir. Yeniden denemeden önce en son sohbet etkinliğini kontrol edin."
@@ -1062,7 +1062,7 @@
     "message": "Sağlayıcı yanıtı boyut sınırını aştı. Başka bir devam modeli seçin veya daha kısa yanıtlar isteyin."
   },
   "content_goal_error_no_api_key": {
-    "message": "Devam sağlayıcısı için API anahtarı yapılandırılmamış. Ayarlar'da bir anahtar ekleyin veya ChatGPT devam kaynağını seçin."
+    "message": "Devam sağlayıcısı için API anahtarı yapılandırılmamış. Ayarlar'da bir anahtar ekleyin veya Gemini devam kaynağını seçin."
   },
   "content_goal_error_auth_rejected": {
     "message": "Devam sağlayıcısı API kimlik bilgilerini reddetti. Ayarlar'da API anahtarını ve erişim izinlerini kontrol edin."
@@ -1077,7 +1077,7 @@
     "message": "Özel devam uç noktası geçersiz. URL'sini Ayarlar'da kontrol edin; HTTPS veya yerel bir HTTP uç noktası kullanın."
   },
   "content_history_rate_limited": {
-    "message": "ChatGPT bu sohbet geçmişine erişimi geçici olarak sınırladı. Chat On Steroids bekleme süresi bitene kadar otomatik kurtarmayı duraklatır."
+    "message": "Gemini bu sohbet geçmişine erişimi geçici olarak sınırladı. NCode bekleme süresi bitene kadar otomatik kurtarmayı duraklatır."
   },
   "content_goal_error_rate_limited": {
     "message": "Devam sağlayıcısı istek hızını sınırlıyor. Gösterilen yeniden denemeyi bekleyin veya başka bir devam modeli seçin."
@@ -1095,10 +1095,10 @@
     "message": "Yardımcı isteği iptal edildi. Devam etmek istediğinizde yeniden başlatın."
   },
   "content_goal_error_goal_browser_send_failed": {
-    "message": "Yardımcı istemi ChatGPT'ye iletilemedi. Yeniden denemeden önce yardımcı sohbetini açın ve mesaj alanını veya görünen hatayı kontrol edin."
+    "message": "Yardımcı istemi Gemini'ye iletilemedi. Yeniden denemeden önce yardımcı sohbetini açın ve mesaj alanını veya görünen hatayı kontrol edin."
   },
   "content_goal_error_goal_browser_send_unconfirmed": {
-    "message": "Uygulama, ChatGPT'nin yardımcı istemini alıp almadığını doğrulayamadı. İki kez göndermemek için yeniden denemeden önce yardımcı sohbetini kontrol edin."
+    "message": "Uygulama, Gemini'nin yardımcı istemini alıp almadığını doğrulayamadı. İki kez göndermemek için yeniden denemeden önce yardımcı sohbetini kontrol edin."
   },
   "content_goal_error_goal_owned_elsewhere": {
     "message": "Bu devam işlemini başka bir tarayıcı sekmesi yürütüyor. İlerleme için o sekmeyi kontrol edin."
@@ -1167,6 +1167,26 @@
     "message": "Başarısız. Oturum açmayı CoS üzerinden yeniden başlatın."
   },
   "popup_app_not_running_help": {
-    "message": "Chat On Steroids'in bu bilgisayarda açık olduğundan emin olun. Eklenti kendiliğinden bağlanır."
+    "message": "NCode'in bu bilgisayarda açık olduğundan emin olun. Eklenti kendiliğinden bağlanır."
+  },
+  "popup_status_active": {
+    "message": "etkin",
+    "description": "NCode recorder row value: the Gemini content script is active on this tab."
+  },
+  "popup_status_connected": {
+    "message": "bağlı",
+    "description": "NCode reaching-the-app row value: the Gemini tab is connected to the local NCode bridge."
+  },
+  "popup_status_ready": {
+    "message": "hazır",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_pipeline_waiting_gemini_recorder": {
+    "message": "Sayfa kaydedicisinin bildirmesi bekleniyor.",
+    "description": "NCode Gemini recorder evidence shown in the popup."
+  },
+  "popup_detail_gemini_observed": {
+    "message": "$1 istek · $2 parça",
+    "description": "NCode Gemini recorder evidence shown in the popup."
   }
 }

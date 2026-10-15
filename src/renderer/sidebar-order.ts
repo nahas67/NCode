@@ -1,5 +1,5 @@
 /** Sidebar order is a local presentation preference; session/project ownership never changes. */
-const STORAGE_KEY = 'chat-on-steroids.sidebar-order';
+const STORAGE_KEY = 'ncode.sidebar-order';
 const MAX_IDS = 5000;
 export const SIDEBAR_PROJECT_SCOPE = ':projects';
 type Entry = { id: string; scope: string };

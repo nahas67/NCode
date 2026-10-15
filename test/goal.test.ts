@@ -250,7 +250,7 @@ describe('what leaves this machine', () => {
     const projected = await goal.conversationMessages(session.id);
     expect(projected).toEqual([
       { role: 'user', content: 'Run echo goal-ok' },
-      { role: 'assistant', content: 'goal-ok\n\n[Chat On Steroids: 2 tool calls ran in this turn. Arguments and results are not shown.]' }
+      { role: 'assistant', content: 'goal-ok\n\n[NCode: 2 tool calls ran in this turn. Arguments and results are not shown.]' }
     ]);
     expect(JSON.stringify(projected)).not.toMatch(/exec_command|SECRET_ARGUMENT|SECRET_RESULT/);
   });

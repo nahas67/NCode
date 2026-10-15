@@ -29,7 +29,7 @@ import {
 import path from 'node:path';
 import { app } from 'electron';
 
-const MATERIALIZED_FINGERPRINT = '.chat-on-steroids-source';
+const MATERIALIZED_FINGERPRINT = '.ncode-source';
 const PUBLISH_LAST = new Set(['manifest.json', MATERIALIZED_FINGERPRINT]);
 
 function extensionFingerprint(root: string): string {

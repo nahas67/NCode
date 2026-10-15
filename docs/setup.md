@@ -27,9 +27,9 @@ Want screen and keyboard control? Enable **Desktop** permissions and connect its
 2. Create a **Restricted** [API key](https://platform.openai.com/settings/organization/api-keys) with **Tunnels: Read** and **Tunnels: Use**.
 3. Enter the tunnel ID and key in CoS and press **Connect**.
 4. In ChatGPT, open [Plugins](https://chatgpt.com/plugins), click **Add** at the top right and choose **Add custom MCP server**. Under **Connection** pick **Tunnel** and select your tunnel (or paste its ID), set **Authentication** to **No authentication**, tick **I understand and want to continue** and click **Create as a plugin**. Where the plugin's page in ChatGPT offers **Permissions** (not on every account type), choose **Allow all tools**; otherwise answer the first tool call's prompt with **Allow → Always allow**. ChatGPT shows these labels in your language.
-5. Name each app exactly as CoS shows it (for example `Chat On Steroids Core`). You can rename it later in ChatGPT: after its first call, CoS recognizes the app by ChatGPT's app ID, and Setup shows the new name next to the original.
+5. Name each app exactly as CoS shows it (for example `NCode Core`). You can rename it later in ChatGPT: after its first call, CoS recognizes the app by ChatGPT's app ID, and Setup shows the new name next to the original.
 
-> **Looking for ChatGPT's Developer mode switch?** It no longer exists. Apps are created from **Plugins → Add → Add custom MCP server**, and file edits and desktop control work without it ([#522](https://github.com/totec448-spec/chat-on-steroids/issues/522)).
+> **Looking for ChatGPT's Developer mode switch?** It no longer exists. Apps are created from **Plugins → Add → Add custom MCP server**, and file edits and desktop control work without it ([#522](https://github.com/totec448-spec/ncode/issues/522)).
 
 Core, Desktop and Plugins are separate plugins in ChatGPT. Configure each surface you enable. Release packages include the pinned, checksum-verified `tunnel-client`.
 
@@ -62,7 +62,7 @@ comma-separated override and port `0` remain available for isolated development/
 With **Background chats** on, the tabs the app opens for workers and recovered chats stay in the
 background. **Settings → Agents & automation → Browser & history → Background tabs open in** chooses where: **Their own
 minimized window** (default) or **A tab group in your browser window**. The tab group is a collapsed
-"Chat On Steroids" group in the window you used last, and it stays there. The app never selects a
+"NCode" group in the window you used last, and it stays there. The app never selects a
 tab or changes the window you are using. Chrome saves open tab groups automatically. The app's
 group closes with its last chat, so it isn't kept, but if you close that window while app chats are
 open, Chrome may keep the group in its saved groups, where you can delete it. Browsers without tab

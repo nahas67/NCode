@@ -90,7 +90,7 @@ function toolCall(seq: number, callId: string): SessionEvent {
       conversationId: 'chat-a',
       attributionMethod: 'request_id',
       args: text('{"path":"README.md"}'),
-      result: text('# Chat On Steroids'),
+      result: text('# NCode'),
       outcome: 'ok',
       durationMs: 40,
       summary: { kind: 'read', title: 'Read README.md', tone: 'neutral' }
@@ -2005,10 +2005,10 @@ it('reorders whole project groups without changing chat selection, ownership or 
   beta.focus(); beta.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, bubbles: true, cancelable: true }));
   expect(ids()).toEqual(projects.map(project => project.id));
   expect(w.document.activeElement).toBe(groups()[1]!.querySelector('summary'));
-  const saved = w.localStorage.getItem('chat-on-steroids.sidebar-order');
+  const saved = w.localStorage.getItem('ncode.sidebar-order');
   pointer(groups()[0]!.querySelector('.project-menu')!, 'pointerdown', 10);
   pointer(list, 'pointermove', 500); pointer(w as unknown as Window, 'pointerup', 500);
-  expect(w.localStorage.getItem('chat-on-steroids.sidebar-order')).toBe(saved);
+  expect(w.localStorage.getItem('ncode.sidebar-order')).toBe(saved);
   expect(live.sent).toEqual([]);
 });
 
@@ -2046,7 +2046,7 @@ it('keeps working state per chat and marks only completed background chats as un
   expect(row('chat-b').querySelector('.session-status.is-unseen')).not.toBeNull();
   await settle();
   expect(row('chat-b').querySelector('.session-status.is-unseen')).toBeNull();
-  expect(w.localStorage.getItem('chat-on-steroids.sidebar-completion-seen')).toContain('chat-b');
+  expect(w.localStorage.getItem('ncode.sidebar-completion-seen')).toContain('chat-b');
 
   const selectedWorkingAt = nextAt();
   Object.assign(chats[1]!, { lastToolCallAt: selectedWorkingAt, activityExpiresAt: selectedWorkingAt + 60_000, updatedAt: selectedWorkingAt });

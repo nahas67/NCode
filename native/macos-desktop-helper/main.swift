@@ -334,7 +334,7 @@ private func requireAccessibility() throws {
     guard AXIsProcessTrusted() else {
         throw fail(
             "ACCESSIBILITY_PERMISSION_REQUIRED",
-            "enable Accessibility for Chat On Steroids (Device Control on newer macOS), then fully quit and reopen the app"
+            "enable Accessibility for NCode (Device Control on newer macOS), then fully quit and reopen the app"
         )
     }
 }
@@ -344,7 +344,7 @@ private func requireScreenCapture() throws {
         _ = CGRequestScreenCaptureAccess()
         throw fail(
             "SCREEN_PERMISSION_REQUIRED",
-            "enable Screen Recording for Chat On Steroids, then fully quit and reopen the app"
+            "enable Screen Recording for NCode, then fully quit and reopen the app"
         )
     }
 }
@@ -1309,7 +1309,7 @@ private func captureImage(filter: SCContentFilter, configuration: SCStreamConfig
     let output = StreamFrameOutput()
     let stream = SCStream(filter: filter, configuration: configuration, delegate: output)
     do {
-        try stream.addStreamOutput(output, type: .screen, sampleHandlerQueue: DispatchQueue(label: "chat-on-steroids.capture"))
+        try stream.addStreamOutput(output, type: .screen, sampleHandlerQueue: DispatchQueue(label: "ncode.capture"))
     } catch {
         throw fail("CAPTURE_FAILED", error.localizedDescription)
     }

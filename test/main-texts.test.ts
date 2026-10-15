@@ -43,7 +43,7 @@ it('publishes and restores all tunnel-loss notice texts in the selected language
     'Core connection lost',
     'Desktop connection lost',
     'Plugins connection lost',
-    'The tunnel disconnected unexpectedly. Open Chat On Steroids to check the connection.'
+    'The tunnel disconnected unexpectedly. Open NCode to check the connection.'
   ] as const;
   expect(MAIN_TEXTS).toEqual(expect.arrayContaining([...sources]));
   window.localStorage.setItem('cos.ui.language', 'de');

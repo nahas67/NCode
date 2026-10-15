@@ -196,7 +196,7 @@ describe('status projection', () => {
     health: { pollErrors: 4, uptimeSeconds: 5, route: 'api.openai.com · direct', probe: 'ok', clientVersion: '1.2.3' },
     surfaces: [{
       id: 'core',
-      connectorName: 'Chat On Steroids',
+      connectorName: 'NCode',
       description: 'desc',
       cardSummary: 'card',
       optional: false,

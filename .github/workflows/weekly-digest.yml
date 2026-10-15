@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   digest:
-    if: github.repository == 'totec448-spec/chat-on-steroids'
+    if: github.repository == 'totec448-spec/ncode'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

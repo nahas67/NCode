@@ -30,7 +30,7 @@ export const CLOSING = 'Closing this for now since it has been quiet for a while
 
 async function github(path, token, init = {}) {
   const response = await fetch(`${API}${path}`, { ...init, headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'chat-on-steroids-waiting-prs', ...(init.headers ?? {}) } });
+    'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ncode-waiting-prs', ...(init.headers ?? {}) } });
   if (!response.ok) throw new Error(`GitHub ${path} failed with HTTP ${response.status}`);
   return response.status === 204 ? null : response.json();
 }

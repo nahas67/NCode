@@ -19,7 +19,7 @@ export const APP_VERSION = '2.1.36';
  * `latest` asset can pair an older installed app with a newer, incompatible bridge protocol.
  */
 export function extensionDownloadUrl(version = APP_VERSION): string {
-  return `https://github.com/totec448-spec/chat-on-steroids/releases/download/v${encodeURIComponent(version)}/Chat-On-Steroids-Extension.zip`;
+  return `https://github.com/totec448-spec/ncode/releases/download/v${encodeURIComponent(version)}/NCode-Extension.zip`;
 }
 
 /**
@@ -38,7 +38,7 @@ export function extensionDownloadUrl(version = APP_VERSION): string {
  *     carries retiredWorker, /commands/ack answers 404 no_such_command when the caller names
  *     a client, and observations carry authoredTime, which now drives message ordering. None
  *     of those degrade gracefully, so the 426 gate has to be able to see the mismatch.
- * 7 — the app renamed itself to Chat On Steroids, and the `app` field every bridge response
+ * 7 — the app renamed itself to NCode, and the `app` field every bridge response
  *     is stamped with renamed along with it. A 6 extension reads that field to decide the
  *     reply came from this app at all, so against a 7 app it silently discards every answer
  *     and reports nothing — which looks exactly like a bridge that is down. The bump turns

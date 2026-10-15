@@ -7,7 +7,7 @@ import { t, ui } from './i18n.js';
 const builtinAtlas = new URL('./pet-assets/atlas.png', import.meta.url).href;
 const PET_FORMAT_INSTRUCTIONS = `<describe your character here>
 
-Create a production-ready Chat On Steroids (CoS) Pet package from the character brief above. Finish the complete package; do not stop at concept art, sample frames, or an approximate spritesheet.
+Create a production-ready NCode (CoS) Pet package from the character brief above. Finish the complete package; do not stop at concept art, sample frames, or an approximate spritesheet.
 
 WORKFLOW AUTHORITY
 

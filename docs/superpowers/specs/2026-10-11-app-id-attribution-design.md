@@ -5,7 +5,7 @@ Roadmap: #482, "Attribute tool calls by app ID rather than connector name".
 
 ## Goal
 
-A user may rename a Chat On Steroids connector in ChatGPT, for example "Chat On Steroids Core" to "My
+A user may rename a NCode connector in ChatGPT, for example "NCode Core" to "My
 tools". Today every name-based check then treats the renamed connector as a stranger's. Calls render
 as foreign, tool counts drop, and Goal and Loop lose the evidence they wait for. Instructions sent to
 the model also name a connector that no longer exists by that name. After this change, the app

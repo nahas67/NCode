@@ -139,7 +139,7 @@ jobs:
       - name: Download the candidate
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: chat-on-steroids-candidate-${{ github.run_id }}
+          name: ncode-candidate-${{ github.run_id }}
           path: publish
 
       # The checksums were computed on the packaging runner. Re-checking them here proves
@@ -159,18 +159,18 @@ jobs:
           npm run verify:tunnel-current
           node scripts/check-release-absent.mjs
           gh release create "$TAG" \
-            publish/Chat-On-Steroids-Setup-x64.exe \
-            publish/Chat-On-Steroids-Setup-arm64.exe \
-            publish/Chat-On-Steroids-macOS-x64.dmg \
-            publish/Chat-On-Steroids-macOS-x64.zip \
-            publish/Chat-On-Steroids-macOS-arm64.dmg \
-            publish/Chat-On-Steroids-macOS-arm64.zip \
-            publish/Chat-On-Steroids-Linux-x64.AppImage \
-            publish/Chat-On-Steroids-Linux-x64.deb \
-            publish/Chat-On-Steroids-Linux-arm64.AppImage \
-            publish/Chat-On-Steroids-Linux-arm64.deb \
-            publish/Chat-On-Steroids-Extension.zip \
-            publish/Chat-On-Steroids-Native-Sources.tar.gz \
+            publish/NCode-Setup-x64.exe \
+            publish/NCode-Setup-arm64.exe \
+            publish/NCode-macOS-x64.dmg \
+            publish/NCode-macOS-x64.zip \
+            publish/NCode-macOS-arm64.dmg \
+            publish/NCode-macOS-arm64.zip \
+            publish/NCode-Linux-x64.AppImage \
+            publish/NCode-Linux-x64.deb \
+            publish/NCode-Linux-arm64.AppImage \
+            publish/NCode-Linux-arm64.deb \
+            publish/NCode-Extension.zip \
+            publish/NCode-Native-Sources.tar.gz \
             publish/SHA256SUMS.txt \
             --title "$(sed -n 's/^## //p' "docs/release-notes/$TAG.md" | head -n 1)" \
             --notes-file "docs/release-notes/$TAG.md"

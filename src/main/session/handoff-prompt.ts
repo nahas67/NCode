@@ -39,7 +39,7 @@ export function nativeHandoffPrompt(
   const briefInstructions = handoffPromptForLength(handoffPrompt.trim() || DEFAULT_HANDOFF_PROMPT, length);
   return (
     (identity ? `${identity}\n\n` : '') +
-    'Chat On Steroids is compacting this conversation so a fresh chat can continue the work. ' +
+    'NCode is compacting this conversation so a fresh chat can continue the work. ' +
     'Stop whatever you were doing and do only this.\n\n' +
     'Write a handoff brief so a different coding agent can continue this unfinished task in a brand-new ' +
     "conversation, with no memory of anything here. Everything you know about this session — the user's " +

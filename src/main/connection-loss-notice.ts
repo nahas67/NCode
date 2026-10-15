@@ -21,7 +21,7 @@ const TITLES: Record<SurfaceId, MainText> = {
   plugins: 'Plugins connection lost'
 };
 
-const BODY: MainText = 'The tunnel disconnected unexpectedly. Open Chat On Steroids to check the connection.';
+const BODY: MainText = 'The tunnel disconnected unexpectedly. Open NCode to check the connection.';
 
 /** Electron presentation adapter kept separate from connection lifecycle/state. */
 export function showConnectionLossNotice(surface: SurfaceId, deps: ConnectionLossNoticeDeps): boolean {

@@ -19,8 +19,8 @@ it('finds the tools a script uses that this connector lacks, dotted, optional or
 
 it('names the connector a Core tool belongs to (#1287)', () => {
   const note = unknownToolNote('plugins', ['exec_command', 'made_up']);
-  expect(note).toContain('tools.exec_command (a Chat On Steroids Core tool), tools.made_up');
-  expect(note).toContain('which Chat On Steroids Plugins does not offer');
+  expect(note).toContain('tools.exec_command (a NCode Core tool), tools.made_up');
+  expect(note).toContain('which NCode Plugins does not offer');
   expect(note).toContain('"not a function"');
   expect(note).not.toContain('Secure Tunnel ID');
 });
@@ -28,7 +28,7 @@ it('names the connector a Core tool belongs to (#1287)', () => {
 it('says when the connector shares its Secure Tunnel ID with another (#1287)', () => {
   tunnel.pluginsTunnelId = 'core-id';
   const note = unknownToolNote('plugins', ['exec_command']);
-  expect(note).toContain('Chat On Steroids Plugins shares its Secure Tunnel ID with Chat On Steroids Core');
+  expect(note).toContain('NCode Plugins shares its Secure Tunnel ID with NCode Core');
   expect(note).toContain('Give each connector its own tunnel ID in Setup.');
   tunnel.pluginsTunnelId = '';
   expect(unknownToolNote('plugins', ['exec_command'])).not.toContain('Secure Tunnel ID');

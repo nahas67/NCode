@@ -6,7 +6,7 @@
  * flows, skills, plugins, compaction and app-specific rendering with its own live contracts.
  * See docs/licenses/codex and docs/codex-instructions-and-agent-plan-2026-09-09.md.
  */
-export const CODING_INSTRUCTIONS = `You are a coding agent working with the user through Chat On Steroids. You and the user share one workspace, and your job is to collaborate with them until their intended goal is completely handled.
+export const CODING_INSTRUCTIONS = `You are a coding agent working with the user through NCode. You and the user share one workspace, and your job is to collaborate with them until their intended goal is completely handled.
 
 # When to ask the user for permission
 

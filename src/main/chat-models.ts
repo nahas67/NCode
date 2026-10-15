@@ -1,10 +1,10 @@
-import { REASONING_EFFORTS } from '../shared/session.js';
+import { REASONING_EFFORTS, isReasoningEffort, type ReasoningEffort } from '../shared/session.js';
 /** Successful account choices survive restart; request/opening authority never does. */
 import { randomUUID } from 'node:crypto';
 import { wakeBrowserWork } from './browser-wake.js';
 import { z } from 'zod';
 import { logInfo } from './logger.js';
-import type { ChatModelCatalog } from '../shared/chat-models.js';
+import { DEFAULT_GEMINI_MODELS, type ChatModelCatalog } from '../shared/chat-models.js';
 import { readDurable, writeDurableSoon } from './durable.js';
 const observation = z.object({
   nonce: z.string().uuid(),
@@ -45,11 +45,25 @@ let launch: { nonce: string; allowOpen: boolean; work: Promise<void> } | null = 
 let changed = (): void => {};
 let wake: ((nonce: string, allowOpen: boolean) => Promise<void>) | null = null;
 export async function restoreChatModels(): Promise<void> {
-  const saved = z.object({ observedAt: z.number().finite().positive(), models: observation.shape.models.unwrap() }).strict().safeParse(await readDurable('chat-models'));
-  if (!saved.success || request || catalog.state !== 'unknown') return;
-  const models = saved.data.models;
-  if (new Set(models.map(model => model.id)).size !== models.length || models.some(model => new Set(model.efforts).size !== model.efforts.length)) return;
-  catalog = { state: 'ready', requestedAt: null, observedAt: saved.data.observedAt, models };
+  const saved = z.object({
+    observedAt: z.number().finite().positive(),
+    models: observation.shape.models.unwrap(),
+    activeModel: z.string().min(1).max(80).nullable().optional()
+  }).strict().safeParse(await readDurable('chat-models'));
+  if (saved.success && !request && catalog.state === 'unknown') {
+    const models = saved.data.models;
+    if (new Set(models.map(model => model.id)).size === models.length && !models.some(model => new Set(model.efforts).size !== model.efforts.length)) {
+      // `activeModel` is a preference signal only. A saved value that no longer resolves to an
+      // entry in this catalog is dropped rather than kept, so the picker cannot be pointed at an
+      // identity this restored catalog does not offer.
+      const active = saved.data.activeModel && models.some(model => model.id === saved.data.activeModel) ? saved.data.activeModel : null;
+      catalog = { state: 'ready', requestedAt: null, observedAt: saved.data.observedAt, models, activeModel: active };
+      return;
+    }
+  }
+  if (!request && catalog.state === 'unknown') {
+    catalog = { state: 'ready', requestedAt: null, observedAt: Date.now(), models: [...DEFAULT_GEMINI_MODELS] };
+  }
 }
 function failed(error: string): void {
   catalog = { ...catalog, state: catalog.models.length ? 'ready' : 'unavailable', waiting: undefined, error };
@@ -173,6 +187,61 @@ export function observeChatModels(raw: unknown): boolean {
   if (deadline) clearTimeout(deadline); deadline = null;
   changed(); wakeBrowserWork(); return true;
 }
+
+/**
+ * The ingest boundary for a Gemini page's `MODELS_SYNC`.
+ *
+ * This replaces the catalog wholesale, so it is the one place an untrusted scrape becomes the
+ * account's model list. Three rules keep a bad report from becoming a broken app:
+ *
+ * - efforts are filtered through the shared `REASONING_EFFORTS` vocabulary, so an invented level
+ *   cannot reach the effort selects;
+ * - duplicate ids are dropped (first occurrence wins), because `resolveChatModel` returns nothing
+ *   for an ambiguous id and a duplicated entry would silently hide every model sharing that id;
+ * - the list is bounded at `MAX_SYNCED_MODELS` and an empty result is refused outright. A tab that
+ *   reports nothing (its mode switcher not rendered, a half-loaded page) must not blank the catalog
+ *   the picker is currently drawing from.
+ *
+ * `activeModel` is the page's own selection and is carried into the catalog so the picker's
+ * preference follows the tab instead of guessing from labels.
+ */
+const MAX_SYNCED_MODELS = 20;
+
+export function syncGeminiModels(
+  models: Array<{ id: string; label: string; efforts?: unknown; aliases?: unknown }>,
+  activeModel?: string | null
+): void {
+  const seen = new Set<string>();
+  const normalized: ChatModelCatalog['models'] = [];
+  for (const entry of models) {
+    if (normalized.length >= MAX_SYNCED_MODELS) break;
+    const id = entry.id.replace(/[^a-zA-Z0-9._-]/g, '-').slice(0, 80);
+    const label = entry.label.trim().slice(0, 80);
+    if (!id || !label || seen.has(id)) continue;
+    const efforts = [...new Set((Array.isArray(entry.efforts) ? entry.efforts : [])
+      .filter((effort): effort is ReasoningEffort => typeof effort === 'string' && isReasoningEffort(effort)))];
+    if (!efforts.length) continue;
+    const aliases = Array.isArray(entry.aliases)
+      ? [...new Set(entry.aliases.filter((alias): alias is string => typeof alias === 'string').map(alias => alias.trim()).filter(Boolean))].slice(0, 20)
+      : [];
+    seen.add(id);
+    normalized.push({ id, label, efforts, ...(aliases.length ? { aliases } : {}) });
+  }
+  if (!normalized.length) {
+    logInfo('chat-models: ignoring a model sync with nothing usable in it');
+    return;
+  }
+  const now = Date.now();
+  const selected = typeof activeModel === 'string' && normalized.some(model => model.id === activeModel) ? activeModel : null;
+  catalog = { state: 'ready', models: normalized, requestedAt: now, observedAt: now, activeModel: selected, waiting: undefined, error: undefined };
+  writeDurableSoon('chat-models', { observedAt: now, models: normalized, activeModel: selected });
+  if (deadline) clearTimeout(deadline);
+  deadline = null;
+  request = null;
+  changed();
+  wakeBrowserWork();
+}
+
 export function resetChatModelsForTests(): void {
   if (deadline) clearTimeout(deadline); deadline = null; launch = null;
   request = null; lastProblem = null; unofferedAsked.clear(); catalog = { state: 'unknown', requestedAt: null, observedAt: null, models: [] };

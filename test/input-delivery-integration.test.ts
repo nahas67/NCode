@@ -1776,13 +1776,13 @@ describe('IPC input delivery and Goal control integration', () => {
     const { publishPluginSurface, resetPluginRefreshForTests, setPluginRefreshTunnelGraceForTests } = await import('../src/main/plugin-refresh.js');
     resetPluginRefreshForTests(); setPluginRefreshTunnelGraceForTests(0);
     const tools = [{ name: 'read', description: 'Read a file', inputSchema: { type: 'object', properties: {} } }];
-    publishPluginSurface('core', 'Chat On Steroids Core', 'test', 'Synthetic instructions', tools);
+    publishPluginSurface('core', 'NCode Core', 'test', 'Synthetic instructions', tools);
     const requests = (await post('/plugin-refresh', { action: 'pending' })).body.requests;
     expect(requests).toHaveLength(1);
     const identity = { id: requests[0].id, appId: 'asdk_app_synthetic' };
     expect((await post('/plugin-refresh', { ...identity, action: 'claim', connectorName: 'Wrong', tools })).body.ok).toBe(false);
-    expect((await post('/plugin-refresh', { ...identity, action: 'claim', connectorName: 'Chat On Steroids Core', tools })).body.ok).toBe(false);
-    expect((await post('/plugin-refresh', { ...identity, action: 'claim', connectorName: 'Chat On Steroids Core', tools: [{ ...tools[0], description: 'Old declaration' }] })).body.ok).toBe(true);
+    expect((await post('/plugin-refresh', { ...identity, action: 'claim', connectorName: 'NCode Core', tools })).body.ok).toBe(false);
+    expect((await post('/plugin-refresh', { ...identity, action: 'claim', connectorName: 'NCode Core', tools: [{ ...tools[0], description: 'Old declaration' }] })).body.ok).toBe(true);
     expect((await post('/plugin-refresh', { ...identity, action: 'complete', tools: [] })).body.ok).toBe(false);
     expect((await post('/plugin-refresh', { ...identity, action: 'complete', tools, versionId: 'asdk_app_v_synthetic' })).body.ok).toBe(true);
     resetPluginRefreshForTests();
@@ -1794,9 +1794,9 @@ describe('IPC input delivery and Goal control integration', () => {
     resetPluginRefreshForTests(); setPluginRefreshTunnelGraceForTests(0);
     await writeDurableNow('plugin-refresh', []);
     const tools = [{ name: 'computer', description: 'Current', inputSchema: { type: 'object', properties: {} } }];
-    publishPluginSurface('desktop', 'Chat On Steroids Desktop', 'test', '', tools);
+    publishPluginSurface('desktop', 'NCode Desktop', 'test', '', tools);
     const [request] = (await post('/plugin-refresh', { action: 'pending' })).body.requests;
-    const claim = (tunnelId?: string) => post('/plugin-refresh', { id: request.id, appId: 'asdk_app_desktop', action: 'claim', connectorName: 'Chat On Steroids Desktop', tools: [{ name: 'observe', description: 'Old', inputSchema: { type: 'object' } }], tunnelId });
+    const claim = (tunnelId?: string) => post('/plugin-refresh', { id: request.id, appId: 'asdk_app_desktop', action: 'claim', connectorName: 'NCode Desktop', tools: [{ name: 'observe', description: 'Old', inputSchema: { type: 'object' } }], tunnelId });
     expect((await claim()).body.ok).toBe(false);
     expect((await claim('tunnel_core00001')).body.ok).toBe(false); // Core's tunnel is not Desktop's
     expect((await claim('tunnel_desk00001')).body.ok).toBe(true);
@@ -1810,7 +1810,7 @@ describe('IPC input delivery and Goal control integration', () => {
     plugin.resetPluginRefreshForTests(); plugin.setPluginRefreshTunnelGraceForTests(0);
     await writeDurableNow('plugin-refresh', []);
     const tools = [{ name: 'read', description: 'Current declaration', inputSchema: { type: 'object', properties: {} } }];
-    plugin.publishPluginSurface('core', 'Chat On Steroids Core', 'test', '', tools);
+    plugin.publishPluginSurface('core', 'NCode Core', 'test', '', tools);
     const saved = (await plugin.pendingPluginRefreshes())[0]!;
     expect(saved).toBeDefined();
     expect((await post('/plugin-refresh', { action: 'pending' })).body.requests).toEqual([]);
@@ -1818,7 +1818,7 @@ describe('IPC input delivery and Goal control integration', () => {
     await configure(true);
     expect((await post('/plugin-refresh', { action: 'pending' })).body.requests[0].id).toBe(saved.id);
     expect((await post('/status', { openConversations: [] })).body.pluginRefreshRequests).toHaveLength(1);
-    const claim = { action: 'claim', id: saved.id, appId: 'asdk_app_off_on_test', connectorName: 'Chat On Steroids Core', tools: [{ ...tools[0], description: 'Older declaration' }] };
+    const claim = { action: 'claim', id: saved.id, appId: 'asdk_app_off_on_test', connectorName: 'NCode Core', tools: [{ ...tools[0], description: 'Older declaration' }] };
     await configure(false);
     expect((await post('/plugin-refresh', claim)).body).toMatchObject({ ok: false, error: 'automatic_refresh_disabled' });
     await configure(true);
@@ -1834,9 +1834,9 @@ describe('IPC input delivery and Goal control integration', () => {
     resetPluginRefreshForTests(); setPluginRefreshTunnelGraceForTests(0);
     const tools = [{ name: 'read', description: 'Read current', inputSchema: { type: 'object', properties: {} } }];
     const installed = [{ ...tools[0], description: 'Read old' }];
-    publishPluginSurface('core', 'Chat On Steroids Core', 'test', 'Synthetic instructions', tools);
+    publishPluginSurface('core', 'NCode Core', 'test', 'Synthetic instructions', tools);
     const request = (await post('/plugin-refresh', { action: 'pending' })).body.requests[0];
-    const manual = await post('/plugin-refresh', { ...request, appId: 'asdk_app_synthetic', action: 'manual', connectorName: 'Chat On Steroids Core', tools: installed, error: 'Recreate or republish this custom app.' });
+    const manual = await post('/plugin-refresh', { ...request, appId: 'asdk_app_synthetic', action: 'manual', connectorName: 'NCode Core', tools: installed, error: 'Recreate or republish this custom app.' });
     expect(manual.body.ok).toBe(true);
     expect((await post('/plugin-refresh', { action: 'pending' })).body.requests).toEqual([]);
     resetPluginRefreshForTests();
@@ -3053,11 +3053,11 @@ describe('this install\'s connector names', () => {
   it('reach the extension with every status reply, and follow a changed suffix at once', async () => {
     await saveConfig(defaultConfig());
     expect((await post('/status', { openConversations: [] })).body.connectorNames).toEqual({
-      core: 'Chat On Steroids Core', desktop: 'Chat On Steroids Desktop', plugins: 'Chat On Steroids Plugins'
+      core: 'NCode Core', desktop: 'NCode Desktop', plugins: 'NCode Plugins'
     });
     await saveConfig({ ...defaultConfig(), connectorSuffix: 'Windows' });
     expect((await post('/status', { openConversations: [] })).body.connectorNames).toEqual({
-      core: 'Chat On Steroids Core (Windows)', desktop: 'Chat On Steroids Desktop (Windows)', plugins: 'Chat On Steroids Plugins (Windows)'
+      core: 'NCode Core (Windows)', desktop: 'NCode Desktop (Windows)', plugins: 'NCode Plugins (Windows)'
     });
     await saveConfig(defaultConfig());
   });

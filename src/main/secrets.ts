@@ -17,7 +17,7 @@ import { afterKeychainRead, beforeKeychainRead } from './keychain-notice.js';
 
 const FILE_NAME = 'secrets.bin';
 const LINUX_BASIC_TEXT_PREFIX = Buffer.from('v10', 'ascii');
-const LINUX_STORAGE_PROBE = 'chat-on-steroids-safe-storage-probe';
+const LINUX_STORAGE_PROBE = 'ncode-safe-storage-probe';
 
 let secretsPath = '';
 let cache: Record<string, string> | null = null;
@@ -150,7 +150,7 @@ export async function secureStorageStatus(platform: NodeJS.Platform = process.pl
         return {
           available: false,
           detail:
-            'Linux secure storage fell back to Electron’s insecure hard-coded-key provider. Start or unlock a desktop keyring/Secret Service (for example GNOME Keyring or KWallet), then restart Chat On Steroids.'
+            'Linux secure storage fell back to Electron’s insecure hard-coded-key provider. Start or unlock a desktop keyring/Secret Service (for example GNOME Keyring or KWallet), then restart NCode.'
         };
       }
     }

@@ -231,15 +231,15 @@ describe('a non-zero exit that is a result rather than a failure', () => {
   });
 
   it('binds bare PowerShell and POSIX ripgrep to the bundled executable without touching explicit/dynamic forms', () => {
-    const bundled = 'C:\\Program Files\\Chat On Steroids\\resources\\rg\\rg.exe';
+    const bundled = 'C:\\Program Files\\NCode\\resources\\rg\\rg.exe';
     expect(bindBundledRipgrep('rg -n foo src', 'powershell', bundled)).toBe(
-      "& 'C:\\Program Files\\Chat On Steroids\\resources\\rg\\rg.exe' -n foo src"
+      "& 'C:\\Program Files\\NCode\\resources\\rg\\rg.exe' -n foo src"
     );
     expect(bindBundledRipgrep('rg foo | Select-Object -First 5', 'powershell', bundled)).toBe(
-      "& 'C:\\Program Files\\Chat On Steroids\\resources\\rg\\rg.exe' foo | Select-Object -First 5"
+      "& 'C:\\Program Files\\NCode\\resources\\rg\\rg.exe' foo | Select-Object -First 5"
     );
     expect(bindBundledRipgrep('Write-Output x; ripgrep foo', 'powershell', bundled)).toBe(
-      "Write-Output x; & 'C:\\Program Files\\Chat On Steroids\\resources\\rg\\rg.exe' foo"
+      "Write-Output x; & 'C:\\Program Files\\NCode\\resources\\rg\\rg.exe' foo"
     );
 
     // Explicit paths and dynamic/escaped commands preserve the exact shell semantics the
@@ -249,8 +249,8 @@ describe('a non-zero exit that is a result rather than a failure', () => {
     expect(bindBundledRipgrep('& $search foo', 'powershell', bundled)).toBe('& $search foo');
     expect(bindBundledRipgrep('rg foo`; Write-Output x', 'powershell', bundled)).toBe('rg foo`; Write-Output x');
 
-    const posix = '/Applications/Chat On Steroids/resources/rg/rg';
-    const boundPosix = "'/Applications/Chat On Steroids/resources/rg/rg' foo";
+    const posix = '/Applications/NCode/resources/rg/rg';
+    const boundPosix = "'/Applications/NCode/resources/rg/rg' foo";
     expect(bindBundledRipgrep('rg foo', 'bash', posix)).toBe(boundPosix);
     expect(bindBundledRipgrep('ripgrep foo', 'zsh', posix)).toBe(boundPosix);
     expect(bindBundledRipgrep('rg foo', 'sh', posix)).toBe(boundPosix);

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { bridgePortSelection } from '../src/main/bridge-ports.js';
 import { readFileSync } from 'node:fs';
 import { BROWSER_BRIDGE_AUTO_PORTS, BROWSER_BRIDGE_FALLBACK_PORTS, BROWSER_BRIDGE_PORTS } from '../src/shared/browser-bridge.js';
+import { BRIDGE_PORT } from '../src/shared/ncode-config.js';
 
 describe('bridge port candidates', () => {
   it('uses the supported order for Auto and exactly one candidate for each fixed choice', () => {
@@ -23,11 +24,16 @@ describe('bridge port candidates', () => {
     expect(BROWSER_BRIDGE_FALLBACK_PORTS).toEqual([18765, 18766, 18767, 18768, 18769, 38765, 38766, 38767, 38768, 38769]);
     expect(BROWSER_BRIDGE_AUTO_PORTS).toEqual([...BROWSER_BRIDGE_PORTS, ...BROWSER_BRIDGE_FALLBACK_PORTS]);
   });
-  it('lets the extension find every port Auto may choose', () => {
+  it('gives the Gemini extension exactly the NCode port and never the legacy one', () => {
+    // The shipped extension is the Gemini companion: it dials one fixed port, and that port is
+    // owned by `ncode-bridge.ts`. The legacy ChatGPT bridge binds BROWSER_BRIDGE_PORTS instead,
+    // which is why the two must never overlap — a refactor once pointed this list at BRIDGE_PORT
+    // and both listeners raced for the same socket, losing every desktop send to EADDRINUSE.
     const source = readFileSync(new URL('../extension/background.js', import.meta.url), 'utf8');
     const literal = /^const PORTS = \[([0-9, ]+)\];$/m.exec(source)?.[1];
-    expect(literal?.split(',').map(value => Number(value.trim()))).toEqual([...BROWSER_BRIDGE_AUTO_PORTS]);
+    expect(literal?.split(',').map(value => Number(value.trim()))).toEqual([BRIDGE_PORT]);
     const manifest = JSON.parse(readFileSync(new URL('../extension/manifest.json', import.meta.url), 'utf8')) as { host_permissions: string[] };
-    for (const port of BROWSER_BRIDGE_AUTO_PORTS) expect(manifest.host_permissions).toContain(`http://127.0.0.1:${port}/*`);
+    expect(manifest.host_permissions).toContain(`http://127.0.0.1:${BRIDGE_PORT}/*`);
+    expect(BROWSER_BRIDGE_AUTO_PORTS).not.toContain(BRIDGE_PORT);
   });
 });

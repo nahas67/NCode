@@ -1,5 +1,5 @@
 /**
- * Whether a newer Chat On Steroids has been published, and the file that becomes it.
+ * Whether a newer NCode has been published, and the file that becomes it.
  *
  * This is the whole updater: one pass, run at startup and repeated on a slow timer, that asks
  * GitHub for the latest release, stages the artifact this installation can actually apply, and
@@ -49,7 +49,7 @@ import { logInfo, logWarn } from './logger.js';
 import { APP_VERSION } from './version.js';
 import { isNewer, type UpdateStatus } from '../shared/types.js';
 
-const REPO = 'totec448-spec/chat-on-steroids';
+const REPO = 'totec448-spec/ncode';
 const LATEST_RELEASE_API = `https://api.github.com/repos/${REPO}/releases/latest`;
 
 const CHECK_TIMEOUT_MS = 15_000;
@@ -102,9 +102,9 @@ export function stagedArtifact(
 ): { name: string; kind: 'installer' | 'appimage'; target: string } | null {
   if (!packaged) return null;
   if (arch !== 'x64' && arch !== 'arm64') return null;
-  if (platform === 'win32') return { name: `Chat-On-Steroids-Setup-${arch}.exe`, kind: 'installer', target: '' };
+  if (platform === 'win32') return { name: `NCode-Setup-${arch}.exe`, kind: 'installer', target: '' };
   if (platform === 'linux' && appImage) {
-    return { name: `Chat-On-Steroids-Linux-${arch}.AppImage`, kind: 'appimage', target: appImage };
+    return { name: `NCode-Linux-${arch}.AppImage`, kind: 'appimage', target: appImage };
   }
   return null;
 }
@@ -124,8 +124,8 @@ export function manualDownloadName(
   packaged: boolean = app.isPackaged
 ): string | null {
   if (!packaged || (arch !== 'x64' && arch !== 'arm64')) return null;
-  if (platform === 'darwin') return `Chat-On-Steroids-macOS-${arch}.dmg`;
-  if (platform === 'linux' && !appImage) return `Chat-On-Steroids-Linux-${arch}.deb`;
+  if (platform === 'darwin') return `NCode-macOS-${arch}.dmg`;
+  if (platform === 'linux' && !appImage) return `NCode-Linux-${arch}.deb`;
   return null;
 }
 
@@ -337,7 +337,7 @@ async function latestVersionFromPage(): Promise<string> {
     method: 'HEAD',
     signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
     redirect: 'follow',
-    headers: { 'user-agent': `chat-on-steroids/${APP_VERSION}` }
+    headers: { 'user-agent': `ncode/${APP_VERSION}` }
   });
   if (!response.ok) throw new Error(`the release page answered ${response.status}`);
   let landed: URL | null = null;
@@ -376,7 +376,7 @@ async function get(url: string, timeout: number | AbortSignal, headers: Record<s
   const response = await fetch(url, {
     signal: typeof timeout === 'number' ? AbortSignal.timeout(timeout) : timeout,
     redirect: 'follow',
-    headers: { 'user-agent': `chat-on-steroids/${APP_VERSION}`, ...headers }
+    headers: { 'user-agent': `ncode/${APP_VERSION}`, ...headers }
   });
   if (!response.ok) throw new Error(`${new URL(url).pathname.split('/').pop()} answered ${response.status}`);
   return response;

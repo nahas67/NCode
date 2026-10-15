@@ -55,4 +55,4 @@ maintainer inspected it installed. The full suite is left to CI.
 ## Credit
 
 Builds on Maximapple's #535, which chose Phosphor and added its license. The font approach
-follows the maintainer's fork (Haz4rdovisk/chat-on-steroids-mainstream).
+follows the maintainer's fork (Haz4rdovisk/ncode-mainstream).

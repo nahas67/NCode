@@ -12,7 +12,9 @@ export function wakeBrowserWork(topic: 'wake' | 'browser-control' = 'wake'): voi
 
 /** `changed` hears an authenticated channel open or close: whether the browser is there at all. */
 export function attachBrowserWake(server: http.Server, allowed: (request: http.IncomingMessage) => boolean,
-  authenticate: (token: string) => Promise<boolean>, changed: () => void = () => undefined): {
+  authenticate: (token: string) => Promise<boolean>, changed: () => void = () => undefined,
+  /** Paths on this server another upgrade handler owns; those sockets are left untouched. */
+  ownsOthers: (pathname: string) => boolean = () => false): {
     connected(host?: WakeHost): boolean; revoke(): void; dispose(): void;
   } {
   const sockets = new WebSocketServer({ noServer: true, maxPayload: 512, perMessageDeflate: false });
@@ -22,7 +24,14 @@ export function attachBrowserWake(server: http.Server, allowed: (request: http.I
   let epoch = 0;
   const upgrade = (request: http.IncomingMessage, socket: import('node:stream').Duplex, head: Buffer) => {
     const url = new URL(request.url ?? '', 'http://127.0.0.1');
-    if (url.pathname !== '/wake' || !allowed(request) || sockets.clients.size >= 8) { socket.destroy(); return; }
+    if (url.pathname !== '/wake') {
+      // Another upgrade handler on the same server may own this path. Node runs every listener and
+      // offers no way to stop propagation, so defer instead of destroying a socket we do not own.
+      if (ownsOthers(url.pathname)) return;
+      socket.destroy();
+      return;
+    }
+    if (!allowed(request) || sockets.clients.size >= 8) { socket.destroy(); return; }
     const host = url.searchParams.get('host');
     sockets.handleUpgrade(request, socket, head, (client) => {
       if (host === 'cos' || host === 'browser') hosts.set(client, host);

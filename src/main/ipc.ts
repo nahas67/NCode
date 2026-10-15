@@ -19,6 +19,7 @@ import { committedResumeAncestorsFromSummary, DEFAULT_RECORDING_STORAGE_GIB, REA
 import { safeExternalLink } from '../shared/external-link.js';
 import { wakeBrowserWork } from './browser-wake.js';
 import { getChatModels, startChatModelDiscovery, configureChatModelDiscovery } from './chat-models.js';
+import { resolveChatModel } from '../shared/chat-models.js';
 import { releaseSessionFinish, requestSessionFinishGoal } from './session/finish.js';
 import { GOAL_MARKER_INSTRUCTION } from '../shared/goal-templates.js';
 import { validateInputImages } from './session/input-images.js';
@@ -38,6 +39,20 @@ import { registerPluginIpc } from './plugins-ipc.js';
 import { deletePet, importPet, loadPetAsset, petLibraryState, setPetEnabled, setPetFavorite } from './pet-library.js';
 import { petOverlayControlState, refreshPetOverlayActivities, refreshPetOverlayAppearance, setPetOverlayVisible } from './pet-overlay.js';
 import { confirmedPluginSchemas, pluginRefreshPublications, pluginRefreshUnreadable, resetPluginRefreshLedger } from './plugin-refresh.js';
+import {
+  getNCodeConnectionState,
+  getLatestPlan,
+  getLatestCheckpoint,
+  getLatestFinish,
+  startGoalInGemini,
+  switchGeminiModel,
+  requestGeminiCheckpoint,
+  onNCodePlan,
+  onNCodeCheckpoint,
+  onNCodeFinish,
+  onNCodeConnection
+} from './ncode-bridge.js';
+import { buildNCodeBootstrapPrompt } from './prompts/ncode-bootstrap.js';
 /**
  * IPC surface.
  *
@@ -104,6 +119,7 @@ import {
   pendingCommands,
   onBridgeChange,
   startBridge,
+  legacyBridgeListenerEnabled,
   stopBridge,
   sweepStaleSwarm,
   unpair,
@@ -726,8 +742,8 @@ export function registerIpc(getWindow: () => BrowserWindow | null, quitToInstall
     }
     // Recording, workers and direct browser tools share the same extension transport.
     // Startup and settings saves use one eligibility rule.
-    if (browserExtensionRequired(next)) await startBridge();
-    else await stopBridge();
+    if (!browserExtensionRequired(next) || !legacyBridgeListenerEnabled()) await stopBridge();
+    else await startBridge();
     if (before.ui.chatBrowser !== next.ui.chatBrowser) await syncCosBrowser();
     if (before.capabilities.screen !== next.capabilities.screen || before.capabilities.control !== next.capabilities.control || before.readOnly !== next.readOnly) wakeBrowserWork('browser-control');
     // Permissions and the second tunnel id both decide whether the optional Desktop
@@ -964,7 +980,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null, quitToInstall
   handle('roots:rename', async (payload) => {
     const { name, newName } = renameRoot.parse(payload);
     if (RESERVED_ROOT_NAMES.has(newName)) {
-      throw new SandboxError(`/${newName} is reserved by Chat On Steroids and cannot be used as a folder name`);
+      throw new SandboxError(`/${newName} is reserved by NCode and cannot be used as a folder name`);
     }
     await updateConfig((config) => {
       if (!config.roots.some((root) => root.name === name)) throw new Error(`/${name} is not an approved folder`);
@@ -1648,6 +1664,65 @@ export function registerIpc(getWindow: () => BrowserWindow | null, quitToInstall
 
   handle('bridge:extensionPath', async () => extensionDir());
 
+  // ----------------------------------------------------------------- ncode bridge
+  handle('ncode:startGoal', async (payload) => {
+    const { goal, prompt } = z.object({ goal: z.string(), prompt: z.string().optional() }).parse(payload);
+    const fullPrompt = prompt || buildNCodeBootstrapPrompt({
+      goal,
+      workspacePath: getConfig().roots?.[0]?.path
+    });
+    return startGoalInGemini(goal, fullPrompt);
+  });
+
+  handle('ncode:switchModel', async (payload) => {
+    const { modelId } = z.object({ modelId: z.string().trim().min(1).max(80) }).parse(payload);
+    // The composer offers exactly the observed catalog, so a switch is only meaningful for an id
+    // this account's Gemini tab actually reported. Broadcasting an arbitrary string would put a
+    // selector on every open tab that no page has a tier for.
+    const match = resolveChatModel(getChatModels().models, modelId);
+    if (!match) throw new Error('That model is not in the catalog Gemini reported. Pick one from the model list.');
+    return switchGeminiModel(match.id);
+  });
+
+  handle('ncode:status', async () => {
+    return {
+      // One connection record, from the only owner of it. The renderer paints the bridge, the
+      // extension and the Gemini tab from these three booleans rather than from a legacy tunnel
+      // verdict that no listener in this product can produce.
+      ...getNCodeConnectionState(),
+      plan: getLatestPlan(),
+      checkpoint: getLatestCheckpoint(),
+      finish: getLatestFinish(),
+      // The legacy browser bridge is off at runtime, so the renderer must stop presenting its
+      // tunnel verdict as NCode's connection state and use the companion status instead.
+      legacyBridge: legacyBridgeListenerEnabled()
+    };
+  });
+
+  handle('ncode:requestCheckpoint', async () => {
+    return requestGeminiCheckpoint();
+  });
+
+  onNCodePlan((plan) => {
+    const target = getWindow();
+    if (target && !target.isDestroyed()) target.webContents.send('ncode:plan', plan);
+  });
+
+  onNCodeCheckpoint((checkpoint) => {
+    const target = getWindow();
+    if (target && !target.isDestroyed()) target.webContents.send('ncode:checkpoint', checkpoint);
+  });
+
+  onNCodeFinish((summary) => {
+    const target = getWindow();
+    if (target && !target.isDestroyed()) target.webContents.send('ncode:finish', summary);
+  });
+
+  onNCodeConnection((state) => {
+    const target = getWindow();
+    if (target && !target.isDestroyed()) target.webContents.send('ncode:connection', state);
+  });
+
   // ----------------------------------------------------------------- swarm
 
   handle('swarm:get', async () => swarmState());
@@ -1835,7 +1910,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null, quitToInstall
     activity: sessionInputActivity,
     wakeDecision: async (entry, signal) => {
       signal.throwIfAborted();
-      if (!await startBridge()) throw new Error('The browser bridge could not start');
+      if (legacyBridgeListenerEnabled() && !await startBridge()) throw new Error('The browser bridge could not start');
       signal.throwIfAborted();
       const marker = `cos-input=${encodeURIComponent(entry.id)}`;
       await wakeBrowserUrl(entry.conversationId ? `https://chatgpt.com/c/${encodeURIComponent(entry.conversationId)}`
@@ -1924,7 +1999,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null, quitToInstall
     }, publish);
   });
   configureChatModelDiscovery({ changed: () => push('chatModels:changed', getChatModels()), wake: async (nonce, allowOpen) => {
-    if (!await startBridge()) throw new Error('The browser bridge could not start');
+    if (legacyBridgeListenerEnabled() && !await startBridge()) throw new Error('The browser bridge could not start');
     if (allowOpen) {
       await wakeBrowserUrl(`https://chatgpt.com/?cos-model-catalog=${nonce}`, true, true);
       // The approval prompt it describes comes with ChatGPT's first Core tool call, which needs a Core

@@ -175,7 +175,7 @@ it('restores an interrupted in-place update even when the mixed published tree s
   await fs.mkdir(stage, { recursive: true });
   await fs.writeFile(path.join(stage, 'manifest.json'), JSON.stringify({ version: '2.0.3' }));
   await fs.writeFile(path.join(stage, 'background.js'), 'next package');
-  await fs.writeFile(path.join(stage, '.chat-on-steroids-source'), 'complete-stage');
+  await fs.writeFile(path.join(stage, '.ncode-source'), 'complete-stage');
 
   Object.defineProperty(process, 'resourcesPath', {
     configurable: true,

@@ -15,7 +15,7 @@ Long runs recover more reliably: a chat that stops on "Message delivery timed ou
 
 ### 👉 After updating
 
-- **Refresh the Core plugin in ChatGPT once.** One of Core's tool descriptions changed, so ChatGPT needs to load the new version. With **Automatic plugin refresh** on (**Settings → Agents & automation → Browser & history**), the app does this by itself about two and a half minutes after it starts. Otherwise the app shows a reminder: in ChatGPT, open **Plugins**, choose your **Chat On Steroids Core** plugin and click **Refresh tools**.
+- **Refresh the Core plugin in ChatGPT once.** One of Core's tool descriptions changed, so ChatGPT needs to load the new version. With **Automatic plugin refresh** on (**Settings → Agents & automation → Browser & history**), the app does this by itself about two and a half minutes after it starts. Otherwise the app shows a reminder: in ChatGPT, open **Plugins**, choose your **NCode Core** plugin and click **Refresh tools**.
 - The browser extension updates itself once no chat is busy; there is nothing to do.
 
 ### ✨ Highlights
@@ -65,15 +65,15 @@ And to everyone whose reports led to fixes in this release: **@danangplace-cpu**
 
 ## [2.1.35] — ChatGPT Projects, worker worktrees and steadier long runs
 
-New Chat On Steroids projects get their own ChatGPT Project, background chats can live in a tab group, and workers can each get their own Git copy of the project. On Windows you can dictate a message. Long runs are steadier: messages sent while ChatGPT is working reach it, and the app raises fewer false alarms. Renamed connectors keep working, and two computers on one ChatGPT account no longer mix up their tools.
+New NCode projects get their own ChatGPT Project, background chats can live in a tab group, and workers can each get their own Git copy of the project. On Windows you can dictate a message. Long runs are steadier: messages sent while ChatGPT is working reach it, and the app raises fewer false alarms. Renamed connectors keep working, and two computers on one ChatGPT account no longer mix up their tools.
 
 ### ✨ Highlights
 
 - **New projects get a ChatGPT Project.** When you add a project folder, the app also creates a ChatGPT Project with the same name, and every new chat of that project opens inside it. A ChatGPT tab opens for a few seconds to create it. Existing projects and chats are not changed. If the Project can't be created, the project's menu offers **Retry ChatGPT Project**.
-- **Background chats in a tab group.** In **Settings → Agents & automation → Browser & history**, **Background tabs open in** can now be **A tab group in your browser window**: one collapsed "Chat On Steroids" group instead of a separate minimized window. The window stays the default.
+- **Background chats in a tab group.** In **Settings → Agents & automation → Browser & history**, **Background tabs open in** can now be **A tab group in your browser window**: one collapsed "NCode" group instead of a separate minimized window. The window stays the default.
 - **Workers in their own Git copy.** With **Isolate new workers in Git worktrees** on (off by default), each new worker gets its own Git worktree and branch, so workers don't edit your checkout or each other's files. A new **Worker checkouts** section lists the copies of finished workers. Removing one asks first and keeps its branch and commits. It needs an approved folder that contains the project, not the project folder itself.
 - **Dictation on Windows.** A microphone button in the message box turns speech into text with Windows' own speech recognition. The text goes into your draft and is never sent on its own.
-- **Renamed connectors keep working.** You can rename the Chat On Steroids apps in ChatGPT: after their first use, the app recognizes them by ChatGPT's app ID.
+- **Renamed connectors keep working.** You can rename the NCode apps in ChatGPT: after their first use, the app recognizes them by ChatGPT's app ID.
 
 ### 🛠 Fixed
 
@@ -105,7 +105,7 @@ Goal and Loop now work on ChatGPT plans that don't show a model picker, such as 
 
 - **Goal on every plan.** On plans without a model picker (for example the Free plan), every Goal or Loop follow-up used to fail with "Requested model or reasoning could not be confirmed". Follow-ups now use the model the chat already has.
 - **A background window that stays.** With **Background chats** on, the extension kept forgetting its background window whenever it updated or reloaded. New background chats then opened another window, and selecting a chat in the app no longer showed its tab there. The same window is now used again.
-- **Clearer when a tool is on another connector.** When ChatGPT runs a script that calls a Chat On Steroids tool its connector doesn't have, the result now names the connector that has it, instead of only "not a function". If your connectors share one Secure Tunnel ID, it also says that this sends calls to the wrong connector.
+- **Clearer when a tool is on another connector.** When ChatGPT runs a script that calls a NCode tool its connector doesn't have, the result now names the connector that has it, instead of only "not a function". If your connectors share one Secure Tunnel ID, it also says that this sends calls to the wrong connector.
 - **Fewer repeated commands.** When ChatGPT starts a command that is still running in the same chat and folder, for example after a lost answer, the result now says so and how to read the running one, so copies don't pile up. The new command still runs.
 
 ### 🛠 Fixed
@@ -173,7 +173,7 @@ A message you send while ChatGPT is working now reaches the model: it goes into 
 
 ### ⚠️ Known issue
 
-- **Right after an update or restart,** a tool call from a chat that was already open can still, now and then, take up to two minutes to arrive while ChatGPT shows "Still waiting for the current operation to complete". It goes through by itself. The app now avoids this in most cases (see Fixed), but the routing is on OpenAI's side ([#1220](https://github.com/totec448-spec/chat-on-steroids/issues/1220)).
+- **Right after an update or restart,** a tool call from a chat that was already open can still, now and then, take up to two minutes to arrive while ChatGPT shows "Still waiting for the current operation to complete". It goes through by itself. The app now avoids this in most cases (see Fixed), but the routing is on OpenAI's side ([#1220](https://github.com/totec448-spec/ncode/issues/1220)).
 
 ### 💛 Thank you
 
@@ -200,7 +200,7 @@ ChatGPT's GPT-6 rollout changed how its page works, and this release catches up.
 - **Compact & Resume** no longer reloads the chat it starts from, which could make the first attempt fail with "the Send button or message box was not ready".
 - **Very long Compact & Resume summaries** keep their end when ChatGPT's page draws more than 120 KB for them.
 - **Model list:** refreshing it no longer fails when an open chat still uses a model ChatGPT has retired. On a translated ChatGPT page, Extra High is listed the same way as on an English one.
-- **Several computers on one account:** a new worker tab now calls this computer's Chat On Steroids, even before its page has listed its apps.
+- **Several computers on one account:** a new worker tab now calls this computer's NCode, even before its page has listed its apps.
 - **Recovery:** a chat that leaves ChatGPT's "could not be loaded" page keeps its automatic recovery.
 - **Attachments:** a file shown as one of ChatGPT's newer file tiles is recognized, so a message with it is no longer held back in the draft.
 - **Search** lists chats whose title matches first, before matches in the chat's text.
@@ -211,7 +211,7 @@ ChatGPT's GPT-6 rollout changed how its page works, and this release catches up.
 
 ### ⚠️ Known issue
 
-- **Right after an update or restart,** the next tool call from a chat that was already open can take about two minutes to arrive, while ChatGPT shows "Still waiting for the current operation to complete". It then goes through by itself. New chats aren't affected. The delay is in how ChatGPT routes calls to the restarted connection ([#1220](https://github.com/totec448-spec/chat-on-steroids/issues/1220)).
+- **Right after an update or restart,** the next tool call from a chat that was already open can take about two minutes to arrive, while ChatGPT shows "Still waiting for the current operation to complete". It then goes through by itself. New chats aren't affected. The delay is in how ChatGPT routes calls to the restarted connection ([#1220](https://github.com/totec448-spec/ncode/issues/1220)).
 
 ### 💛 Thank you
 
@@ -303,9 +303,9 @@ Search all your chats by title or by what was said in them, and give chats your 
 - **Rename a chat.** Use the pencil on a chat, or double-click its title, to give it your own name in the app. ChatGPT's title stays as it is, and clearing the name brings it back.
 - **Your Skills from Claude Code, Codex and ~/.agents just work.** Skills from your enabled Claude Code plugins, `~/.claude/skills`, Codex and `~/.agents/skills` are available to ChatGPT, read-only, without sharing the rest of those folders (no settings, history or keys). Pick any of them with `/` in the message box. ChatGPT also gets a short list that takes turns across all your Skill sources, so one big folder no longer hides the others.
 - **A guided Setup.** Setup walks you through six steps, one at a time, with a picture for each. Every step checks what's really done and remembers it across restarts, so a finished step no longer drops back to pending after a restart.
-- **An optional built-in browser.** In Settings › ChatGPT browser you can choose "Chat On Steroids browser" to run ChatGPT in the app's own window, kept in the tray, instead of a tab in Chrome. Google doesn't allow signing in inside an embedded browser, so for Google sign-in the app offers your installed Chrome, Edge or Brave to finish signing in. Chrome with the extension stays the default.
-- **Ask for a picture, get a picture.** ChatGPT turns its image tool off for any message that mentions an app, and the app mentions Chat On Steroids in your messages so ChatGPT can use it. So "Create an image of …" used to end with "no image tool available". Now the app notices when your message asks for a picture, in any of its languages, and sends just that message without the mention. Follow-ups like "make it brighter" right after a picture, and edits of a picture you attached, count too. Everything else keeps the mention, including requests that only talk about images, like "compress the images in this folder".
-- **Save images ChatGPT generates.** Ask ChatGPT to save an image it generated in your chat, and it saves the original file, not a screenshot, into a folder you shared. Existing files are never replaced. This is a new tool, so refresh Chat On Steroids Core in ChatGPT once after updating; the app reminds you.
+- **An optional built-in browser.** In Settings › ChatGPT browser you can choose "NCode browser" to run ChatGPT in the app's own window, kept in the tray, instead of a tab in Chrome. Google doesn't allow signing in inside an embedded browser, so for Google sign-in the app offers your installed Chrome, Edge or Brave to finish signing in. Chrome with the extension stays the default.
+- **Ask for a picture, get a picture.** ChatGPT turns its image tool off for any message that mentions an app, and the app mentions NCode in your messages so ChatGPT can use it. So "Create an image of …" used to end with "no image tool available". Now the app notices when your message asks for a picture, in any of its languages, and sends just that message without the mention. Follow-ups like "make it brighter" right after a picture, and edits of a picture you attached, count too. Everything else keeps the mention, including requests that only talk about images, like "compress the images in this folder".
+- **Save images ChatGPT generates.** Ask ChatGPT to save an image it generated in your chat, and it saves the original file, not a screenshot, into a folder you shared. Existing files are never replaced. This is a new tool, so refresh NCode Core in ChatGPT once after updating; the app reminds you.
 
 ### 🛠 Fixed
 
@@ -331,7 +331,7 @@ Search all your chats by title or by what was said in them, and give chats your 
 
 To **@Haz4rdovisk** for the guided Setup and the built-in browser. To **@xuan2261** for keeping the canary builds and the welcome workflow running. To **@danangplace-cpu** for asking for chat search and renaming, and **@TimBriseby** for asking to save generated images. And to **@tude91979059-byte** for the detailed logs behind the Goal reload fix.
 
-**Updating?** The extension updates itself once no chat is busy. If it stays on the old version, reload it once in `chrome://extensions`. Chat On Steroids Core has a new tool, so refresh it once in ChatGPT's plugin settings when the app says "connector tools changed", or turn on Settings › Browser & history › Automatic plugin refresh. On macOS, the app asks once for your login password so the new version can open its saved keys: choose **Always Allow**.
+**Updating?** The extension updates itself once no chat is busy. If it stays on the old version, reload it once in `chrome://extensions`. NCode Core has a new tool, so refresh it once in ChatGPT's plugin settings when the app says "connector tools changed", or turn on Settings › Browser & history › Automatic plugin refresh. On macOS, the app asks once for your login password so the new version can open its saved keys: choose **Always Allow**.
 
 ## [2.1.27] — Workers stay on track, and you stay in control
 
@@ -438,7 +438,7 @@ Your first message lands, your long runs keep going, and the app tells you what 
 
 - **Default model for new chats.** Pick the model and reasoning that new chats start with. "Automatic" keeps today's behavior, and a chat you continue keeps its own model.
 - **Follow new output.** The app and the ChatGPT page stay at the end of the chat while answers grow. Scroll up to pause it. On by default.
-- **Choose whether your messages mention Chat On Steroids Core.** The mention makes sure ChatGPT can use the app in every chat. Turn it off if plain questions start with an unneeded tool call; workers, Goal, Loop and Continue always keep it.
+- **Choose whether your messages mention NCode Core.** The mention makes sure ChatGPT can use the app in every chat. Turn it off if plain questions start with an unneeded tool call; workers, Goal, Loop and Continue always keep it.
 - **The window remembers its size and place,** and opens maximized if you left it that way.
 - **Search all OpenRouter models** in Goal's model list.
 - **Русский и Tiếng Việt.** The app now speaks Russian and Vietnamese.
@@ -464,11 +464,11 @@ To **@Haz4rdovisk** for tracking down the lost first turns and sends, the round 
 
 ## [2.1.25] — Chats keep going on their own
 
-This update is about chats that stopped and waited for you to type "continue". Answers sent with the Chat On Steroids mention are recorded properly again, resumed Project chats are followed correctly, and an automatic Continue no longer gets stuck in the message box.
+This update is about chats that stopped and waited for you to type "continue". Answers sent with the NCode mention are recorded properly again, resumed Project chats are followed correctly, and an automatic Continue no longer gets stuck in the message box.
 
 ### Fixed
 
-- **Answers are recorded again for messages with the Core mention.** Since 2.1.24, CoS ends its messages with an "@Chat On Steroids Core" mention. CoS then sometimes didn't notice that such a message had started a turn, so it never saw the answer finish. This happened most often in a chat that had just continued after Compact & resume. Chats then looked stuck, and recovery stepped in although the answer was already there.
+- **Answers are recorded again for messages with the Core mention.** Since 2.1.24, CoS ends its messages with an "@NCode Core" mention. CoS then sometimes didn't notice that such a message had started a turn, so it never saw the answer finish. This happened most often in a chat that had just continued after Compact & resume. Chats then looked stuck, and recovery stepped in although the answer was already there.
 - **Chats continued in a Project are followed correctly.** After Compact & resume in a Project, ChatGPT keeps the old chat hidden in the same tab. CoS read that hidden chat too, so it ignored the new chat's activity. It now reads only the chat you see.
 - **An automatic Continue no longer gets stuck in the message box.** After a reload, CoS's own "continue" text could stay unsent in the message box and block every further repair, until you pressed Send yourself. CoS now removes its own unsent text. If a Continue still can't be sent for three minutes, CoS stops trying instead of retrying every second, and its log says why.
 - **Extra High chats continue after two minutes, not twenty.** When an Extra High (or Max) answer was lost to a connection error, CoS still waited the long thinking window of up to twenty minutes before it stepped in. It now continues two minutes after the failure.
@@ -487,12 +487,12 @@ To **@Haz4rdovisk** for the precise analysis of the missing turns (#900), to **@
 
 ## [2.1.24] — Projects and workers back on track
 
-This update fixes Compact & resume for chats inside Projects, workers that started without any Chat On Steroids tools on some ChatGPT accounts, and the automatic refresh of the Plugins connector.
+This update fixes Compact & resume for chats inside Projects, workers that started without any NCode tools on some ChatGPT accounts, and the automatic refresh of the Plugins connector.
 
 ### Fixed
 
 - **Compact & resume works again in Projects.** For chats inside a ChatGPT Project, every Compact & resume failed with "ChatGPT could not open the source Project". ChatGPT changed how it opens a Project: the link at the top of the chat, the message box and the pages a tab keeps in the background all behave differently now. Long Project chats then stopped at their context limit until you stepped in. CoS handles the new behavior, and the replacement chat starts in the same Project.
-- **Workers and Loop get their tools on every account.** On some accounts (seen on Plus and Business in ChatGPT's Chat mode), ChatGPT only gives a chat the Chat On Steroids tools when the message mentions the app. Workers then received their task but couldn't run anything. Every message CoS sends now ends with an "@Chat On Steroids Core" mention, the same one you can pick from ChatGPT's @ menu. On accounts that didn't need it, you'll just see the small mention chip.
+- **Workers and Loop get their tools on every account.** On some accounts (seen on Plus and Business in ChatGPT's Chat mode), ChatGPT only gives a chat the NCode tools when the message mentions the app. Workers then received their task but couldn't run anything. Every message CoS sends now ends with an "@NCode Core" mention, the same one you can pick from ChatGPT's @ menu. On accounts that didn't need it, you'll just see the small mention chip.
 - **The Plugins connector refreshes again.** With larger plugins installed, such as Unity, the automatic refresh of the Plugins connector failed every time, so ChatGPT kept an old tool list after an update. It now works for every plugin set CoS can publish.
 - **No leftover text after a failed worker start.** When ChatGPT didn't accept the start or wake message of a worker, the text stayed in that chat's message box and looked like something you still had to send. CoS now removes its own text; anything you typed stays.
 - **Pinned tabs stay where you put them.** CoS no longer moves a ChatGPT tab you pinned into its background window.
@@ -667,7 +667,7 @@ A fix for everyone whose browser extension stopped connecting after an update, p
 - **Reviewing ChatGPT's edits is more dependable.** Every file of a larger edit can now be reviewed, not just the first eight. When a diff couldn't be kept, for example because the file was too large, the edit says so instead of simply showing no Review button. A partly kept edit shows how many of its files you can review.
 - **Clearer connection checks.** Asking the app whether it is running (for example from a terminal) no longer reports the browser extension as incompatible.
 
-**Still not connected on 2.1.18?** Click the Chat On Steroids extension icon once, then refresh your ChatGPT tabs. After updating to 2.1.19 the extension updates itself and connects on its own.
+**Still not connected on 2.1.18?** Click the NCode extension icon once, then refresh your ChatGPT tabs. After updating to 2.1.19 the extension updates itself and connects on its own.
 
 ## [2.1.18] — Recommended skills install again
 
@@ -765,7 +765,7 @@ The biggest update in a while. Your project now opens right next to the chat, a 
 - **Setup explains that renaming the ChatGPT app breaks tool tracking,** so keep the name CoS suggests.
 - **Optional playful status words.** Turn them on in the Advanced settings and a busy chat says things like "Skipping leg day" instead of "Working". Off by default.
 
-**After updating:** reload the Chat On Steroids extension in `chrome://extensions` one last time, then refresh your open ChatGPT tabs. From now on, the extension updates itself.
+**After updating:** reload the NCode extension in `chrome://extensions` one last time, then refresh your open ChatGPT tabs. From now on, the extension updates itself.
 
 ## [2.1.16] — Fewer stuck chats
 
@@ -805,11 +805,11 @@ A reliability update on top of 2.1.15. It keeps up with ChatGPT's latest changes
 - **Answers with many sources display faster.**
 - More of the app is translated into Spanish, French, Japanese, Turkish and Chinese.
 
-**After updating:** reload the Chat On Steroids extension in `chrome://extensions`, then refresh your open ChatGPT tabs.
+**After updating:** reload the NCode extension in `chrome://extensions`, then refresh your open ChatGPT tabs.
 
 ## [2.1.15] — New ChatGPT layout
 
-ChatGPT rolled out a new layout, and it broke parts of Chat On Steroids. This release makes everything work with it again.
+ChatGPT rolled out a new layout, and it broke parts of NCode. This release makes everything work with it again.
 
 ### Fixed
 
@@ -831,7 +831,7 @@ ChatGPT rolled out a new layout, and it broke parts of Chat On Steroids. This re
 
 - OpenAI's tunnel client is updated to the current version (v0.0.15).
 
-**After updating:** reload the Chat On Steroids extension in `chrome://extensions`, then refresh your open ChatGPT tabs.
+**After updating:** reload the NCode extension in `chrome://extensions`, then refresh your open ChatGPT tabs.
 
 ## [2.1.14] — Death to Anthropic and OpenAI. Join the resistance @dummerspast39 x
 
@@ -1260,7 +1260,7 @@ Windows/macOS/Linux build matrix can be published under a fresh tag instead of t
   runtime rather than depending on legacy FUSE2, and public artifacts remain `x64`/`arm64` even
   though individual Linux packaging formats use different native architecture aliases internally.
 - **Linux desktop identity is explicit.** `desktopName` and `StartupWMClass` now share the
-  `com.chatonsteroids.app` identity so installed launchers can associate the running Electron window
+  `com.ncode.app` identity so installed launchers can associate the running Electron window
   with the generated desktop entry.
 - **The app packaging icon is generated at 1024×1024** for Retina-quality macOS ICNS conversion;
   the Chrome extension keeps its existing 16/32/48/128 icon set.
@@ -2219,7 +2219,7 @@ nothing in that section has reached anyone yet. It ships here, together with the
   that requirement, and Setup includes a direct download link for the standalone extension ZIP.
 
 ### Fixed
-- **Sub-agents can be enabled without restarting Chat On Steroids.** Swarm persistence hooks are
+- **Sub-agents can be enabled without restarting NCode.** Swarm persistence hooks are
   now wired for the lifetime of the main process instead of only when multi-agent was enabled at
   startup, so the first `spawn` after enabling the feature can cross its durable acceptance
   barrier normally.
@@ -2269,10 +2269,10 @@ nothing in that section has reached anyone yet. It ships here, together with the
 ## [1.9.3] — 2026-08-21
 
 ### Changed
-- **The app is now called Chat On Steroids.** The installer, the window, the connector
+- **The app is now called NCode.** The installer, the window, the connector
   names and the extension all use the new name. Two consequences on upgrade: the new
   build installs alongside the old one rather than over it, and settings live in a new
-  folder (`%APPDATA%\chat-on-steroids\`), so the stored API key and recorded sessions
+  folder (`%APPDATA%\ncode\`), so the stored API key and recorded sessions
   do not carry across. **Reload the extension** — the bridge handshake changed with the
   name, and an old extension is refused with a visible error rather than failing quietly.
 - **`spawn` takes a shared `context`.** The repository, the conventions file, what not to
@@ -2358,5 +2358,5 @@ Pre-public beta milestone.
 ### Added
 - Transactional batch edits and process output cursors.
 
-[1.9.5]: https://github.com/totec448-spec/chat-on-steroids/releases/tag/v1.9.5
-[1.9.4]: https://github.com/totec448-spec/chat-on-steroids/releases/tag/v1.9.4
+[1.9.5]: https://github.com/totec448-spec/ncode/releases/tag/v1.9.5
+[1.9.4]: https://github.com/totec448-spec/ncode/releases/tag/v1.9.4
