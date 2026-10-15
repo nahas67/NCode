@@ -1,5 +1,3 @@
-<p align="center"><img src="docs/images/readme-hero.svg?v=2" width="960" alt="NCode — a desktop workspace around Gemini Web. Your files. Your terminal. Your Gemini plan." /></p>
-
 <p align="center">
   <a href="https://github.com/nahas67/NCode/releases/latest/download/NCode-x64-Setup.exe"><img src="docs/images/download-windows.svg" width="208" height="56" alt="Download for Windows x64" /></a>&nbsp;
   <a href="https://github.com/nahas67/NCode/releases/latest/download/NCode-arm64-macOS.dmg"><img src="docs/images/download-macos.svg" width="208" height="56" alt="Download for macOS Apple silicon" /></a>&nbsp;
@@ -12,9 +10,7 @@
 
 <br />
 
-<p align="center"><a href="docs/images/demo.mp4"><img src="docs/images/demo.gif" width="960" alt="NCode in action: model selection, task plans, live tool results and reusable workers" /></a></p>
-
-<p align="center"><a href="#get-started">Get started</a> &nbsp;·&nbsp; <a href="docs/images/demo.mp4">Watch the demo</a> &nbsp;·&nbsp; <a href="CHANGELOG.md">What's new</a></p>
+<p align="center"><a href="#get-started">Get started</a> &nbsp;·&nbsp; <a href="CHANGELOG.md">What's new</a></p>
 
 <br />
 
