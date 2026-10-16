@@ -42,7 +42,7 @@ import { setSecret } from './secrets.js';
 import { getConfig } from './config.js';
 import { isReasoningEffort, type ReasoningEffort } from '../shared/session.js';
 import { activeSessionId, notifyChanged, sessionForConversation, sessionIdForConversation } from './session/recorder.js';
-import { upsertMessageEvent } from './session/store.js';
+import { appendEvent, upsertMessageEvent } from './session/store.js';
 import type { NCodeCheckpoint, NCodePlanStep, NCodeToolResult } from '../shared/ncode-protocol.js';
 import { logInfo, logWarn } from './logger.js';
 import { APP_VERSION, BRIDGE_PROTOCOL } from './version.js';
@@ -303,11 +303,7 @@ async function recordNCodeTurn(conversationId: string | null, text: string, fina
   const conversation = conversationId?.replace(/^c_/, '') ?? null;
   const clean = stripNCodeTags(text);
   if (!clean) return;
-  // The conversation id is the exact owner of a turn; the active session is only the fallback for
-  // an unbound turn, otherwise the first NCode chat would capture every later conversation.
-  const sessionId = (conversation ? sessionIdForConversation(conversation) : null)
-    ?? activeSessionId()
-    ?? (conversation ? await sessionForConversation(conversation) : null);
+  const sessionId = await resolveNCodeSession(conversation);
   if (!sessionId) return;
   try {
     await upsertMessageEvent(sessionId, {
@@ -323,6 +319,98 @@ async function recordNCodeTurn(conversationId: string | null, text: string, fina
     notifyChanged(sessionId);
   } catch (error) {
     logWarn(`[NCode] transcript turn update failed: ${(error as Error).message}`);
+  }
+}
+
+/**
+ * Which session an NCode conversation writes to.
+ *
+ * The conversation id is the exact owner of a turn; the active session is only the fallback for
+ * an unbound turn, otherwise the first NCode chat would capture every later conversation.
+ */
+async function resolveNCodeSession(conversationId: string | null): Promise<string | null> {
+  return (conversationId ? sessionIdForConversation(conversationId) : null)
+    ?? activeSessionId()
+    ?? (conversationId ? await sessionForConversation(conversationId) : null);
+}
+
+/**
+ * A tool the desktop ran on Gemini's behalf, recorded in the same transcript as the turn it
+ * belongs to, so the chat window shows the live call and its output rather than only the reply.
+ *
+ * The extension reports the conversation beside the call, which is turn-grade evidence: the page
+ * said which chat asked. There is no inbound x-request-id on this path, so `requestId` stays null
+ * and the placement method says so instead of borrowing a stronger grade.
+ */
+async function recordNCodeToolCall(call: {
+  conversationId: string | null;
+  callId: string;
+  tool: string;
+  args: Record<string, unknown>;
+  status: 'ok' | 'error';
+  stdout: string;
+  stderr: string;
+  durationMs: number;
+}): Promise<void> {
+  const sessionId = await resolveNCodeSession(call.conversationId);
+  if (!sessionId) return;
+  const conversation = call.conversationId?.replace(/^c_/, '') ?? null;
+  const argsText = JSON.stringify(call.args);
+  const output = [call.stdout, call.stderr].filter(part => part.trim()).join('\n');
+  const ok = call.status === 'ok';
+  try {
+    await appendEvent(sessionId, {
+      time: Date.now(),
+      source: 'app',
+      kind: 'tool_call',
+      call: {
+        callId: call.callId,
+        tool: call.tool,
+        attribution: 'turn',
+        requestId: null,
+        conversationId: conversation,
+        attributionMethod: 'unattributed',
+        args: { text: argsText, chars: argsText.length, truncated: false },
+        result: { text: output, chars: output.length, truncated: false },
+        outcome: ok ? 'ok' : 'tool_execution_error',
+        durationMs: call.durationMs,
+        summary: {
+          title: call.tool,
+          ...(ok ? {} : { detail: call.stderr.trim().slice(0, 200) }),
+          tone: ok ? 'good' : 'bad',
+          kind: 'other'
+        }
+      }
+    });
+    notifyChanged(sessionId);
+  } catch (error) {
+    logWarn(`[NCode] transcript tool record failed: ${(error as Error).message}`);
+  }
+}
+
+/**
+ * Close the turn in the transcript when a reply finishes without a pending tool call.
+ *
+ * The composer's Stop control is derived state over the outbox row and the live turn, so ending the
+ * turn here — with the assistant message already committed final — is what returns the button to
+ * Send and the session to idle.
+ */
+async function closeNCodeTurn(conversationId: string | null): Promise<void> {
+  const sessionId = await resolveNCodeSession(conversationId);
+  if (!sessionId) return;
+  const conversation = conversationId?.replace(/^c_/, '') ?? null;
+  try {
+    await appendEvent(sessionId, {
+      time: Date.now(),
+      source: 'app',
+      kind: 'turn_end',
+      turnId: `ncode:${conversation ?? 'unbound'}`,
+      outcome: 'completed',
+      detail: 'the Gemini reply completed without a pending tool call'
+    });
+    notifyChanged(sessionId);
+  } catch (error) {
+    logWarn(`[NCode] transcript turn end failed: ${(error as Error).message}`);
   }
 }
 
@@ -567,6 +655,8 @@ async function handleClientMessage(client: WebSocket, raw: string): Promise<void
       const callId = String(msg.id ?? `call-${Date.now()}`);
       const tool = String(msg.tool ?? '');
       const args = (msg.args && typeof msg.args === 'object' ? msg.args : {}) as Record<string, unknown>;
+      const startedAt = Date.now();
+      const conversationId = typeof msg.conversationId === 'string' ? msg.conversationId : null;
       toolCallCount += 1;
 
       // ncode-tools falls back to process.cwd() when given no workspace, which for a packaged
@@ -583,6 +673,16 @@ async function handleClientMessage(client: WebSocket, raw: string): Promise<void
           stderr: 'No shared folder is configured, so there is nowhere safe to run this. Pick a folder in Setup and retry.'
         };
         logWarn(`ncode-bridge: refused ${tool} [${callId}] — no configured workspace root`);
+        void recordNCodeToolCall({
+          conversationId,
+          callId,
+          tool,
+          args,
+          status: 'error',
+          stdout: '',
+          stderr: refused.stderr,
+          durationMs: Date.now() - startedAt
+        });
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({
             type: 'MCP_RESULT',
@@ -602,6 +702,18 @@ async function handleClientMessage(client: WebSocket, raw: string): Promise<void
         tool,
         args,
         workspaceDir: workspace
+      });
+
+      // The chat window shows the call and its output beside the turn that asked for it.
+      void recordNCodeToolCall({
+        conversationId,
+        callId,
+        tool,
+        args,
+        status: result.status === 'success' ? 'ok' : 'error',
+        stdout: result.stdout,
+        stderr: result.stderr,
+        durationMs: Date.now() - startedAt
       });
 
       if (client.readyState === WebSocket.OPEN) {
@@ -642,7 +754,16 @@ async function handleClientMessage(client: WebSocket, raw: string): Promise<void
     }
 
     case 'NCODE_TURN_COMPLETE': {
-      void recordNCodeTurn(typeof msg.conversationId === 'string' ? msg.conversationId : null, String(msg.text || ''), msg.hasToolCall !== true);
+      // `displayText` is the reply with the agent directives stripped; the raw `text` stays the
+      // fallback for a companion that predates the field.
+      const conversationId = typeof msg.conversationId === 'string' ? msg.conversationId : null;
+      const displayText = typeof msg.displayText === 'string' && msg.displayText.trim()
+        ? msg.displayText
+        : String(msg.text || '');
+      const pendingToolCall = msg.hasToolCall === true;
+      void recordNCodeTurn(conversationId, displayText, !pendingToolCall);
+      // No tool call pending means the turn is over: close it so the composer leaves its busy state.
+      if (!pendingToolCall) void closeNCodeTurn(conversationId);
       break;
     }
 
@@ -694,6 +815,9 @@ async function handleClientMessage(client: WebSocket, raw: string): Promise<void
       latestFinish = String(msg.summary ?? '');
       logInfo(`ncode-bridge: received task finish: ${latestFinish}`);
       for (const listener of listeners.finish) listener(latestFinish);
+      // A finish is the model's own end-of-task, which closes the turn whether or not the
+      // completion frame carried the conversation id.
+      void closeNCodeTurn(typeof msg.conversationId === 'string' ? msg.conversationId : null);
       break;
     }
 

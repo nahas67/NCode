@@ -7,6 +7,7 @@
   "homepage": "https://github.com/ncode/ncode",
   "main": "out/main/index.js",
   "scripts": {
+    "predev": "node scripts/ensure-electron.mjs",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",

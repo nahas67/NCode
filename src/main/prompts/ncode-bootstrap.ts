@@ -136,7 +136,13 @@ Please review your resumed state, emit an updated <ncode_plan>, and proceed with
   prompt += `## USER OBJECTIVE
 ${goal}
 
-Begin by inspecting the workspace or planning your tasks. Emit your <ncode_plan> and first <ncode_tool> call now.`;
+If the objective is a conversation — a greeting, a question about the workspace, an explanation, or
+anything else that needs no file read, shell command or edit — answer it directly in plain prose.
+A plain answer is a complete turn: end it with <ncode_finish> when nothing further is owed, or with
+no tags at all. Do not emit a plan, a tool call or a checkpoint for work that does not exist.
+
+If the objective is a coding or project task, begin by inspecting the workspace or planning your
+tasks, then emit your <ncode_plan> and first <ncode_tool> call now.`;
 
   return prompt;
 }

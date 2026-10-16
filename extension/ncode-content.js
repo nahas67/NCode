@@ -854,6 +854,25 @@
   }
 
   /**
+   * The prose a person reads: the `<ncode_*>` directive blocks are agent protocol, not chat text,
+   * so the bubble shows the reply with them removed. The host repeats the same strip on `text`
+   * for turns that never carried a `displayText`; one frame carrying both keeps the raw text
+   * available for parsing while the user only ever sees clean prose.
+   */
+  function stripNCodeTags(text) {
+    return String(text || '')
+      .replace(/<ncode_plan[\s\S]*?<\/ncode_plan>/gi, '')
+      .replace(/<ncode_tool[^>]*>[\s\S]*?<\/ncode_tool>/gi, '')
+      .replace(/<ncode_result[^>]*\/>/gi, '')
+      .replace(/<ncode_result[\s\S]*?<\/ncode_result>/gi, '')
+      .replace(/<ncode_checkpoint[\s\S]*?<\/ncode_checkpoint>/gi, '')
+      .replace(/<ncode_finish[\s\S]*?<\/ncode_finish>/gi, '')
+      .replace(/<\/?ncode_[a-z]+[^>]*>/gi, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  /**
    * Evaluates the latest generation output when a turn finishes.
    */
   async function onTurnCompleted() {
@@ -873,10 +892,13 @@
     });
 
     // 0. The chat window always gets the reply, tag or no tag. A plain conversational answer used
-    //    to vanish here because only tag branches sent anything to the bridge.
+    //    to vanish here because only tag branches sent anything to the bridge. `displayText` is
+    //    the prose a person reads: the raw <ncode_*> directives are activity, not text, and the
+    //    host renders them as structured items instead of leaking the wrappers into the bubble.
     sendBridgeMessage({
       type: 'NCODE_TURN_COMPLETE',
       text: rawText,
+      displayText: stripNCodeTags(rawText),
       conversationId: currentConversationId(),
       hasToolCall: Boolean(parsed.toolCall),
       hasFinish: Boolean(parsed.finish)
@@ -923,7 +945,7 @@
 
     // 3. Task Finish
     if (parsed.finish) {
-      sendBridgeMessage({ type: 'NCODE_FINISH', summary: parsed.finish.summary });
+      sendBridgeMessage({ type: 'NCODE_FINISH', summary: parsed.finish.summary, conversationId: currentConversationId() });
       console.log('[NCode] Task marked complete by model:', parsed.finish.summary);
       return;
     }
@@ -935,7 +957,8 @@
         type: 'MCP_CALL',
         id: parsed.toolCall.id,
         tool: parsed.toolCall.tool,
-        args: parsed.toolCall.args
+        args: parsed.toolCall.args,
+        conversationId: currentConversationId()
       });
       return;
     }

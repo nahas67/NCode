@@ -227,9 +227,11 @@ it('waits for the Gemini tab while the bridge listens, then still sends without 
 it('notes the missing Gemini tab instead of the tunnel ID when the bridge is listening', async () => {
   ports.ncode.state = { extension: false, bridge: true };
   await sendDesktopInput({ ...request, text: 'hy' });
+  // The send asks the extension to open a Gemini tab first, so the note only lands after that
+  // bounded wake window (GEMINI_TAB_WAIT_MS) closes with no companion.
   await vi.waitFor(
     () => expect(ports.note).toHaveBeenCalledWith(request.id, 'Waiting for the Gemini tab. Open gemini.google.com and send again.'),
-    { timeout: 8000 }
+    { timeout: 20000 }
   );
   expect(ports.connect).not.toHaveBeenCalled();
   expect(ports.open).not.toHaveBeenCalled();

@@ -2937,6 +2937,20 @@ function closeWakeSocket() {
   const previous = wakeSocket; wakeSocket = null;
   if (previous) previous.close();
 }
+/**
+ * Open `https://gemini.google.com/app` when this browser holds no live Gemini tab at all.
+ *
+ * The desktop asks for this when a send has no companion to talk to. A discarded or frozen tab
+ * answers the URL query but has no page, so those count as absent: the companion can only arrive
+ * once the page is really there.
+ */
+async function ensureGeminiTab() {
+  let observed = [];
+  try { observed = await chrome.tabs.query({ url: GEMINI_TAB_URLS }); } catch { return; }
+  const live = observed.some(tab => tab && typeof tab.id === 'number' && tab.discarded !== true && tab.frozen !== true);
+  if (live) return;
+  await createChatTab('https://gemini.google.com/app');
+}
 function connectWakeSocket() {
   if (!token || disconnected || !port || typeof WebSocket === 'undefined') return;
   // Which copy this is, never a credential: the token goes in the first message, below.
@@ -2957,6 +2971,9 @@ function connectWakeSocket() {
     else if (event.data === 'wake') {
       void pumpBrowserControl().catch(() => undefined);
       void maintain(true).catch(() => undefined);
+      // A send that found no companion needs a page to talk to. maintain() opens only the chat the
+      // app is owed for an outbox entry; with none recorded, open the app route directly.
+      void ensureGeminiTab().catch(() => undefined);
     }
   };
   connection.onerror = () => connection.close();

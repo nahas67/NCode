@@ -2,6 +2,7 @@
 import { connect, getStatus, onStatusChange } from '../connection.js';
 import { startBridge, legacyBridgeListenerEnabled } from '../bridge.js';
 import { wakeBrowserUrl, resetBrowserStartupForTests } from '../browser-startup.js';
+import { wakeBrowserWork } from '../browser-wake.js';
 import { getConfig } from '../config.js';
 import { enqueueInput, cancelInput, listInputs, noteInputStartupError, noteNCodeDelivery, type InputArgs, type InputEntry } from './input.js';
 import { isExtensionConnected, getNCodeConnectionState, onNCodeConnection, startGoalInGemini, sendUserMessageToGemini, getLatestPlan, getLatestFinish } from '../ncode-bridge.js';
@@ -56,14 +57,17 @@ async function ready(signal?: AbortSignal): Promise<void> {
  * path, which is why a missing or malformed tunnel can never hold a message again.
  */
 const EXTENSION_WAIT_MS = 2000;
+// A send that found no companion has to launch a browser and load a Gemini page, which is a
+// different order of work than the two-second companion hiccup above.
+const GEMINI_TAB_WAIT_MS = 12000;
 // A note about the Gemini tab, not a connector diagnosis: while the bridge listens, the OpenAI
 // connector and the Cloudflare tunnel ID it demands are not part of this send at all.
 const GEMINI_TAB_WAIT_NOTE = 'Waiting for the Gemini tab. Open gemini.google.com and send again.';
-async function waitForExtension(signal?: AbortSignal): Promise<boolean> {
+async function waitForExtension(signal?: AbortSignal, timeoutMs = EXTENSION_WAIT_MS): Promise<boolean> {
   if (isExtensionConnected()) return true;
   return await new Promise<boolean>((resolve) => {
     let unsubscribe = () => {};
-    const timer = setTimeout(() => { unsubscribe(); signal?.removeEventListener('abort', abort); resolve(isExtensionConnected()); }, EXTENSION_WAIT_MS);
+    const timer = setTimeout(() => { unsubscribe(); signal?.removeEventListener('abort', abort); resolve(isExtensionConnected()); }, timeoutMs);
     timer.unref?.();
     const abort = () => { clearTimeout(timer); unsubscribe(); resolve(false); };
     signal?.addEventListener('abort', abort, { once: true });
@@ -108,9 +112,14 @@ async function startAcceptedInput(entry: InputEntry, controller: AbortController
     const connection = getNCodeConnectionState();
     if (connection.bridge) {
       // The NCode bridge is listening, so this send never consults the ChatGPT connector: no
-      // connect(), no startTunnel, and therefore no tunnel-ID requirement can hold it. Wait a
-      // bounded moment for the Gemini tab, deliver the turn, and stop there either way.
-      const connected = connection.extension || await waitForExtension(controller.signal);
+      // connect(), no startTunnel, and therefore no tunnel-ID requirement can hold it.
+      let connected = connection.extension;
+      if (!connected) {
+        // No companion yet. Ask the extension to bring up a Gemini tab — it opens
+        // https://gemini.google.com/app when this browser holds none — then wait for the relay.
+        wakeBrowserWork('wake');
+        connected = await waitForExtension(controller.signal, GEMINI_TAB_WAIT_MS);
+      }
       controller.signal.throwIfAborted();
       if (connected) {
         const delivered = await deliverOverNCode(entry);
